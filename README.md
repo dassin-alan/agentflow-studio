@@ -36,6 +36,10 @@ index.html
 
 No install step is required for v0.1.
 
+## Preview
+
+![AgentFlow Studio Preview](./docs/images/preview.png)
+
 ## Why This Exists
 
 Most AI coding workflows still happen as loose copy-paste between tools. AgentFlow Studio focuses on the missing coordination layer:
@@ -47,6 +51,16 @@ Most AI coding workflows still happen as loose copy-paste between tools. AgentFl
 - what final output can be handed off
 
 The project is not about binding users to one model. The long-term goal is a portable agent protocol and workflow engine.
+
+## Design Principles
+
+AgentFlow Studio follows a few simple principles:
+
+- Human-in-the-loop first: users can manually route, inspect, and edit every step.
+- Protocol over platform: agents should be replaceable through a portable schema.
+- Local-first MVP: the first version should run without backend services or API keys.
+- Review before delivery: generated outputs should pass through review and QA steps.
+- Extensible by design: workflows, agents, and adapters should be configurable.
 
 ## Architecture
 
@@ -68,21 +82,27 @@ flowchart TD
 
 ```text
 agentflow-studio/
-├── index.html
-├── README.md
-├── ROADMAP.md
-├── LICENSE
-├── .gitignore
-├── .env.example
-├── docs/
-│   └── agent-protocol.md
-├── templates/
-│   ├── agents.yaml
-│   └── workflow.yaml
-└── examples/
-    └── 3d-earth-demo/
-        └── workflow.yaml
+|-- index.html
+|-- README.md
+|-- ROADMAP.md
+|-- LICENSE
+|-- .gitignore
+|-- .env.example
+|-- docs/
+|   |-- agent-protocol.md
+|   `-- images/
+|       `-- preview.png
+|-- templates/
+|   |-- agents.yaml
+|   `-- workflow.yaml
+`-- examples/
+    `-- 3d-earth-demo/
+        `-- workflow.yaml
 ```
+
+## Contributing
+
+The project is early. Useful contributions include workflow examples, protocol feedback, manual orchestration UX improvements, and adapter design proposals.
 
 ## Roadmap
 

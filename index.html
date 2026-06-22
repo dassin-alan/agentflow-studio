@@ -563,6 +563,9 @@
           <div class="actions">
             <button class="btn primary" id="summarizeBtn">Generate Final Output</button>
             <button class="btn" id="copyBtn">Copy Markdown</button>
+            <button class="btn" id="exportJsonBtn">Export JSON</button>
+            <button class="btn" id="importJsonBtn">Import JSON</button>
+            <input id="importJsonInput" type="file" accept="application/json,.json" hidden>
           </div>
         </div>
       </div>
@@ -577,13 +580,13 @@
 
   <script>
     const agents = [
-      { id: "commander", name: "Commander", role: "Planner", desc: "Clarifies goal, splits work, and owns final decisions." },
-      { id: "coder", name: "Coder", role: "Build", desc: "Implements the core feature or artifact." },
-      { id: "ui", name: "UI Designer", role: "Visual", desc: "Improves layout, visual hierarchy, and interaction polish." },
-      { id: "automation", name: "Automation", role: "Ops", desc: "Runs scripts, packaging steps, and repeatable checks." },
-      { id: "reviewer", name: "Reviewer", role: "Review", desc: "Checks architecture, maintainability, and risks." },
-      { id: "tester", name: "Tester", role: "QA", desc: "Validates behavior, edge cases, and user-facing quality." },
-      { id: "docs", name: "Docs Agent", role: "Docs", desc: "Turns the run into docs, release notes, or handoff text." }
+      { id: "commander", name: "X / Commander", role: "Planner", desc: "Clarifies goal, splits work, and owns final decisions." },
+      { id: "coder", name: "Claude Code / Coder", role: "Build", desc: "Implements the core feature or artifact." },
+      { id: "ui", name: "Antigravity / UI Designer", role: "Visual", desc: "Improves layout, visual hierarchy, and interaction polish." },
+      { id: "automation", name: "Hermes / Automation", role: "Ops", desc: "Runs scripts, packaging steps, and repeatable checks." },
+      { id: "reviewer", name: "opencode / Reviewer", role: "Review", desc: "Checks architecture, maintainability, and risks." },
+      { id: "tester", name: "Resonix / Tester", role: "QA", desc: "Validates behavior, edge cases, and user-facing quality." },
+      { id: "docs", name: "Mimo Code / Docs & Assistant", role: "Docs", desc: "Turns the run into docs, release notes, or handoff text." }
     ];
 
     const columns = [
@@ -755,12 +758,19 @@
 
     function renderProtocol() {
       const sample = {
-        id: "task-001",
-        title: "Build 3D Earth Website",
-        assigned_to: "coder",
-        status: "planned",
-        expected_output: "single HTML file",
-        handoff: "manual"
+        task_id: "task-001",
+        workflow_id: "frontend-demo",
+        agent: "coder",
+        role: "Code Engineer",
+        goal: "Build a cyberpunk 3D earth website",
+        constraints: [
+          "single HTML file",
+          "mouse rotation",
+          "wheel zoom",
+          "manual handoff"
+        ],
+        expected_output: "HTML code",
+        handoff_mode: "human-in-the-loop"
       };
       document.getElementById("protocolView").textContent = JSON.stringify(sample, null, 2);
     }
@@ -820,6 +830,55 @@
       }
     }
 
+    function createRunRecord() {
+      return {
+        version: "0.1.0",
+        exported_at: new Date().toISOString(),
+        goal: document.getElementById("goalInput").value.trim(),
+        agents,
+        tasks,
+        logs,
+        final_markdown: finalMarkdown
+      };
+    }
+
+    function exportRunJson() {
+      const record = createRunRecord();
+      const blob = new Blob([JSON.stringify(record, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "agentflow-run.json";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      addLog("Automation", "Exported run record as JSON.");
+    }
+
+    function importRunJson(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = event => {
+        try {
+          const record = JSON.parse(event.target.result);
+          tasks = Array.isArray(record.tasks) ? record.tasks : [];
+          logs = Array.isArray(record.logs) ? record.logs : [];
+          finalMarkdown = record.final_markdown || "";
+          document.getElementById("goalInput").value = record.goal || "";
+          document.getElementById("finalOutput").textContent = finalMarkdown || "";
+          if (!finalMarkdown) {
+            document.getElementById("finalOutput").innerHTML = '<span class="empty">Imported run has no final markdown yet.</span>';
+          }
+          renderAll();
+          addLog("Automation", "Imported run record from JSON.");
+        } catch (error) {
+          addLog("Automation", "Import failed. The selected file is not a valid AgentFlow JSON record.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
     function loadExample() {
       document.getElementById("goalInput").value = "Build a cyberpunk 3D earth website with mouse rotation, wheel zoom, glowing atmosphere, and a single-file HTML delivery.";
       addLog("System", "Loaded the 3D Earth example request.");
@@ -849,6 +908,12 @@
     document.getElementById("resetBtn").addEventListener("click", reset);
     document.getElementById("summarizeBtn").addEventListener("click", generateFinalOutput);
     document.getElementById("copyBtn").addEventListener("click", copyMarkdown);
+    document.getElementById("exportJsonBtn").addEventListener("click", exportRunJson);
+    document.getElementById("importJsonBtn").addEventListener("click", () => document.getElementById("importJsonInput").click());
+    document.getElementById("importJsonInput").addEventListener("change", event => {
+      importRunJson(event.target.files[0]);
+      event.target.value = "";
+    });
 
     renderAll();
     addLog("System", "AgentFlow v0.1 static workspace initialized.");

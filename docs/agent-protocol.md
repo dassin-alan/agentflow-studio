@@ -19,21 +19,19 @@ AgentFlow v0.1 uses this document as a draft contract. The web demo is manual, b
 
 ```json
 {
-  "id": "task-001",
-  "title": "Generate core code",
-  "type": "frontend",
-  "assigned_to": "coder",
-  "status": "planned",
-  "input": {
-    "goal": "Create an interactive 3D Earth website",
-    "constraints": [
-      "single HTML file",
-      "mouse rotation",
-      "wheel zoom",
-      "cyberpunk style"
-    ]
-  },
-  "expected_output": "HTML code"
+  "task_id": "task-001",
+  "workflow_id": "frontend-demo",
+  "agent": "coder",
+  "role": "Code Engineer",
+  "goal": "Build a cyberpunk 3D earth website",
+  "constraints": [
+    "single HTML file",
+    "mouse rotation",
+    "wheel zoom",
+    "manual handoff"
+  ],
+  "expected_output": "HTML code",
+  "handoff_mode": "human-in-the-loop"
 }
 ```
 
