@@ -1,0 +1,135 @@
+# ============================================================
+# AgentFlow — Agent Configuration
+# ============================================================
+# Define your AI agent team here.
+# Each agent has a role, a preferred model, and a description.
+#
+# Fields:
+#   id           — Unique identifier (used in workflow steps)
+#   name         — Display name
+#   source_tool  — Real tool this maps to (for personal team setup)
+#   role         — Functional role in the team
+#   provider     — Model provider (deepseek, anthropic, openai, gemini, mimo)
+#   adapter      — How this agent is invoked (manual | api | shell | http)
+#   model        — Preferred model (provider-agnostic)
+#   fallback     — Fallback model if primary is unavailable
+#   description  — What this agent does best
+#   icon         — Emoji or icon identifier
+#   enabled      — Whether this agent is active
+#
+# NOTE: source_tool and provider are optional hints for personal team setup.
+# Remove them to keep the config fully generic for any community user.
+# ============================================================
+
+agents:
+  # --- Commander ---
+  - id: commander
+    name: Commander
+    source_tool: X
+    role: Task Planner & Architect
+    provider: openai-compatible
+    adapter: manual
+    model: gpt-5.5
+    fallback: claude-opus-4.6
+    description: >
+      Analyzes requirements, decomposes complex tasks into subtasks,
+      designs technical architecture, makes final decisions on approach,
+      and synthesizes results from other agents.
+    icon: 🎯
+    enabled: true
+
+  # --- Coder ---
+  - id: coder
+    name: Coder
+    source_tool: Claude Code
+    role: Code Engineer
+    provider: deepseek
+    adapter: manual
+    model: deepseek-v4-pro
+    fallback: claude-sonnet-4.6
+    description: >
+      Core implementation agent. Handles complex logic, system design,
+      refactoring, and performance-critical code. Produces clean,
+      well-structured, production-ready code.
+    icon: 💻
+    enabled: true
+
+  # --- UI Designer ---
+  - id: ui_designer
+    name: UI Designer
+    source_tool: Antigravity
+    role: Frontend & Visual Designer
+    provider: gemini
+    adapter: manual
+    model: gemini-3.1-pro
+    fallback: claude-sonnet-4.6
+    description: >
+      Frontend UI specialist. Designs visual interfaces, interactions,
+      animations, and prototypes. Focuses on user experience, accessibility,
+      and pixel-perfect implementation.
+    icon: 🎨
+    enabled: true
+
+  # --- Automation ---
+  - id: automation
+    name: Automation Runner
+    source_tool: Hermes
+    role: Script & Tool Execution
+    provider: mimo
+    adapter: manual
+    model: mimo-v2.5-pro
+    fallback: claude-haiku-4.6
+    description: >
+      Executes scripts, CLI commands, file operations, and workflow
+      automation tasks. Handles build processes, deployments, and
+      repetitive operations efficiently.
+    icon: ⚡
+    enabled: true
+
+  # --- Reviewer ---
+  - id: reviewer
+    name: Reviewer
+    source_tool: opencode
+    role: Senior Code Reviewer
+    provider: anthropic-compatible
+    adapter: manual
+    model: claude-opus-4.6
+    fallback: claude-sonnet-4.6
+    description: >
+      Architecture and code quality reviewer. Checks for correctness,
+      security vulnerabilities, performance issues, and design problems.
+      Provides actionable, constructive feedback.
+    icon: 🔍
+    enabled: true
+
+  # --- Tester ---
+  - id: tester
+    name: Tester
+    source_tool: Resonix
+    role: QA Engineer
+    provider: deepseek
+    adapter: manual
+    model: deepseek-v4-flash
+    fallback: deepseek-v4-pro
+    description: >
+      Quality assurance specialist. Generates test cases, reproduces bugs,
+      provides UX feedback, writes test scripts, and produces quality reports.
+      Catches edge cases other agents miss.
+    icon: 🧪
+    enabled: true
+
+  # --- Assistant ---
+  - id: assistant
+    name: Assistant
+    source_tool: Mimo Code
+    role: Documentation & Support Engineer
+    provider: mimo
+    adapter: manual
+    model: mimo-v2.5-pro
+    fallback: claude-haiku-4.6
+    description: >
+      Handles documentation, README generation, code comments, small bug
+      fixes, and routine maintenance tasks. The reliable utility player
+      of the team.
+    icon: 📝
+    enabled: true

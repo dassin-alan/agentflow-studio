@@ -1,0 +1,275 @@
+# ============================================================
+# AgentFlow — Workflow Configuration
+# ============================================================
+# Define reusable workflows as sequences of steps.
+# Each step references an agent by id (from agents.yaml).
+#
+# Fields:
+#   name         — Workflow display name
+#   description  — What this workflow accomplishes
+#   triggers     — Events or keywords that suggest this workflow
+#   steps:
+#     id         — Step identifier
+#     agent      — Agent id (references agents.yaml)
+#     action     — What the agent should do
+#     depends_on — Step id(s) that must complete first
+#     handoff_mode — How this step hands off (manual | api | shell | http)
+#     input      — Input hints for the agent
+#     timeout    — Max seconds for this step (0 = no limit)
+#   output       — Description of final output
+# ============================================================
+
+workflows:
+  # --- Frontend Project Workflow ---
+  - name: Frontend Project
+    description: >
+      Generate a complete frontend project from a user request.
+      Covers requirements analysis, implementation, visual polish,
+      code review, testing, and documentation.
+    triggers:
+      - "build a website"
+      - "create a frontend"
+      - "make a page"
+      - "前端项目"
+      - "网页"
+    steps:
+      - id: analyze
+        agent: commander
+        action: analyze_requirements
+        depends_on: []
+        handoff_mode: manual
+        input: "User request description"
+        timeout: 120
+
+      - id: plan
+        agent: commander
+        action: create_technical_plan
+        depends_on: [analyze]
+        handoff_mode: manual
+        input: "Requirements from analysis step"
+        timeout: 180
+
+      - id: implement
+        agent: coder
+        action: generate_code
+        depends_on: [plan]
+        handoff_mode: manual
+        input: "Technical plan and requirements"
+        timeout: 600
+
+      - id: polish_ui
+        agent: ui_designer
+        action: improve_visual_design
+        depends_on: [implement]
+        handoff_mode: manual
+        input: "Generated code from implementation step"
+        timeout: 300
+
+      - id: review
+        agent: reviewer
+        action: review_code_quality
+        depends_on: [polish_ui]
+        handoff_mode: manual
+        input: "Polished code from UI designer"
+        timeout: 180
+
+      - id: test
+        agent: tester
+        action: run_quality_checks
+        depends_on: [review]
+        handoff_mode: manual
+        input: "Reviewed code and review feedback"
+        timeout: 300
+
+      - id: fix_issues
+        agent: assistant
+        action: fix_minor_issues
+        depends_on: [test]
+        handoff_mode: manual
+        input: "Test report with identified issues"
+        timeout: 300
+
+      - id: document
+        agent: assistant
+        action: generate_documentation
+        depends_on: [fix_issues]
+        handoff_mode: manual
+        input: "Final code and all previous outputs"
+        timeout: 120
+
+      - id: summarize
+        agent: commander
+        action: final_summary
+        depends_on: [document]
+        handoff_mode: manual
+        input: "All outputs across the workflow"
+        timeout: 60
+
+    output: "Complete frontend project with code, review, tests, and documentation."
+
+  # --- Code Review Workflow ---
+  - name: Code Review
+    description: >
+      Multi-lens code review. The reviewer agent examines code from
+      multiple perspectives: correctness, security, performance,
+      and maintainability. The tester agent verifies findings.
+    triggers:
+      - "review this code"
+      - "code review"
+      - "检查代码"
+      - "审查"
+    steps:
+      - id: review_correctness
+        agent: reviewer
+        action: review_correctness
+        depends_on: []
+        handoff_mode: manual
+        input: "Code to review"
+        timeout: 180
+
+      - id: review_security
+        agent: reviewer
+        action: review_security
+        depends_on: []
+        handoff_mode: manual
+        input: "Code to review"
+        timeout: 180
+
+      - id: review_performance
+        agent: reviewer
+        action: review_performance
+        depends_on: []
+        handoff_mode: manual
+        input: "Code to review"
+        timeout: 180
+
+      - id: synthesize_review
+        agent: reviewer
+        action: synthesize_findings
+        depends_on: [review_correctness, review_security, review_performance]
+        handoff_mode: manual
+        input: "Findings from all three review lenses"
+        timeout: 120
+
+      - id: verify_findings
+        agent: tester
+        action: verify_review_findings
+        depends_on: [synthesize_review]
+        handoff_mode: manual
+        input: "Synthesized review findings"
+        timeout: 300
+
+    output: "Comprehensive code review report with verified findings."
+
+  # --- Documentation Generation ---
+  - name: Documentation Generation
+    description: >
+      Generate project documentation — README, API docs, architecture
+      overview, and contribution guide — from a codebase.
+    triggers:
+      - "generate docs"
+      - "write documentation"
+      - "生成文档"
+      - "写README"
+    steps:
+      - id: analyze_codebase
+        agent: commander
+        action: analyze_project_structure
+        depends_on: []
+        handoff_mode: manual
+        input: "Project directory or repository URL"
+        timeout: 120
+
+      - id: generate_readme
+        agent: assistant
+        action: generate_readme
+        depends_on: [analyze_codebase]
+        handoff_mode: manual
+        input: "Project analysis results"
+        timeout: 180
+
+      - id: generate_api_docs
+        agent: assistant
+        action: generate_api_documentation
+        depends_on: [analyze_codebase]
+        handoff_mode: manual
+        input: "Project analysis results"
+        timeout: 300
+
+      - id: generate_architecture
+        agent: commander
+        action: generate_architecture_doc
+        depends_on: [analyze_codebase]
+        handoff_mode: manual
+        input: "Project analysis results"
+        timeout: 180
+
+      - id: review_docs
+        agent: reviewer
+        action: review_documentation_quality
+        depends_on: [generate_readme, generate_api_docs, generate_architecture]
+        handoff_mode: manual
+        input: "All generated documentation"
+        timeout: 120
+
+      - id: finalize
+        agent: assistant
+        action: apply_review_feedback
+        depends_on: [review_docs]
+        handoff_mode: manual
+        input: "Documentation and review feedback"
+        timeout: 120
+
+    output: "Complete project documentation suite."
+
+  # --- Bug Fix Workflow ---
+  - name: Bug Fix
+    description: >
+      Reproduce, diagnose, fix, and verify a bug report.
+    triggers:
+      - "fix this bug"
+      - "debug"
+      - "修bug"
+      - "修一下"
+    steps:
+      - id: reproduce
+        agent: tester
+        action: reproduce_bug
+        depends_on: []
+        handoff_mode: manual
+        input: "Bug description and reproduction steps"
+        timeout: 180
+
+      - id: diagnose
+        agent: coder
+        action: diagnose_root_cause
+        depends_on: [reproduce]
+        handoff_mode: manual
+        input: "Bug reproduction results"
+        timeout: 180
+
+      - id: implement_fix
+        agent: coder
+        action: implement_fix
+        depends_on: [diagnose]
+        handoff_mode: manual
+        input: "Root cause analysis"
+        timeout: 300
+
+      - id: review_fix
+        agent: reviewer
+        action: review_fix
+        depends_on: [implement_fix]
+        handoff_mode: manual
+        input: "Code changes for the fix"
+        timeout: 120
+
+      - id: verify_fix
+        agent: tester
+        action: verify_fix
+        depends_on: [review_fix]
+        handoff_mode: manual
+        input: "Fixed code and review feedback"
+        timeout: 180
+
+    output: "Verified bug fix with root cause analysis and test confirmation."
