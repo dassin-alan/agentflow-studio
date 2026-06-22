@@ -1,0 +1,42 @@
+name: Workflow Example
+description: Submit a new workflow example for the examples/ directory.
+labels: ["example", "good first issue"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: Workflow name
+      description: Short descriptive name for this workflow.
+      placeholder: "Deploy Static Site"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What does this workflow do?
+      description: Describe the goal, who it helps, and why it's useful.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Workflow steps
+      description: List the steps, which agent handles each, and the handoff order.
+      placeholder: |
+        1. Commander — analyze the deploy target
+        2. Coder — prepare build configuration
+        3. Automation — execute the deploy
+        4. Tester — verify the deployment
+    validations:
+      required: true
+
+  - type: textarea
+    id: yaml
+    attributes:
+      label: workflow.yaml draft (optional)
+      description: If you've already written a draft, paste it here.
+      render: yaml
+    validations:
+      required: false

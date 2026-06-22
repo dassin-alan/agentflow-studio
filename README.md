@@ -7,6 +7,10 @@ AgentFlow helps you coordinate multiple AI coding agents, automation agents, rev
 
 > ⚠️ **Current status: v0.1.0** — static prototype. Open `index.html` in your browser to see the workspace concept. No backend, no API keys required. The full Next.js + FastAPI architecture is planned for later milestones. See [ROADMAP.md](./ROADMAP.md).
 
+## Live Demo
+
+**[dassin-alan.github.io/agentflow-studio](https://dassin-alan.github.io/agentflow-studio/)**
+
 ---
 
 ## Design Principles
@@ -168,7 +172,7 @@ steps:
 
 | Version | Goal | Status |
 |---------|------|--------|
-| v0.1.0 | Static demo — agent list, task board, mock workflow | 🚧 In progress |
+| v0.1.0 | Static demo — agent list, task board, mock workflow | 🟢 Active |
 | v0.2.0 | Manual workflow — task CRUD, agent assignment, local storage | 📋 Planned |
 | v0.3.0 | Agent Protocol — standardized task input/output schema | 📋 Planned |
 | v0.4.0 | API integration — connect to real model backends | 📋 Planned |

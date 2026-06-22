@@ -1,0 +1,49 @@
+name: Bug Report
+description: Report something that's broken or not working as expected.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: What happened? What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Step-by-step instructions so we can see the same thing.
+      placeholder: |
+        1. Open index.html
+        2. Click 'Decompose Task'
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+      description: Which browser and version?
+      placeholder: "Chrome 123, Firefox 125, Edge 123"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      description: macOS, Windows, or Linux?
+      placeholder: "Windows 11, macOS 14, Ubuntu 24.04"
+    validations:
+      required: false
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else?
+      description: Screenshots, error messages, console output — anything that helps.
+    validations:
+      required: false
