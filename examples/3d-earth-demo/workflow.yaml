@@ -1,0 +1,29 @@
+name: 3d_earth_demo
+description: Example AgentFlow run for a cyberpunk 3D Earth single-file website.
+
+goal: Build a cyberpunk 3D earth website with mouse rotation, wheel zoom, glowing atmosphere, and a single-file HTML delivery.
+
+steps:
+  - id: analyze
+    agent: commander
+    prompt: Extract visual, technical, and delivery constraints.
+
+  - id: build
+    agent: coder
+    prompt: Create the core HTML, CSS, and JavaScript implementation.
+
+  - id: polish
+    agent: ui
+    prompt: Improve visual atmosphere, readability, controls, and responsive layout.
+
+  - id: review
+    agent: reviewer
+    prompt: Check maintainability, missing requirements, and risky assumptions.
+
+  - id: test
+    agent: tester
+    prompt: Verify mouse rotation, wheel zoom, load state, and mobile behavior.
+
+  - id: summarize
+    agent: docs
+    prompt: Produce usage notes and final handoff markdown.

@@ -1,0 +1,43 @@
+name: manual_development_workflow
+description: Decompose, implement, review, test, and summarize a development task.
+
+steps:
+  - id: analyze
+    agent: commander
+    action: analyze_requirements
+    expected_output: Requirements summary and acceptance criteria.
+
+  - id: plan
+    agent: commander
+    action: create_task_plan
+    expected_output: Ordered task list with assigned agents.
+
+  - id: build
+    agent: coder
+    action: create_first_version
+    expected_output: Working artifact or implementation notes.
+
+  - id: polish
+    agent: ui
+    action: improve_user_experience
+    expected_output: UI, interaction, or presentation improvements.
+
+  - id: package
+    agent: automation
+    action: package_outputs
+    expected_output: Local files, commands, or reproducible delivery notes.
+
+  - id: review
+    agent: reviewer
+    action: review_quality
+    expected_output: Issues, risks, and suggested fixes.
+
+  - id: test
+    agent: tester
+    action: validate_result
+    expected_output: Test notes and remaining gaps.
+
+  - id: summarize
+    agent: docs
+    action: create_final_record
+    expected_output: Markdown run record.

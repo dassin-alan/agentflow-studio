@@ -1,0 +1,49 @@
+agents:
+  - id: commander
+    name: Commander
+    role: Planner
+    provider: manual
+    model: external-tool
+    description: Clarifies goals, decomposes work, and makes final decisions.
+
+  - id: coder
+    name: Coder
+    role: Build
+    provider: manual
+    model: external-tool
+    description: Implements the core feature or artifact.
+
+  - id: ui
+    name: UI Designer
+    role: Visual
+    provider: manual
+    model: external-tool
+    description: Improves layout, visual hierarchy, and interaction polish.
+
+  - id: automation
+    name: Automation
+    role: Ops
+    provider: manual
+    model: local-command
+    description: Runs scripts, packages outputs, and records repeatable checks.
+
+  - id: reviewer
+    name: Reviewer
+    role: Review
+    provider: manual
+    model: external-tool
+    description: Reviews architecture, maintainability, security, and risks.
+
+  - id: tester
+    name: Tester
+    role: QA
+    provider: manual
+    model: external-tool
+    description: Validates behavior, edge cases, and user-facing quality.
+
+  - id: docs
+    name: Docs Agent
+    role: Docs
+    provider: manual
+    model: external-tool
+    description: Turns workflow results into documentation or handoff notes.

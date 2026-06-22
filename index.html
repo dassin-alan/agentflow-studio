@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AgentFlow Studio</title>
+  <style>
+    :root {
+      --bg: #f5f1e8;
+      --ink: #171511;
+      --muted: #6f6759;
+      --line: #d8cdb9;
+      --panel: #fffaf0;
+      --panel-strong: #fff3d8;
+      --accent: #0f766e;
+      --accent-dark: #0a4f49;
+      --warning: #bd5b00;
+      --danger: #9f1239;
+      --done: #166534;
+      --shadow: 0 16px 40px rgba(51, 42, 28, 0.12);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 21, 17, 0.04) 1px, transparent 1px),
+        linear-gradient(rgba(23, 21, 17, 0.04) 1px, transparent 1px),
+        var(--bg);
+      background-size: 24px 24px;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    button, textarea, input, select {
+      font: inherit;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr) 360px;
+      min-height: 100vh;
+    }
+
+    .sidebar, .inspector {
+      border-color: var(--line);
+      background: rgba(255, 250, 240, 0.82);
+      backdrop-filter: blur(12px);
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+      padding: 22px;
+    }
+
+    .inspector {
+      border-left: 1px solid var(--line);
+      padding: 22px;
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border: 2px solid var(--ink);
+      background: var(--panel-strong);
+      box-shadow: 4px 4px 0 var(--ink);
+      font-weight: 800;
+      font-family: "Courier New", monospace;
+    }
+
+    h1, h2, h3, p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 24px;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 18px 0 10px;
+      font-size: 13px;
+      text-transform: uppercase;
+      font-family: "Courier New", monospace;
+      letter-spacing: 0;
+      color: var(--muted);
+    }
+
+    .agent-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .agent {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 12px;
+      border-radius: var(--radius);
+    }
+
+    .agent-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .agent-name {
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      padding: 2px 7px;
+      border: 1px solid var(--line);
+      background: #f7ead0;
+      border-radius: 999px;
+      font-size: 11px;
+      font-family: "Courier New", monospace;
+      white-space: nowrap;
+    }
+
+    .agent-desc {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    main {
+      padding: 22px;
+      overflow: auto;
+      max-height: 100vh;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .topbar h2 {
+      font-size: 34px;
+      line-height: 1.05;
+      max-width: 720px;
+    }
+
+    .status-strip {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .status {
+      border: 1px solid var(--ink);
+      background: var(--panel-strong);
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-family: "Courier New", monospace;
+      box-shadow: 3px 3px 0 rgba(23, 21, 17, 0.9);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      background: rgba(255, 250, 240, 0.92);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 243, 216, 0.72);
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 800;
+      font-family: "Courier New", monospace;
+    }
+
+    .panel-body {
+      padding: 16px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 118px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf7;
+      color: var(--ink);
+      padding: 12px;
+      line-height: 1.45;
+      outline: none;
+    }
+
+    textarea:focus, input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--ink);
+      background: #fffdf7;
+      color: var(--ink);
+      min-height: 38px;
+      padding: 8px 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      box-shadow: 3px 3px 0 rgba(23, 21, 17, 0.9);
+      transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
+      font-weight: 700;
+    }
+
+    .btn:hover {
+      transform: translate(1px, 1px);
+      box-shadow: 2px 2px 0 rgba(23, 21, 17, 0.9);
+      background: #fff3d8;
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      color: #fffdf7;
+    }
+
+    .btn.primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .step {
+      position: relative;
+      min-height: 156px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf7;
+    }
+
+    .step::after {
+      content: "";
+      position: absolute;
+      top: 31px;
+      right: -13px;
+      width: 13px;
+      border-top: 2px solid var(--ink);
+    }
+
+    .step:nth-child(4n)::after, .step:last-child::after {
+      display: none;
+    }
+
+    .step-id {
+      font: 700 12px "Courier New", monospace;
+      color: var(--muted);
+    }
+
+    .step-title {
+      margin-top: 8px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .step-meta {
+      margin-top: 10px;
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .column {
+      min-height: 220px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 247, 0.76);
+      padding: 10px;
+    }
+
+    .column h3 {
+      font: 800 12px "Courier New", monospace;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .task-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf7;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .task-card strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.25;
+    }
+
+    .task-card small {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .log {
+      display: grid;
+      gap: 9px;
+    }
+
+    .log-item {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fffdf7;
+      font-size: 13px;
+    }
+
+    .log-time {
+      color: var(--muted);
+      font-family: "Courier New", monospace;
+    }
+
+    .output-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .output-row {
+      display: grid;
+      gap: 7px;
+    }
+
+    label {
+      font: 800 12px "Courier New", monospace;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .mini-textarea {
+      min-height: 74px;
+      font-size: 13px;
+    }
+
+    .final-output {
+      min-height: 220px;
+      white-space: pre-wrap;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px;
+      background: #fffdf7;
+      line-height: 1.45;
+      font-size: 13px;
+      overflow: auto;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    @media (max-width: 1180px) {
+      .shell {
+        grid-template-columns: 240px minmax(0, 1fr);
+      }
+
+      .inspector {
+        grid-column: 1 / -1;
+        max-height: none;
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      main, .sidebar, .inspector {
+        padding: 16px;
+        max-height: none;
+      }
+
+      .topbar {
+        display: grid;
+      }
+
+      .topbar h2 {
+        font-size: 28px;
+      }
+
+      .flow, .board {
+        grid-template-columns: 1fr;
+      }
+
+      .step::after {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">AF</div>
+        <div>
+          <h1>AgentFlow</h1>
+          <p class="subtitle">Human-in-the-loop agent workspace</p>
+        </div>
+      </div>
+
+      <div class="section-title">Agent Team <span id="agentCount">7</span></div>
+      <div class="agent-list" id="agentList"></div>
+
+      <div class="section-title">v0.1 Scope</div>
+      <div class="agent">
+        <div class="agent-name">Static Demo</div>
+        <p class="agent-desc">No backend. No model keys. Open this file and run the manual orchestration flow.</p>
+      </div>
+    </aside>
+
+    <main>
+      <div class="topbar">
+        <div>
+          <h2>Turn one rough request into a traceable multi-agent workflow.</h2>
+          <p class="subtitle">Decompose, assign, collect outputs, and export a collaboration record.</p>
+        </div>
+        <div class="status-strip">
+          <div class="status" id="taskMetric">0 tasks</div>
+          <div class="status" id="logMetric">0 logs</div>
+          <div class="status">local only</div>
+        </div>
+      </div>
+
+      <div class="workspace">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Task Intake</div>
+            <span class="tag">P0</span>
+          </div>
+          <div class="panel-body">
+            <textarea id="goalInput" aria-label="Task goal">Build a cyberpunk 3D earth website with mouse rotation, wheel zoom, glowing atmosphere, and a single-file HTML delivery.</textarea>
+            <div class="actions">
+              <button class="btn primary" id="decomposeBtn">Decompose Task</button>
+              <button class="btn" id="exampleBtn">Load Example</button>
+              <button class="btn" id="resetBtn">Reset</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Protocol Draft</div>
+            <span class="tag">portable</span>
+          </div>
+          <div class="panel-body">
+            <div class="final-output" id="protocolView"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="section-title">Workflow Graph</div>
+      <section class="panel">
+        <div class="panel-body">
+          <div class="flow" id="flowView"></div>
+        </div>
+      </section>
+
+      <div class="section-title">Task Board</div>
+      <section class="panel">
+        <div class="panel-body">
+          <div class="board" id="taskBoard"></div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="inspector">
+      <div class="section-title">Agent Outputs</div>
+      <div class="panel">
+        <div class="panel-body">
+          <div class="output-stack" id="outputInputs"></div>
+          <div class="actions">
+            <button class="btn primary" id="summarizeBtn">Generate Final Output</button>
+            <button class="btn" id="copyBtn">Copy Markdown</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Collaboration Log</div>
+      <div class="log" id="logView"></div>
+
+      <div class="section-title">Final Output</div>
+      <div class="final-output" id="finalOutput"><span class="empty">Run the workflow and collect agent notes to generate a final markdown record.</span></div>
+    </aside>
+  </div>
+
+  <script>
+    const agents = [
+      { id: "commander", name: "Commander", role: "Planner", desc: "Clarifies goal, splits work, and owns final decisions." },
+      { id: "coder", name: "Coder", role: "Build", desc: "Implements the core feature or artifact." },
+      { id: "ui", name: "UI Designer", role: "Visual", desc: "Improves layout, visual hierarchy, and interaction polish." },
+      { id: "automation", name: "Automation", role: "Ops", desc: "Runs scripts, packaging steps, and repeatable checks." },
+      { id: "reviewer", name: "Reviewer", role: "Review", desc: "Checks architecture, maintainability, and risks." },
+      { id: "tester", name: "Tester", role: "QA", desc: "Validates behavior, edge cases, and user-facing quality." },
+      { id: "docs", name: "Docs Agent", role: "Docs", desc: "Turns the run into docs, release notes, or handoff text." }
+    ];
+
+    const columns = [
+      { id: "planned", title: "Planned" },
+      { id: "active", title: "Active" },
+      { id: "review", title: "Review" }
+    ];
+
+    let tasks = [];
+    let logs = [];
+    let finalMarkdown = "";
+
+    const presets = {
+      frontend: [
+        ["analyze", "Analyze requirements", "commander", "planned", "Extract goal, constraints, target format, and acceptance criteria."],
+        ["plan", "Create task plan", "commander", "planned", "Break the request into ordered implementation steps."],
+        ["build", "Generate core code", "coder", "active", "Create the first working version."],
+        ["polish", "Improve interface", "ui", "active", "Refine visual hierarchy, layout, and interaction details."],
+        ["package", "Package output", "automation", "review", "Prepare deliverables and local files."],
+        ["review", "Review quality", "reviewer", "review", "Find defects, missing requirements, and risky assumptions."],
+        ["test", "Run QA pass", "tester", "review", "Check expected behavior and responsive layout."],
+        ["docs", "Write handoff", "docs", "review", "Summarize final result and usage notes."]
+      ],
+      generic: [
+        ["analyze", "Analyze request", "commander", "planned", "Clarify objective, constraints, and success criteria."],
+        ["plan", "Create workflow", "commander", "planned", "Split the work into clear agent-owned steps."],
+        ["execute", "Produce first output", "coder", "active", "Create the main artifact."],
+        ["review", "Review output", "reviewer", "review", "Check quality, gaps, and risks."],
+        ["test", "Validate result", "tester", "review", "Verify the output against the original request."],
+        ["docs", "Prepare final summary", "docs", "review", "Generate a reusable handoff record."]
+      ]
+    };
+
+    function now() {
+      return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function addLog(actor, message) {
+      logs.unshift({ time: now(), actor, message });
+      renderLogs();
+      updateMetrics();
+    }
+
+    function choosePreset(goal) {
+      const text = goal.toLowerCase();
+      if (text.includes("website") || text.includes("frontend") || text.includes("html") || text.includes("ui")) {
+        return presets.frontend;
+      }
+      return presets.generic;
+    }
+
+    function decompose() {
+      const goal = document.getElementById("goalInput").value.trim();
+      if (!goal) {
+        addLog("System", "Task intake is empty. Add a goal before decomposition.");
+        return;
+      }
+
+      tasks = choosePreset(goal).map((item, index) => ({
+        id: item[0],
+        order: index + 1,
+        title: item[1],
+        agent: item[2],
+        status: item[3],
+        brief: item[4],
+        output: ""
+      }));
+
+      finalMarkdown = "";
+      document.getElementById("finalOutput").innerHTML = '<span class="empty">Agent notes are ready to collect.</span>';
+      addLog("Commander", "Created " + tasks.length + " subtasks from the user request.");
+      renderAll();
+    }
+
+    function renderAgents() {
+      const root = document.getElementById("agentList");
+      root.innerHTML = agents.map(agent => `
+        <div class="agent">
+          <div class="agent-head">
+            <div class="agent-name">${agent.name}</div>
+            <span class="tag">${agent.role}</span>
+          </div>
+          <p class="agent-desc">${agent.desc}</p>
+        </div>
+      `).join("");
+      document.getElementById("agentCount").textContent = String(agents.length);
+    }
+
+    function renderFlow() {
+      const root = document.getElementById("flowView");
+      if (!tasks.length) {
+        root.innerHTML = '<div class="empty">No workflow yet. Decompose a task to generate the graph.</div>';
+        return;
+      }
+      root.innerHTML = tasks.map(task => {
+        const agent = agents.find(item => item.id === task.agent);
+        return `
+          <div class="step">
+            <div class="step-id">STEP ${task.order}</div>
+            <div class="step-title">${task.title}</div>
+            <div class="step-meta">
+              <span>${agent ? agent.name : task.agent}</span>
+              <span>${task.brief}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderBoard() {
+      const board = document.getElementById("taskBoard");
+      board.innerHTML = columns.map(column => {
+        const columnTasks = tasks.filter(task => task.status === column.id);
+        const cards = columnTasks.length ? columnTasks.map(task => {
+          const agent = agents.find(item => item.id === task.agent);
+          return `
+            <div class="task-card">
+              <strong>${task.title}</strong>
+              <small>${agent ? agent.name : task.agent} - ${task.brief}</small>
+            </div>
+          `;
+        }).join("") : '<div class="empty">No tasks</div>';
+        return `
+          <div class="column">
+            <h3>${column.title}</h3>
+            ${cards}
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderOutputInputs() {
+      const root = document.getElementById("outputInputs");
+      if (!tasks.length) {
+        root.innerHTML = '<p class="empty">Run task decomposition first.</p>';
+        return;
+      }
+      root.innerHTML = tasks.map(task => {
+        const agent = agents.find(item => item.id === task.agent);
+        return `
+          <div class="output-row">
+            <label for="out-${task.id}">${agent ? agent.name : task.agent}: ${task.title}</label>
+            <textarea class="mini-textarea" id="out-${task.id}" data-task-id="${task.id}" placeholder="Paste or write this agent output here."></textarea>
+          </div>
+        `;
+      }).join("");
+
+      root.querySelectorAll("textarea").forEach(input => {
+        input.addEventListener("input", event => {
+          const task = tasks.find(item => item.id === event.target.dataset.taskId);
+          if (task) task.output = event.target.value.trim();
+        });
+      });
+    }
+
+    function renderLogs() {
+      const root = document.getElementById("logView");
+      if (!logs.length) {
+        root.innerHTML = '<div class="empty">No log entries yet.</div>';
+        return;
+      }
+      root.innerHTML = logs.map(log => `
+        <div class="log-item">
+          <div class="log-time">${log.time}</div>
+          <div><strong>${log.actor}</strong><br>${log.message}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderProtocol() {
+      const sample = {
+        id: "task-001",
+        title: "Build 3D Earth Website",
+        assigned_to: "coder",
+        status: "planned",
+        expected_output: "single HTML file",
+        handoff: "manual"
+      };
+      document.getElementById("protocolView").textContent = JSON.stringify(sample, null, 2);
+    }
+
+    function updateMetrics() {
+      document.getElementById("taskMetric").textContent = tasks.length + " tasks";
+      document.getElementById("logMetric").textContent = logs.length + " logs";
+    }
+
+    function generateFinalOutput() {
+      if (!tasks.length) {
+        addLog("System", "No tasks available for final output.");
+        return;
+      }
+      const goal = document.getElementById("goalInput").value.trim();
+      finalMarkdown = [
+        "# AgentFlow Run Record",
+        "",
+        "## User Goal",
+        goal || "No goal provided.",
+        "",
+        "## Workflow",
+        ...tasks.map(task => {
+          const agent = agents.find(item => item.id === task.agent);
+          return "- " + task.order + ". " + task.title + " -> " + (agent ? agent.name : task.agent);
+        }),
+        "",
+        "## Agent Outputs",
+        ...tasks.flatMap(task => {
+          const agent = agents.find(item => item.id === task.agent);
+          return [
+            "",
+            "### " + (agent ? agent.name : task.agent) + " - " + task.title,
+            task.output || "_No output recorded yet._"
+          ];
+        }),
+        "",
+        "## Next Steps",
+        "- Review empty agent outputs.",
+        "- Export this record into the project issue, PR, or handoff document.",
+        "- Use the same schema as a future API integration boundary."
+      ].join("\n");
+
+      document.getElementById("finalOutput").textContent = finalMarkdown;
+      addLog("Docs Agent", "Generated final markdown run record.");
+    }
+
+    async function copyMarkdown() {
+      if (!finalMarkdown) {
+        generateFinalOutput();
+      }
+      try {
+        await navigator.clipboard.writeText(finalMarkdown);
+        addLog("Automation", "Copied final markdown to clipboard.");
+      } catch (error) {
+        addLog("Automation", "Clipboard blocked by browser. Select the final output manually.");
+      }
+    }
+
+    function loadExample() {
+      document.getElementById("goalInput").value = "Build a cyberpunk 3D earth website with mouse rotation, wheel zoom, glowing atmosphere, and a single-file HTML delivery.";
+      addLog("System", "Loaded the 3D Earth example request.");
+    }
+
+    function reset() {
+      tasks = [];
+      logs = [];
+      finalMarkdown = "";
+      document.getElementById("goalInput").value = "";
+      document.getElementById("finalOutput").innerHTML = '<span class="empty">Run the workflow and collect agent notes to generate a final markdown record.</span>';
+      renderAll();
+    }
+
+    function renderAll() {
+      renderAgents();
+      renderFlow();
+      renderBoard();
+      renderOutputInputs();
+      renderLogs();
+      renderProtocol();
+      updateMetrics();
+    }
+
+    document.getElementById("decomposeBtn").addEventListener("click", decompose);
+    document.getElementById("exampleBtn").addEventListener("click", loadExample);
+    document.getElementById("resetBtn").addEventListener("click", reset);
+    document.getElementById("summarizeBtn").addEventListener("click", generateFinalOutput);
+    document.getElementById("copyBtn").addEventListener("click", copyMarkdown);
+
+    renderAll();
+    addLog("System", "AgentFlow v0.1 static workspace initialized.");
+  </script>
+</body>
+</html>
