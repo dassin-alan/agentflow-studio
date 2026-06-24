@@ -747,7 +747,7 @@ function changeTaskStatus(taskId, status) {
     step.updatedAt = task.updatedAt;
   }
   addLog("System", "task.status_changed", { taskId, from: previousStatus, to: status }, task.title + " moved to " + statusLabels[status] + ".");
-  renderAll();
+  setTimeout(renderAll, 0);
 }
 
 function generateAgentPrompt(taskId) {
@@ -996,7 +996,7 @@ function renderAgents() {
     const isRunning = state.tasks.some(task => task.agent === agent.id && task.status === "active");
     const activeBadgeColor = badgeMap[agent.color] || "text-zinc-400 bg-zinc-950/50 border-zinc-900/30";
     const badgeClass = isRunning 
-      ? `${activeBadgeColor} border animate-pulse font-semibold` 
+      ? `${activeBadgeColor} animate-pulse font-semibold` 
       : "text-zinc-500 bg-zinc-900 border-white/5";
     
     return `
