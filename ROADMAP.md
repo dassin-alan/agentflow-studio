@@ -27,22 +27,24 @@ This document outlines the development roadmap for AgentFlow. Versions are tagge
 
 ---
 
-## v0.2.0 — Manual Workflow 📋
+## v0.2.0 — Local Runtime
 
-**Goal:** Users can create tasks, assign agents, and track progress manually.
+**Goal:** Turn the static demo into a local-first agent collaboration runtime without adding a backend.
 
-- [ ] Task CRUD (create, read, update, delete)
-- [ ] Auto task decomposition (rule-based)
-- [ ] Agent selection per task
-- [ ] Manual agent output input (copy-paste from real tools)
-- [ ] Task status management (pending → in_progress → review → done)
-- [ ] Local SQLite database for persistence
-- [ ] Workflow template system
-- [ ] Export results as Markdown
+- [x] LocalStorage persistence
+- [x] Restore workflow state on reload
+- [x] Task state machine (`planned`, `active`, `review`, `done`, `blocked`, `failed`)
+- [x] Editable task title, brief, agent, and status
+- [x] Workflow step runner
+- [x] Copy Agent Prompt
+- [x] Structured agent output templates
+- [x] Run Record export/import/replay
+- [x] Clear local state
+- [x] v0.2 documentation update
 
-**Deliverables:** Functional half-automated workspace, local DB, task management.
+**Deliverables:** Single-file local runtime, persistent run state, manual agent handoff loop, replayable run records.
 
-**Difficulty:** Mixed — some `good first issue`, some medium.
+**Difficulty:** Medium.
 
 ---
 
@@ -66,7 +68,7 @@ This document outlines the development roadmap for AgentFlow. Versions are tagge
 
 ## v0.4.0 — API Integration 📋
 
-**Goal:** Connect to real AI model APIs.
+**Goal:** Connect to real AI model APIs and introduce backend-backed storage.
 
 - [ ] OpenAI-compatible API adapter
 - [ ] Anthropic (Claude) API adapter
@@ -75,10 +77,11 @@ This document outlines the development roadmap for AgentFlow. Versions are tagge
 - [ ] Custom endpoint support
 - [ ] Environment variable configuration (`.env`)
 - [ ] Backend scheduler (FastAPI)
+- [ ] SQLite / PostgreSQL storage
 - [ ] Real-time execution logs
 - [ ] Error handling and retry logic
 
-**Deliverables:** Working backend with real agent execution.
+**Deliverables:** Working backend with real agent execution and durable server-side storage.
 
 **Difficulty:** Medium-High.
 

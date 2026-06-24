@@ -21,6 +21,8 @@
   .status-active { background: rgba(6,182,212,0.15); color: #22d3ee; border: 1px solid rgba(6,182,212,0.3); }
   .status-review { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
   .status-done { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+  .status-blocked { background: rgba(249,115,22,0.15); color: #fb923c; border: 1px solid rgba(249,115,22,0.3); }
+  .status-failed { background: rgba(244,63,94,0.15); color: #fb7185; border: 1px solid rgba(244,63,94,0.3); }
   .log-line { border-left: 2px solid rgba(255,255,255,0.08); padding-left: 16px; margin-left: 8px; }
   .pulse { animation: pulse 2s infinite; }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
@@ -29,12 +31,13 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 
-  textarea {
+  textarea, input, select {
     background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
     border-radius: 8px; color: #e4e4e7; padding: 10px; outline: none;
     transition: border-color 0.2s;
   }
-  textarea:focus { border-color: rgba(6,182,212,0.5); box-shadow: 0 0 10px rgba(6,182,212,0.1); }
+  textarea:focus, input:focus, select:focus { border-color: rgba(6,182,212,0.5); box-shadow: 0 0 10px rgba(6,182,212,0.1); }
+  select option { background: #111827; color: #e4e4e7; }
 
   .btn {
     display: inline-flex; align-items: center; gap: 6px;
@@ -50,6 +53,11 @@
     background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
     border-radius: 8px; padding: 10px; margin-bottom: 8px;
   }
+  .task-card.is-current { border-color: rgba(6,182,212,0.55); box-shadow: 0 0 18px rgba(6,182,212,0.12); }
+  .task-field { width: 100%; font-size: 12px; padding: 7px 8px; }
+  .task-brief-field { min-height: 44px; resize: vertical; }
+  .runtime-panel { background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.07); border-radius: 8px; padding: 10px; }
+  .prompt-preview { white-space: pre-wrap; max-height: 220px; overflow: auto; }
 
   .empty-state { color: #52525b; font-style: italic; font-size: 13px; padding: 12px 0; }
 </style>
@@ -57,7 +65,7 @@
 <body class="min-h-screen">
 
 <!-- Header -->
-<header class="border-b border-white/5 px-6 py-4 flex items-center justify-between">
+<header class="border-b border-white/5 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
   <div class="flex items-center gap-3">
     <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-sm font-bold">A</div>
     <div>
@@ -65,27 +73,27 @@
       <p class="text-xs text-zinc-500">Multi-Agent Orchestration Workspace</p>
     </div>
   </div>
-  <div class="flex items-center gap-4">
+  <div class="flex items-center gap-2 sm:gap-4 flex-wrap">
     <span id="taskMetric" class="text-xs text-zinc-500 bg-zinc-900 px-2 py-1 rounded-full mono">0 tasks</span>
     <span id="logMetric" class="text-xs text-zinc-500 bg-zinc-900 px-2 py-1 rounded-full mono">0 logs</span>
     <span class="text-xs text-zinc-500 bg-zinc-900 px-2 py-1 rounded-full">local only</span>
-    <span class="text-xs text-zinc-500 bg-zinc-900 px-2 py-1 rounded-full">v0.1.0</span>
+    <span class="text-xs text-cyan-400 bg-cyan-950/50 px-2 py-1 rounded-full">v0.2.0 Local Runtime</span>
   </div>
 </header>
 
 <!-- Main Content -->
-<main class="grid grid-cols-12 gap-4 p-4 max-w-[1600px] mx-auto" style="min-height: calc(100vh - 64px);">
+<main class="grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 max-w-[1600px] mx-auto" style="min-height: calc(100vh - 64px);">
 
   <!-- ===== LEFT SIDEBAR: Agent Team ===== -->
-  <aside class="col-span-3 glass rounded-xl p-4 overflow-y-auto" style="max-height: calc(100vh - 100px);">
+  <aside class="lg:col-span-3 glass rounded-xl p-4 overflow-y-auto" style="max-height: calc(100vh - 100px);">
     <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">Agent Team <span id="agentCount" class="text-zinc-600">7</span></h2>
     <div id="agentList" class="space-y-2"></div>
 
     <div class="mt-6 pt-4 border-t border-white/5">
-      <p class="text-[10px] text-zinc-600 uppercase tracking-wider mb-2">v0.1 Scope</p>
+      <p class="text-[10px] text-zinc-600 uppercase tracking-wider mb-2">v0.2 Scope</p>
       <div class="glass-hover rounded-lg p-3">
-        <div class="text-sm font-medium text-zinc-300">Static Demo</div>
-        <p class="text-xs text-zinc-500 mt-1">No backend. No API keys. Open this file and run the manual orchestration flow.</p>
+        <div class="text-sm font-medium text-zinc-300">Local Runtime</div>
+        <p class="text-xs text-zinc-500 mt-1">Persistent local state, manual agent prompts, step execution, and replayable run records.</p>
       </div>
     </div>
 
@@ -99,7 +107,7 @@
   </aside>
 
   <!-- ===== CENTER: Intake + Workflow + Task Board ===== -->
-  <section class="col-span-6 space-y-4">
+  <section class="lg:col-span-6 space-y-4">
 
     <!-- Task Intake -->
     <div class="glass rounded-xl p-4 glow-cyan">
@@ -111,13 +119,18 @@
       <div class="flex gap-2 mt-3">
         <button id="decomposeBtn" class="btn btn-primary">Decompose Task</button>
         <button id="exampleBtn" class="btn">Load Example</button>
-        <button id="resetBtn" class="btn">Reset</button>
+        <button id="addTaskBtn" class="btn">Add Task</button>
+        <button id="resetBtn" class="btn">Reset Run</button>
+        <button id="clearStateBtn" class="btn">Clear Local State</button>
       </div>
     </div>
 
-    <!-- Workflow Graph -->
+    <!-- Workflow Runner -->
     <div class="glass rounded-xl p-4 glow-purple">
-      <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">Workflow Graph</h2>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Workflow Runner</h2>
+        <span id="currentStepMetric" class="text-[10px] text-purple-300 bg-purple-400/10 px-2 py-0.5 rounded-full mono">No step</span>
+      </div>
       <div id="flowView" class="text-[10px]">
         <p class="empty-state">Enter a goal and click Decompose Task to generate the workflow.</p>
       </div>
@@ -126,7 +139,7 @@
     <!-- Task Board -->
     <div class="glass rounded-xl p-4">
       <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">Task Board</h2>
-      <div id="taskBoard" class="grid grid-cols-3 gap-3">
+      <div id="taskBoard" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
         <div class="glass-hover rounded-lg p-3">
           <h3 class="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Planned</h3>
           <div id="col-planned"><p class="empty-state">No tasks yet.</p></div>
@@ -139,19 +152,39 @@
           <h3 class="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Review</h3>
           <div id="col-review"><p class="empty-state">No tasks yet.</p></div>
         </div>
+        <div class="glass-hover rounded-lg p-3">
+          <h3 class="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Done</h3>
+          <div id="col-done"><p class="empty-state">No tasks yet.</p></div>
+        </div>
+        <div class="glass-hover rounded-lg p-3">
+          <h3 class="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Blocked</h3>
+          <div id="col-blocked"><p class="empty-state">No tasks yet.</p></div>
+        </div>
+        <div class="glass-hover rounded-lg p-3">
+          <h3 class="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Failed</h3>
+          <div id="col-failed"><p class="empty-state">No tasks yet.</p></div>
+        </div>
       </div>
     </div>
 
   </section>
 
   <!-- ===== RIGHT SIDEBAR: Outputs + Log + Final ===== -->
-  <aside class="col-span-3 space-y-4">
+  <aside class="lg:col-span-3 space-y-4">
 
     <!-- Agent Outputs -->
     <div class="glass rounded-xl p-4">
       <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">Agent Outputs</h2>
       <div id="outputInputs" class="space-y-3 max-h-80 overflow-y-auto">
         <p class="empty-state">Run task decomposition first, then paste each agent's output here.</p>
+      </div>
+    </div>
+
+    <!-- Prompt Preview -->
+    <div class="glass rounded-xl p-4 glow-purple">
+      <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">Prompt Preview</h2>
+      <div id="promptPreview" class="prompt-preview mono text-xs text-zinc-400">
+        <span class="empty-state">Run a step or copy a prompt to preview the agent handoff.</span>
       </div>
     </div>
 
@@ -183,15 +216,23 @@
       </div>
     </div>
 
+    <!-- Run Record -->
+    <div class="glass rounded-xl p-4">
+      <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">Run Record</h2>
+      <div id="runRecordView" class="runtime-panel mono text-[11px] text-zinc-500 max-h-44 overflow-y-auto">
+        Waiting for local runtime state.
+      </div>
+    </div>
+
   </aside>
 
 </main>
 
 <!-- Footer -->
-<footer class="border-t border-white/5 px-6 py-3 flex items-center justify-between text-[10px] text-zinc-600">
+<footer class="border-t border-white/5 px-6 py-3 flex flex-col sm:flex-row gap-2 sm:items-center justify-between text-[10px] text-zinc-600">
   <div class="flex items-center gap-4">
-    <span>AgentFlow v0.1.0 — Static Demo</span><span>·</span>
-    <span>No API keys required</span><span>·</span>
+    <span>AgentFlow v0.2.0 - Local Runtime</span><span>·</span>
+    <span>No backend or API keys</span><span>·</span>
     <span>MIT License</span>
   </div>
   <div class="flex items-center gap-2">
@@ -204,57 +245,223 @@
 
 <script>
 // ============================================================
-// AgentFlow v0.1.0 — Interactive Engine
+// AgentFlow v0.2.0 - Local Runtime
 // ============================================================
 
+const VERSION = "0.2.0";
+const STORAGE_KEY = "agentflow:v0.2:state";
+
 const agents = [
-  { id: "commander",   name: "Commander",     tool: "X",              role: "Planner", color: "cyan",   desc: "Clarifies goals, splits work, and owns final decisions." },
-  { id: "coder",       name: "Coder",         tool: "Claude Code",    role: "Build",   color: "blue",   desc: "Core implementation, complex logic, and refactoring." },
-  { id: "ui_designer", name: "UI Designer",   tool: "Antigravity",    role: "Visual",  color: "pink",   desc: "Designs visual interfaces, interactions, and prototypes." },
-  { id: "automation",  name: "Automation",    tool: "Hermes",         role: "Ops",     color: "yellow", desc: "Runs scripts, packaging, and repeatable checks." },
-  { id: "reviewer",    name: "Reviewer",      tool: "opencode",       role: "Review",  color: "purple",desc: "Checks architecture, maintainability, and risks." },
-  { id: "tester",      name: "Tester",        tool: "Resonix",        role: "QA",     color: "green",  desc: "Validates behavior, edge cases, and user-facing quality." },
-  { id: "assistant",   name: "Assistant",     tool: "Mimo Code",      role: "Docs",   color: "orange", desc: "Turns the run into docs, release notes, or handoff text." }
+  { id: "commander", name: "Commander", tool: "X", role: "Planner", color: "cyan", desc: "Clarifies goals, splits work, and owns final decisions." },
+  { id: "coder", name: "Coder", tool: "Claude Code", role: "Build", color: "blue", desc: "Core implementation, complex logic, and refactoring." },
+  { id: "ui_designer", name: "UI Designer", tool: "Antigravity", role: "Visual", color: "pink", desc: "Designs visual interfaces, interactions, and prototypes." },
+  { id: "automation", name: "Automation", tool: "Hermes", role: "Ops", color: "yellow", desc: "Runs scripts, packaging, and repeatable checks." },
+  { id: "reviewer", name: "Reviewer", tool: "opencode", role: "Review", color: "purple", desc: "Checks architecture, maintainability, and risks." },
+  { id: "tester", name: "Tester", tool: "Resonix", role: "QA", color: "green", desc: "Validates behavior, edge cases, and user-facing quality." },
+  { id: "assistant", name: "Assistant", tool: "Mimo Code", role: "Docs", color: "orange", desc: "Turns the run into docs, release notes, or handoff text." }
 ];
 
+const taskStatuses = ["planned", "active", "review", "done", "blocked", "failed"];
+const statusLabels = {
+  planned: "Planned",
+  active: "Active",
+  review: "Review",
+  done: "Done",
+  blocked: "Blocked",
+  failed: "Failed"
+};
 const statusColors = {
   planned: "status-planned",
   active: "status-active",
   review: "status-review",
-  done: "status-done"
+  done: "status-done",
+  blocked: "status-blocked",
+  failed: "status-failed"
 };
 
-let tasks = [];
-let logs = [];
-let finalMarkdown = "";
+const runtimeConstraints = [
+  "single index.html",
+  "vanilla JavaScript",
+  "no backend",
+  "no API keys",
+  "localStorage only"
+];
 
 const presets = {
   frontend: [
-    ["analyze", "Analyze requirements", "commander", "planned", "Extract goal, constraints, target format, and acceptance criteria."],
-    ["plan", "Create task plan", "commander", "planned", "Break the request into ordered implementation steps."],
-    ["implement", "Generate core code", "coder", "active", "Create the first working version."],
-    ["polish", "Improve interface", "ui_designer", "active", "Refine visual hierarchy, layout, and interaction details."],
-    ["package", "Package output", "automation", "review", "Prepare deliverables and local files."],
-    ["review", "Review quality", "reviewer", "review", "Find defects, missing requirements, and risky assumptions."],
-    ["test", "Run QA pass", "tester", "review", "Check expected behavior and responsive layout."],
-    ["document", "Write docs & handoff", "assistant", "review", "Summarize final result and usage notes."]
+    ["analyze", "Analyze requirements", "commander", "Extract goal, constraints, target format, and acceptance criteria.", "Requirements summary and acceptance criteria."],
+    ["plan", "Create task plan", "commander", "Break the request into ordered implementation steps.", "Ordered task list with assigned agents."],
+    ["implement", "Generate core code", "coder", "Create the first working version.", "Working code or implementation notes."],
+    ["polish", "Improve interface", "ui_designer", "Refine visual hierarchy, layout, and interaction details.", "UI, interaction, or presentation improvements."],
+    ["package", "Package output", "automation", "Prepare deliverables and local files.", "Local files, commands, or reproducible delivery notes."],
+    ["review", "Review quality", "reviewer", "Find defects, missing requirements, and risky assumptions.", "Issues, risks, and suggested fixes."],
+    ["test", "Run QA pass", "tester", "Check expected behavior and responsive layout.", "Test notes and remaining gaps."],
+    ["document", "Write docs and handoff", "assistant", "Summarize final result and usage notes.", "Markdown handoff record."]
   ],
   generic: [
-    ["analyze", "Analyze request", "commander", "planned", "Clarify objective, constraints, and success criteria."],
-    ["plan", "Create workflow", "commander", "planned", "Split the work into clear agent-owned steps."],
-    ["execute", "Produce first output", "coder", "active", "Create the main artifact."],
-    ["review", "Review output", "reviewer", "review", "Check quality, gaps, and risks."],
-    ["test", "Validate result", "tester", "review", "Verify the output against the original request."],
-    ["docs", "Prepare final summary", "assistant", "review", "Generate a reusable handoff record."]
+    ["analyze", "Analyze request", "commander", "Clarify objective, constraints, and success criteria.", "Requirements summary and acceptance criteria."],
+    ["plan", "Create workflow", "commander", "Split the work into clear agent-owned steps.", "Ordered workflow plan."],
+    ["execute", "Produce first output", "coder", "Create the main artifact.", "Main artifact or implementation notes."],
+    ["review", "Review output", "reviewer", "Check quality, gaps, and risks.", "Review findings and risks."],
+    ["test", "Validate result", "tester", "Verify the output against the original request.", "Validation notes and remaining gaps."],
+    ["docs", "Prepare final summary", "assistant", "Generate a reusable handoff record.", "Final markdown summary."]
   ]
 };
 
-function now() { return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
+let state = null;
 
-function addLog(actor, message) {
-  logs.unshift({ time: now(), actor, message });
-  renderLogs();
-  updateMetrics();
+function clone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function nowIso() {
+  return new Date().toISOString();
+}
+
+function displayTime(iso) {
+  try {
+    return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return iso || "";
+  }
+}
+
+function newRunId() {
+  return "run_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value).replaceAll("\n", " ");
+}
+
+function getEl(id) {
+  return document.getElementById(id);
+}
+
+function createInitialState(goal = "") {
+  const stamp = nowIso();
+  return {
+    version: VERSION,
+    runId: newRunId(),
+    createdAt: stamp,
+    updatedAt: stamp,
+    goal,
+    status: "active",
+    agents: clone(agents),
+    workflow: [],
+    tasks: [],
+    logs: [],
+    outputs: [],
+    currentStepId: null,
+    finalMarkdown: ""
+  };
+}
+
+function normalizeTask(task, index) {
+  const status = taskStatuses.includes(task.status) ? task.status : "planned";
+  return {
+    id: task.id || "task_" + (index + 1),
+    order: Number(task.order || index + 1),
+    title: task.title || "Untitled task",
+    agent: agents.some(agent => agent.id === task.agent) ? task.agent : "commander",
+    status,
+    brief: task.brief || "",
+    expectedOutput: task.expectedOutput || task.expected_output || "Structured response with summary, main output, issues, and next steps.",
+    output: task.output || "",
+    updatedAt: task.updatedAt || nowIso()
+  };
+}
+
+function taskToStep(task) {
+  return {
+    id: task.id,
+    taskId: task.id,
+    order: task.order,
+    title: task.title,
+    agent: task.agent,
+    status: task.status,
+    prompt: "",
+    output: task.output || "",
+    updatedAt: task.updatedAt || nowIso()
+  };
+}
+
+function normalizeState(input) {
+  const base = createInitialState(input && input.goal ? input.goal : "");
+  const normalized = Object.assign(base, input || {});
+  normalized.version = VERSION;
+  normalized.agents = clone(agents);
+  normalized.tasks = Array.isArray(normalized.tasks) ? normalized.tasks.map(normalizeTask) : [];
+  normalized.workflow = Array.isArray(normalized.workflow) && normalized.workflow.length
+    ? normalized.workflow.map((step, index) => {
+        const task = normalized.tasks.find(item => item.id === (step.taskId || step.id));
+        return Object.assign(task ? taskToStep(task) : taskToStep(normalizeTask(step, index)), step, {
+          id: step.id || (task ? task.id : "step_" + (index + 1)),
+          taskId: step.taskId || step.id || (task ? task.id : "task_" + (index + 1))
+        });
+      })
+    : normalized.tasks.map(taskToStep);
+  normalized.logs = Array.isArray(normalized.logs) ? normalized.logs : [];
+  normalized.outputs = Array.isArray(normalized.outputs)
+    ? normalized.outputs
+    : normalized.tasks.filter(task => task.output).map(task => ({
+        taskId: task.id,
+        agent: task.agent,
+        output: task.output,
+        submittedAt: task.updatedAt || normalized.updatedAt
+      }));
+  normalized.finalMarkdown = normalized.finalMarkdown || normalized.final_markdown || "";
+  normalized.currentStepId = normalized.currentStepId || (normalized.tasks[0] ? normalized.tasks[0].id : null);
+  normalized.status = normalized.status || "active";
+  normalized.createdAt = normalized.createdAt || nowIso();
+  normalized.updatedAt = normalized.updatedAt || normalized.createdAt;
+  return normalized;
+}
+
+function syncWindow() {
+  window.AgentFlowState = state;
+}
+
+function saveState() {
+  state.updatedAt = nowIso();
+  syncWindow();
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (error) {
+    console.warn("AgentFlow localStorage save failed", error);
+  }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return normalizeState(JSON.parse(raw));
+  } catch (error) {
+    console.warn("AgentFlow localStorage restore failed", error);
+  }
+  return createInitialState(getEl("goalInput").value.trim());
+}
+
+function addLog(actor, action, data = {}, message = "") {
+  const entry = {
+    time: nowIso(),
+    actor,
+    action,
+    message: message || action.replaceAll(".", " "),
+    data
+  };
+  state.logs.unshift(entry);
+  saveState();
+  return entry;
 }
 
 function choosePreset(goal) {
@@ -265,246 +472,618 @@ function choosePreset(goal) {
   return presets.generic;
 }
 
-function decompose() {
-  const goal = document.getElementById("goalInput").value.trim();
-  if (!goal) { addLog("System", "Task intake is empty. Add a goal first."); return; }
-
-  tasks = choosePreset(goal).map((item, index) => ({
+function buildTasks(goal) {
+  return choosePreset(goal).map((item, index) => ({
     id: item[0],
     order: index + 1,
     title: item[1],
     agent: item[2],
-    status: item[3],
-    brief: item[4],
-    output: ""
+    status: "planned",
+    brief: item[3],
+    expectedOutput: item[4],
+    output: "",
+    updatedAt: nowIso()
   }));
+}
 
-  finalMarkdown = "";
-  document.getElementById("finalOutput").innerHTML = '<span class="empty-state">Agent notes are ready to collect.</span>';
-  addLog("Commander", "Created " + tasks.length + " subtasks from the user request.");
+function findTask(taskId) {
+  return state.tasks.find(task => task.id === taskId);
+}
+
+function findStep(taskId) {
+  return state.workflow.find(step => step.taskId === taskId || step.id === taskId);
+}
+
+function decompose() {
+  const goal = getEl("goalInput").value.trim();
+  if (!goal) {
+    addLog("System", "task.empty_goal", {}, "Task intake is empty. Add a goal first.");
+    renderAll();
+    return;
+  }
+
+  const tasks = buildTasks(goal);
+  state = normalizeState(Object.assign(createInitialState(goal), {
+    tasks,
+    workflow: tasks.map(taskToStep),
+    currentStepId: tasks[0] ? tasks[0].id : null
+  }));
+  addLog("Commander", "workflow.decomposed", { taskCount: tasks.length }, "Created " + tasks.length + " subtasks from the user request.");
+  saveState();
   renderAll();
 }
 
-// ---- RENDERERS ----
-
-function renderAgents() {
-  const root = document.getElementById("agentList");
-  const colorMap = { cyan: "border-cyan-400", blue: "border-blue-400", pink: "border-pink-400", yellow: "border-yellow-400", purple: "border-purple-400", green: "border-green-400", orange: "border-orange-400" };
-  const badgeMap = { cyan: "text-cyan-400 bg-cyan-400/10", blue: "text-blue-400 bg-blue-400/10", pink: "text-pink-400 bg-pink-400/10", yellow: "text-yellow-400 bg-yellow-400/10", purple: "text-purple-400 bg-purple-400/10", green: "text-green-400 bg-green-400/10", orange: "text-orange-400 bg-orange-400/10" };
-  root.innerHTML = agents.map(a => `
-    <div class="glass-hover rounded-lg p-3 flex items-start gap-3 border-l-2 ${colorMap[a.color] || 'border-zinc-500'}">
-      <span class="text-lg mt-0.5">${({commander:'🎯',coder:'💻',ui_designer:'🎨',automation:'⚡',reviewer:'🔍',tester:'🧪',assistant:'📝'})[a.id] || '🤖'}</span>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2">
-          <span class="text-sm font-medium text-zinc-200">${a.name}</span>
-          <span class="text-[10px] text-zinc-600">${a.tool}</span>
-        </div>
-        <div class="text-xs text-zinc-500 mt-0.5">${a.role} — ${a.desc}</div>
-      </div>
-      <span class="text-[10px] ${badgeMap[a.color] || 'text-zinc-500 bg-zinc-800'} px-1.5 py-0.5 rounded shrink-0">${a.id === 'commander' || a.id === 'coder' || a.id === 'ui_designer' ? 'ACTIVE' : 'IDLE'}</span>
-    </div>
-  `).join("");
-  document.getElementById("agentCount").textContent = String(agents.length);
+function addTask() {
+  const order = state.tasks.length + 1;
+  const id = "custom_" + Date.now().toString(36);
+  const task = {
+    id,
+    order,
+    title: "New task",
+    agent: "commander",
+    status: "planned",
+    brief: "Describe the work this agent should perform.",
+    expectedOutput: "Structured response with summary, main output, issues, and next steps.",
+    output: "",
+    updatedAt: nowIso()
+  };
+  state.tasks.push(task);
+  state.workflow.push(taskToStep(task));
+  if (!state.currentStepId) state.currentStepId = id;
+  addLog("System", "task.created", { taskId: id }, "Added a manual task.");
+  renderAll();
 }
 
-function renderFlow() {
-  const root = document.getElementById("flowView");
-  if (!tasks.length) {
-    root.innerHTML = '<p class="empty-state">Enter a goal and click Decompose Task to generate the workflow.</p>';
-    return;
+function updateTask(taskId, patch) {
+  const task = findTask(taskId);
+  if (!task) return;
+  Object.assign(task, patch, { updatedAt: nowIso() });
+  const step = findStep(taskId);
+  if (step) Object.assign(step, taskToStep(task), { prompt: step.prompt || "", output: task.output || step.output || "" });
+  saveState();
+  renderAll();
+}
+
+function deleteTask(taskId) {
+  const task = findTask(taskId);
+  if (!task) return;
+  state.tasks = state.tasks.filter(item => item.id !== taskId).map((item, index) => Object.assign(item, { order: index + 1 }));
+  state.workflow = state.tasks.map(taskToStep);
+  state.currentStepId = state.currentStepId === taskId ? (state.tasks[0] ? state.tasks[0].id : null) : state.currentStepId;
+  addLog("System", "task.deleted", { taskId }, "Deleted task: " + task.title);
+  renderAll();
+}
+
+function changeTaskStatus(taskId, status) {
+  if (!taskStatuses.includes(status)) return;
+  const task = findTask(taskId);
+  if (!task) return;
+  const previousStatus = task.status;
+  task.status = status;
+  task.updatedAt = nowIso();
+  const step = findStep(taskId);
+  if (step) {
+    step.status = status;
+    step.updatedAt = task.updatedAt;
   }
-  // Build a Mermaid flowchart from tasks
-  const lines = ["flowchart LR"];
-  const agentNames = {};
-  agents.forEach(a => { agentNames[a.id] = a.name; });
-
-  // Assign nodes
-  tasks.forEach((t, i) => {
-    const label = `${t.order}. ${t.title}<br/>${agentNames[t.agent] || t.agent}`;
-    const nodeId = `T${i}`;
-    const style = t.status === 'done' ? 'fill:#0e3a1e,stroke:#22c55e' :
-                  t.status === 'active' ? 'fill:#0e3a3b,stroke:#06b6d4' :
-                  t.status === 'review' ? 'fill:#2e0e3a,stroke:#a855f7' :
-                  'fill:#1e1b4b,stroke:#6366f1';
-    lines.push(`  ${nodeId}["${label}"]`);
-    lines.push(`  style ${nodeId} ${style},color:#e4e4e7`);
-    if (i > 0) lines.push(`  T${i-1} --> ${nodeId}`);
-  });
-
-  const mermaidCode = lines.join("\n");
-  root.innerHTML = `<div class="mermaid">${mermaidCode}</div>`;
-  try { mermaid.run({ nodes: [root.querySelector('.mermaid')] }); } catch(e) {}
+  addLog("System", "task.status_changed", { taskId, from: previousStatus, to: status }, task.title + " moved to " + statusLabels[status] + ".");
+  renderAll();
 }
 
-function renderBoard() {
-  ["planned", "active", "review"].forEach(status => {
-    const col = document.getElementById("col-" + status);
-    const colTasks = tasks.filter(t => t.status === status);
-    if (!colTasks.length) {
-      col.innerHTML = '<p class="empty-state">No tasks</p>';
-      return;
-    }
-    col.innerHTML = colTasks.map(t => {
-      const agent = agents.find(a => a.id === t.agent);
-      return `
-        <div class="task-card">
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-xs font-medium text-zinc-200">${t.title}</span>
-          </div>
-          <div class="text-[11px] text-zinc-500">${agent ? agent.tool + ' / ' + agent.name : t.agent} · ${t.brief}</div>
-        </div>
-      `;
-    }).join("");
-  });
-}
-
-function renderOutputInputs() {
-  const root = document.getElementById("outputInputs");
-  if (!tasks.length) {
-    root.innerHTML = '<p class="empty-state">Run task decomposition first, then paste each agent\'s output here.</p>';
-    return;
-  }
-  root.innerHTML = tasks.map(t => {
-    const agent = agents.find(a => a.id === t.agent);
-    return `
-      <div>
-        <label class="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider" for="out-${t.id}">
-          ${agent ? agent.name + ' (' + agent.tool + ')' : t.agent}: ${t.title}
-        </label>
-        <textarea id="out-${t.id}" data-task-id="${t.id}" class="w-full mt-1" style="min-height: 50px; resize: vertical;" placeholder="Paste or write this agent's output here."></textarea>
-      </div>
-    `;
-  }).join("");
-
-  root.querySelectorAll("textarea").forEach(input => {
-    input.addEventListener("input", e => {
-      const task = tasks.find(t => t.id === e.target.dataset.taskId);
-      if (task) task.output = e.target.value.trim();
-    });
-  });
-}
-
-function renderLogs() {
-  const root = document.getElementById("logView");
-  if (!logs.length) { root.innerHTML = '<p class="empty-state">Waiting for workflow activity.</p>'; return; }
-  root.innerHTML = logs.slice(0, 30).map(l => `
-    <div class="log-line text-xs">
-      <span class="text-zinc-600">[${l.time}]</span>
-      <span class="text-cyan-400"> ${l.actor}</span>
-      <span class="text-zinc-400"> → ${l.message}</span>
-    </div>
-  `).join("");
-}
-
-function updateMetrics() {
-  document.getElementById("taskMetric").textContent = tasks.length + " tasks";
-  document.getElementById("logMetric").textContent = logs.length + " logs";
-}
-
-function generateFinalOutput() {
-  if (!tasks.length) { addLog("System", "No tasks available for final output."); return; }
-  const goal = document.getElementById("goalInput").value.trim();
-  finalMarkdown = [
-    "# AgentFlow Run Record",
+function generateAgentPrompt(taskId) {
+  const task = findTask(taskId);
+  if (!task) return "";
+  const agent = agents.find(item => item.id === task.agent) || agents[0];
+  return [
+    "You are " + agent.name + ", acting as " + agent.role + ".",
     "",
-    "## User Goal",
-    goal || "No goal provided.",
+    "Project:",
+    "AgentFlow Studio",
     "",
-    "## Workflow",
-    ...tasks.map(t => {
-      const a = agents.find(x => x.id === t.agent);
-      return `- ${t.order}. ${t.title} → ${a ? a.tool + ' (' + a.name + ')' : t.agent}`;
-    }),
+    "Goal:",
+    state.goal || getEl("goalInput").value.trim() || "No goal provided.",
     "",
-    "## Agent Outputs",
-    ...tasks.flatMap(t => {
-      const a = agents.find(x => x.id === t.agent);
-      return ["", `### ${a ? a.tool + ' (' + a.name + ')' : t.agent} — ${t.title}`, t.output || "_No output recorded yet._"];
-    }),
+    "Current Task:",
+    task.title,
     "",
-    "## Next Steps",
-    "- Review empty agent outputs.",
-    "- Export this record into the project issue, PR, or handoff document.",
-    "- Use the same schema as a future API integration boundary."
+    "Task Brief:",
+    task.brief || "No brief provided.",
+    "",
+    "Constraints:",
+    ...runtimeConstraints.map(item => "- " + item),
+    "",
+    "Expected Output:",
+    task.expectedOutput || "Structured response.",
+    "",
+    "Return format:",
+    "1. Summary",
+    "2. Main Output",
+    "3. Issues / Risks",
+    "4. Next Steps"
   ].join("\n");
-
-  document.getElementById("finalOutput").textContent = finalMarkdown;
-  addLog("Assistant", "Generated final markdown run record.");
 }
 
-async function copyMarkdown() {
-  if (!finalMarkdown) generateFinalOutput();
-  try { await navigator.clipboard.writeText(finalMarkdown); addLog("Automation", "Copied final markdown to clipboard."); }
-  catch { addLog("Automation", "Clipboard blocked by browser. Select the final output manually."); }
+function copyAgentPrompt(taskId) {
+  const prompt = generateAgentPrompt(taskId);
+  if (!prompt) return "";
+  getEl("promptPreview").textContent = prompt;
+  const task = findTask(taskId);
+  const write = navigator.clipboard && navigator.clipboard.writeText
+    ? navigator.clipboard.writeText(prompt)
+    : Promise.reject(new Error("Clipboard unavailable"));
+  write
+    .then(() => addLog("Automation", "prompt.copied", { taskId }, "Copied prompt for " + (task ? task.title : taskId) + "."))
+    .catch(() => addLog("Automation", "prompt.copy_failed", { taskId }, "Clipboard blocked. Prompt is shown in preview."));
+  renderLogs();
+  renderRunRecord();
+  return prompt;
+}
+
+function runStep(taskId) {
+  const task = findTask(taskId);
+  if (!task) return;
+  state.currentStepId = taskId;
+  task.status = "active";
+  task.updatedAt = nowIso();
+  const step = findStep(taskId);
+  if (step) {
+    step.status = "active";
+    step.prompt = generateAgentPrompt(taskId);
+    step.updatedAt = task.updatedAt;
+  }
+  getEl("promptPreview").textContent = generateAgentPrompt(taskId);
+  addLog("System", "workflow.step_started", { taskId, agent: task.agent }, "Running step: " + task.title);
+  renderAll();
+}
+
+function nextStepAfter(taskId) {
+  const sorted = state.tasks.slice().sort((a, b) => a.order - b.order);
+  const currentIndex = sorted.findIndex(task => task.id === taskId);
+  for (let index = currentIndex + 1; index < sorted.length; index += 1) {
+    if (!["done", "failed", "blocked"].includes(sorted[index].status)) return sorted[index].id;
+  }
+  return null;
+}
+
+function submitStepOutput(taskId, output, nextStatus = "review") {
+  const task = findTask(taskId);
+  if (!task) return;
+  const finalOutput = String(output || task.output || "").trim();
+  task.output = finalOutput;
+  task.status = taskStatuses.includes(nextStatus) ? nextStatus : "review";
+  task.updatedAt = nowIso();
+  const step = findStep(taskId);
+  if (step) {
+    step.output = finalOutput;
+    step.status = task.status;
+    step.updatedAt = task.updatedAt;
+  }
+  if (finalOutput) {
+    state.outputs = state.outputs.filter(item => item.taskId !== taskId);
+    state.outputs.push({ taskId, agent: task.agent, output: finalOutput, submittedAt: task.updatedAt });
+  }
+  state.currentStepId = nextStepAfter(taskId);
+  addLog("System", "workflow.output_submitted", { taskId, nextStepId: state.currentStepId }, "Saved output for " + task.title + ".");
+  renderAll();
 }
 
 function createRunRecord() {
-  return { version: "0.1.0", exported_at: new Date().toISOString(), goal: document.getElementById("goalInput").value.trim(), agents, tasks, logs, final_markdown: finalMarkdown };
+  saveState();
+  return {
+    version: VERSION,
+    runId: state.runId,
+    createdAt: state.createdAt,
+    updatedAt: state.updatedAt,
+    goal: state.goal,
+    status: state.status,
+    agents: clone(state.agents),
+    tasks: clone(state.tasks),
+    workflow: clone(state.workflow),
+    logs: clone(state.logs),
+    outputs: clone(state.outputs),
+    finalMarkdown: state.finalMarkdown
+  };
+}
+
+function importRunRecord(record) {
+  state = normalizeState(record);
+  getEl("goalInput").value = state.goal || "";
+  getEl("finalOutput").textContent = state.finalMarkdown || "";
+  if (!state.finalMarkdown) {
+    getEl("finalOutput").innerHTML = '<span class="empty-state">Imported run has no final markdown yet.</span>';
+  }
+  addLog("Automation", "run.imported", { runId: state.runId }, "Imported run record.");
+  saveState();
+  renderAll();
 }
 
 function exportRunJson() {
   const record = createRunRecord();
   const blob = new Blob([JSON.stringify(record, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a"); a.href = url; a.download = "agentflow-run.json";
-  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-  addLog("Automation", "Exported run record as JSON.");
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = state.runId + ".agentflow-run.json";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  addLog("Automation", "run.exported_json", { runId: state.runId }, "Exported complete run record JSON.");
+  renderAll();
 }
 
 function importRunJson(file) {
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = event => {
     try {
-      const record = JSON.parse(e.target.result);
-      tasks = Array.isArray(record.tasks) ? record.tasks : [];
-      logs = Array.isArray(record.logs) ? record.logs : [];
-      finalMarkdown = record.final_markdown || "";
-      document.getElementById("goalInput").value = record.goal || "";
-      if (finalMarkdown) document.getElementById("finalOutput").textContent = finalMarkdown;
-      else document.getElementById("finalOutput").innerHTML = '<span class="empty-state">Imported run has no final markdown yet.</span>';
+      importRunRecord(JSON.parse(event.target.result));
+    } catch (error) {
+      addLog("Automation", "run.import_failed", { error: String(error) }, "Import failed. Not a valid AgentFlow JSON record.");
       renderAll();
-      addLog("Automation", "Imported run record from JSON.");
-    } catch { addLog("Automation", "Import failed. Not a valid AgentFlow JSON record."); }
+    }
   };
   reader.readAsText(file);
 }
 
-function loadExample() {
-  document.getElementById("goalInput").value = "Build a cyberpunk 3D earth website with mouse rotation, wheel zoom, glowing atmosphere, and a single-file HTML delivery.";
-  addLog("System", "Loaded the 3D Earth example request.");
-}
-
-function reset() {
-  tasks = []; logs = []; finalMarkdown = "";
-  document.getElementById("goalInput").value = "";
-  document.getElementById("finalOutput").innerHTML = '<span class="empty-state">Run the workflow and collect agent notes to generate a final markdown record.</span>';
+function generateFinalOutput() {
+  if (!state.tasks.length) {
+    addLog("System", "final_output.empty", {}, "No tasks available for final output.");
+    renderAll();
+    return;
+  }
+  state.goal = getEl("goalInput").value.trim() || state.goal;
+  state.finalMarkdown = [
+    "# AgentFlow Run Record",
+    "",
+    "## Run",
+    "- Run ID: " + state.runId,
+    "- Version: " + VERSION,
+    "- Status: " + state.status,
+    "",
+    "## User Goal",
+    state.goal || "No goal provided.",
+    "",
+    "## Workflow",
+    ...state.tasks.map(task => {
+      const agent = agents.find(item => item.id === task.agent);
+      return "- " + task.order + ". [" + statusLabels[task.status] + "] " + task.title + " -> " + (agent ? agent.tool + " (" + agent.name + ")" : task.agent);
+    }),
+    "",
+    "## Agent Outputs",
+    ...state.tasks.flatMap(task => {
+      const agent = agents.find(item => item.id === task.agent);
+      return ["", "### " + (agent ? agent.tool + " (" + agent.name + ")" : task.agent) + " - " + task.title, task.output || "_No output recorded yet._"];
+    }),
+    "",
+    "## Next Steps",
+    "- Review tasks still in planned, active, review, blocked, or failed states.",
+    "- Export this run record as JSON for replay.",
+    "- Continue with manual agent handoffs until all tasks are done."
+  ].join("\n");
+  getEl("finalOutput").textContent = state.finalMarkdown;
+  addLog("Assistant", "final_output.generated", { runId: state.runId }, "Generated final markdown run record.");
   renderAll();
 }
 
+async function copyMarkdown() {
+  if (!state.finalMarkdown) generateFinalOutput();
+  try {
+    await navigator.clipboard.writeText(state.finalMarkdown);
+    addLog("Automation", "markdown.copied", { runId: state.runId }, "Copied final markdown to clipboard.");
+  } catch {
+    addLog("Automation", "markdown.copy_failed", {}, "Clipboard blocked. Select the final output manually.");
+  }
+  renderAll();
+}
+
+function loadExample() {
+  getEl("goalInput").value = "Build a cyberpunk 3D earth website with mouse rotation, wheel zoom, glowing atmosphere, and a single-file HTML delivery.";
+  state.goal = getEl("goalInput").value.trim();
+  addLog("System", "example.loaded", {}, "Loaded the 3D Earth example request.");
+  renderAll();
+}
+
+function resetRun() {
+  state = createInitialState("");
+  getEl("goalInput").value = "";
+  getEl("finalOutput").innerHTML = '<span class="empty-state">Run the workflow and collect agent notes to generate a final markdown record.</span>';
+  addLog("System", "run.reset", { runId: state.runId }, "Started a fresh local run.");
+  saveState();
+  renderAll();
+}
+
+function clearLocalState() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (error) {
+    console.warn("AgentFlow localStorage clear failed", error);
+  }
+  state = createInitialState("");
+  getEl("goalInput").value = "";
+  getEl("finalOutput").innerHTML = '<span class="empty-state">Run the workflow and collect agent notes to generate a final markdown record.</span>';
+  syncWindow();
+  renderAll();
+}
+
+function renderAgents() {
+  const root = getEl("agentList");
+  const colorMap = { cyan: "border-cyan-400", blue: "border-blue-400", pink: "border-pink-400", yellow: "border-yellow-400", purple: "border-purple-400", green: "border-green-400", orange: "border-orange-400" };
+  const badgeMap = { cyan: "text-cyan-400 bg-cyan-400/10", blue: "text-blue-400 bg-blue-400/10", pink: "text-pink-400 bg-pink-400/10", yellow: "text-yellow-400 bg-yellow-400/10", purple: "text-purple-400 bg-purple-400/10", green: "text-green-400 bg-green-400/10", orange: "text-orange-400 bg-orange-400/10" };
+  root.innerHTML = agents.map(agent => `
+    <div class="glass-hover rounded-lg p-3 flex items-start gap-3 border-l-2 ${colorMap[agent.color] || "border-zinc-500"}">
+      <span class="w-7 h-7 rounded bg-zinc-900 text-xs font-semibold grid place-items-center shrink-0">${agent.name.slice(0, 2).toUpperCase()}</span>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium text-zinc-200">${escapeHtml(agent.name)}</span>
+          <span class="text-[10px] text-zinc-600">${escapeHtml(agent.tool)}</span>
+        </div>
+        <div class="text-xs text-zinc-500 mt-0.5">${escapeHtml(agent.role)} - ${escapeHtml(agent.desc)}</div>
+      </div>
+      <span class="text-[10px] ${badgeMap[agent.color] || "text-zinc-500 bg-zinc-800"} px-1.5 py-0.5 rounded shrink-0">${state.tasks.some(task => task.agent === agent.id && task.status === "active") ? "RUNNING" : "READY"}</span>
+    </div>
+  `).join("");
+  getEl("agentCount").textContent = String(agents.length);
+}
+
+function renderFlow() {
+  const root = getEl("flowView");
+  if (!state.tasks.length) {
+    root.innerHTML = '<p class="empty-state">Enter a goal and click Decompose Task to generate the workflow.</p>';
+    getEl("currentStepMetric").textContent = "No step";
+    return;
+  }
+
+  const agentNames = {};
+  agents.forEach(agent => { agentNames[agent.id] = agent.name; });
+  const lines = ["flowchart LR"];
+  state.tasks.forEach((task, index) => {
+    const label = task.order + ". " + task.title + "<br/>" + (agentNames[task.agent] || task.agent);
+    const nodeId = "T" + index;
+    const style = task.status === "done" ? "fill:#0e3a1e,stroke:#22c55e" :
+      task.status === "active" ? "fill:#0e3a3b,stroke:#06b6d4" :
+      task.status === "review" ? "fill:#2e0e3a,stroke:#a855f7" :
+      task.status === "blocked" ? "fill:#3a210e,stroke:#f97316" :
+      task.status === "failed" ? "fill:#3a0e1a,stroke:#f43f5e" :
+      "fill:#1e1b4b,stroke:#6366f1";
+    lines.push('  ' + nodeId + '["' + label.replaceAll('"', "'") + '"]');
+    lines.push("  style " + nodeId + " " + style + ",color:#e4e4e7");
+    if (index > 0) lines.push("  T" + (index - 1) + " --> " + nodeId);
+  });
+
+  const current = findTask(state.currentStepId);
+  getEl("currentStepMetric").textContent = current ? "Next: " + current.order + ". " + current.title : "No next step";
+  const stepList = state.tasks.map(task => `
+    <div class="runtime-panel flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+      <div>
+        <div class="text-xs text-zinc-200">${task.order}. ${escapeHtml(task.title)}</div>
+        <div class="text-[11px] text-zinc-500">${escapeHtml(agentNames[task.agent] || task.agent)} - ${escapeHtml(statusLabels[task.status])}</div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn run-step" data-task-id="${escapeAttr(task.id)}">Run Step</button>
+        <button class="btn copy-prompt" data-task-id="${escapeAttr(task.id)}">Copy Prompt</button>
+      </div>
+    </div>
+  `).join("");
+  root.innerHTML = '<div class="mermaid mb-3">' + lines.join("\n") + '</div><div class="space-y-2">' + stepList + '</div>';
+  try {
+    if (window.mermaid && root.querySelector) {
+      const renderResult = mermaid.run({ nodes: [root.querySelector(".mermaid")] });
+      if (renderResult && typeof renderResult.catch === "function") {
+        renderResult.catch(error => console.warn("Mermaid render failed", error));
+      }
+    }
+  } catch (error) {
+    console.warn("Mermaid render failed", error);
+  }
+  attachFlowEvents();
+}
+
+function renderBoard() {
+  taskStatuses.forEach(status => {
+    const column = getEl("col-" + status);
+    const columnTasks = state.tasks.filter(task => task.status === status);
+    if (!columnTasks.length) {
+      column.innerHTML = '<p class="empty-state">No tasks</p>';
+      return;
+    }
+    column.innerHTML = columnTasks.map(task => {
+      const agentOptions = agents.map(agent => `<option value="${agent.id}" ${agent.id === task.agent ? "selected" : ""}>${escapeHtml(agent.name)}</option>`).join("");
+      const statusOptions = taskStatuses.map(item => `<option value="${item}" ${item === task.status ? "selected" : ""}>${statusLabels[item]}</option>`).join("");
+      return `
+        <div class="task-card ${state.currentStepId === task.id ? "is-current" : ""}">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <span class="text-[10px] mono text-zinc-500">STEP ${task.order}</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded ${statusColors[task.status]}">${statusLabels[task.status]}</span>
+          </div>
+          <input class="task-field task-title mb-2" data-task-id="${escapeAttr(task.id)}" value="${escapeAttr(task.title)}" aria-label="Task title">
+          <textarea class="task-field task-brief-field mb-2" data-task-id="${escapeAttr(task.id)}" aria-label="Task brief">${escapeHtml(task.brief)}</textarea>
+          <div class="grid grid-cols-1 gap-2 mb-2">
+            <select class="task-field task-agent" data-task-id="${escapeAttr(task.id)}" aria-label="Assigned agent">${agentOptions}</select>
+            <select class="task-field task-status" data-task-id="${escapeAttr(task.id)}" aria-label="Task status">${statusOptions}</select>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button class="btn run-step" data-task-id="${escapeAttr(task.id)}">Run Step</button>
+            <button class="btn copy-prompt" data-task-id="${escapeAttr(task.id)}">Copy Prompt</button>
+            <button class="btn delete-task" data-task-id="${escapeAttr(task.id)}">Delete</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  });
+  attachBoardEvents();
+}
+
+function renderOutputInputs() {
+  const root = getEl("outputInputs");
+  if (!state.tasks.length) {
+    root.innerHTML = '<p class="empty-state">Run task decomposition first, then paste each agent output here.</p>';
+    return;
+  }
+  root.innerHTML = state.tasks.map(task => {
+    const agent = agents.find(item => item.id === task.agent);
+    return `
+      <div class="runtime-panel">
+        <label class="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider" for="out-${escapeAttr(task.id)}">
+          ${escapeHtml(agent ? agent.name + " (" + agent.tool + ")" : task.agent)}: ${escapeHtml(task.title)}
+        </label>
+        <textarea id="out-${escapeAttr(task.id)}" data-task-id="${escapeAttr(task.id)}" class="w-full mt-1 agent-output" style="min-height: 64px; resize: vertical;" placeholder="Paste this agent output here.">${escapeHtml(task.output)}</textarea>
+        <div class="flex gap-2 mt-2">
+          <button class="btn submit-output" data-task-id="${escapeAttr(task.id)}">Submit Output</button>
+          <button class="btn mark-done" data-task-id="${escapeAttr(task.id)}">Mark Done</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+  attachOutputEvents();
+}
+
+function renderLogs() {
+  const root = getEl("logView");
+  if (!state.logs.length) {
+    root.innerHTML = '<p class="empty-state">Waiting for workflow activity.</p>';
+    return;
+  }
+  root.innerHTML = state.logs.slice(0, 40).map(log => `
+    <div class="log-line text-xs">
+      <span class="text-zinc-600">[${displayTime(log.time)}]</span>
+      <span class="text-cyan-400"> ${escapeHtml(log.actor)}</span>
+      <span class="text-zinc-400"> - ${escapeHtml(log.message || log.action)}</span>
+    </div>
+  `).join("");
+}
+
+function renderRunRecord() {
+  const view = getEl("runRecordView");
+  view.textContent = JSON.stringify({
+    version: VERSION,
+    runId: state.runId,
+    goal: state.goal,
+    status: state.status,
+    currentStepId: state.currentStepId,
+    tasks: state.tasks.length,
+    outputs: state.outputs.length,
+    logs: state.logs.length,
+    updatedAt: state.updatedAt
+  }, null, 2);
+}
+
+function updateMetrics() {
+  getEl("taskMetric").textContent = state.tasks.length + " tasks";
+  getEl("logMetric").textContent = state.logs.length + " logs";
+}
+
 function renderAll() {
+  syncWindow();
+  getEl("goalInput").value = state.goal || getEl("goalInput").value || "";
   renderAgents();
   renderFlow();
   renderBoard();
   renderOutputInputs();
   renderLogs();
+  renderRunRecord();
   updateMetrics();
 }
 
-// ---- Event bindings ----
-document.getElementById("decomposeBtn").addEventListener("click", decompose);
-document.getElementById("exampleBtn").addEventListener("click", loadExample);
-document.getElementById("resetBtn").addEventListener("click", reset);
-document.getElementById("summarizeBtn").addEventListener("click", generateFinalOutput);
-document.getElementById("copyBtn").addEventListener("click", copyMarkdown);
-document.getElementById("exportJsonBtn").addEventListener("click", exportRunJson);
-document.getElementById("importJsonBtn").addEventListener("click", () => document.getElementById("importJsonInput").click());
-document.getElementById("importJsonInput").addEventListener("change", e => { importRunJson(e.target.files[0]); e.target.value = ""; });
+function attachFlowEvents() {
+  const root = getEl("flowView");
+  if (!root.querySelectorAll) return;
+  root.querySelectorAll(".run-step").forEach(button => button.addEventListener("click", event => runStep(event.currentTarget.dataset.taskId)));
+  root.querySelectorAll(".copy-prompt").forEach(button => button.addEventListener("click", event => copyAgentPrompt(event.currentTarget.dataset.taskId)));
+}
 
-// ---- Boot ----
-mermaid.initialize({ startOnLoad: true, theme: 'dark', themeVariables: { fontSize: '11px', fontFamily: 'JetBrains Mono, monospace' } });
-renderAll();
-addLog("System", "AgentFlow v0.1 static workspace initialized.");
+function attachBoardEvents() {
+  const board = getEl("taskBoard");
+  if (!board.querySelectorAll) return;
+  board.querySelectorAll(".task-status").forEach(input => input.addEventListener("change", event => changeTaskStatus(event.currentTarget.dataset.taskId, event.currentTarget.value)));
+  board.querySelectorAll(".task-agent").forEach(input => input.addEventListener("change", event => updateTask(event.currentTarget.dataset.taskId, { agent: event.currentTarget.value })));
+  board.querySelectorAll(".task-title").forEach(input => input.addEventListener("input", event => updateTask(event.currentTarget.dataset.taskId, { title: event.currentTarget.value.trim() || "Untitled task" })));
+  board.querySelectorAll(".task-brief").forEach(input => input.addEventListener("input", event => updateTask(event.currentTarget.dataset.taskId, { brief: event.currentTarget.value.trim() })));
+  board.querySelectorAll(".run-step").forEach(button => button.addEventListener("click", event => runStep(event.currentTarget.dataset.taskId)));
+  board.querySelectorAll(".copy-prompt").forEach(button => button.addEventListener("click", event => copyAgentPrompt(event.currentTarget.dataset.taskId)));
+  board.querySelectorAll(".delete-task").forEach(button => button.addEventListener("click", event => deleteTask(event.currentTarget.dataset.taskId)));
+}
+
+function attachOutputEvents() {
+  const root = getEl("outputInputs");
+  if (!root.querySelectorAll) return;
+  root.querySelectorAll(".agent-output").forEach(input => input.addEventListener("input", event => {
+    const task = findTask(event.currentTarget.dataset.taskId);
+    if (!task) return;
+    task.output = event.currentTarget.value;
+    task.updatedAt = nowIso();
+    const step = findStep(task.id);
+    if (step) step.output = task.output;
+    saveState();
+    renderRunRecord();
+  }));
+  root.querySelectorAll(".submit-output").forEach(button => button.addEventListener("click", event => {
+    const taskId = event.currentTarget.dataset.taskId;
+    const input = getEl("out-" + taskId);
+    submitStepOutput(taskId, input ? input.value : "", "review");
+  }));
+  root.querySelectorAll(".mark-done").forEach(button => button.addEventListener("click", event => {
+    const taskId = event.currentTarget.dataset.taskId;
+    const input = getEl("out-" + taskId);
+    submitStepOutput(taskId, input ? input.value : "", "done");
+  }));
+}
+
+function bindStaticEvents() {
+  getEl("decomposeBtn").addEventListener("click", decompose);
+  getEl("exampleBtn").addEventListener("click", loadExample);
+  getEl("addTaskBtn").addEventListener("click", addTask);
+  getEl("resetBtn").addEventListener("click", resetRun);
+  getEl("clearStateBtn").addEventListener("click", clearLocalState);
+  getEl("summarizeBtn").addEventListener("click", generateFinalOutput);
+  getEl("copyBtn").addEventListener("click", copyMarkdown);
+  getEl("exportJsonBtn").addEventListener("click", exportRunJson);
+  getEl("importJsonBtn").addEventListener("click", () => getEl("importJsonInput").click());
+  getEl("importJsonInput").addEventListener("change", event => {
+    importRunJson(event.target.files[0]);
+    event.target.value = "";
+  });
+}
+
+function boot() {
+  try {
+    if (window.mermaid) {
+      mermaid.initialize({ startOnLoad: true, theme: "dark", themeVariables: { fontSize: "11px", fontFamily: "JetBrains Mono, monospace" } });
+    }
+  } catch (error) {
+    console.warn("Mermaid initialization failed", error);
+  }
+  state = loadState();
+  syncWindow();
+  bindStaticEvents();
+  renderAll();
+  addLog("System", "runtime.started", { version: VERSION }, "AgentFlow v0.2 local runtime initialized.");
+  renderAll();
+}
+
+window.AgentFlowRuntime = {
+  decompose,
+  addTask,
+  updateTask,
+  deleteTask,
+  changeTaskStatus,
+  generateAgentPrompt,
+  copyAgentPrompt,
+  runStep,
+  submitStepOutput,
+  createRunRecord,
+  importRunRecord,
+  exportRunJson,
+  importRunJson,
+  generateFinalOutput,
+  copyMarkdown,
+  resetRun,
+  clearLocalState,
+  saveState,
+  loadState
+};
+
+boot();
 </script>
 </body>
 </html>

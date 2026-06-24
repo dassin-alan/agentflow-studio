@@ -5,7 +5,7 @@
 
 AgentFlow helps you coordinate multiple AI coding agents, automation agents, reviewers, and testers in a structured workflow. Instead of asking one model to do everything, AgentFlow decomposes complex tasks into subtasks and routes them to specialized agents — with a visual workspace so you can see what's happening.
 
-> ⚠️ **Current status: v0.1.0** — static prototype. Open `index.html` in your browser to see the workspace concept. No backend, no API keys required. The full Next.js + FastAPI architecture is planned for later milestones. See [ROADMAP.md](./ROADMAP.md).
+> **Current status: v0.2.0 Local Runtime** — open `index.html` in your browser to run a persistent local agent workflow. No backend, no database, no API keys, and no build step required. Backend and API integrations are planned for later milestones. See [ROADMAP.md](./ROADMAP.md).
 
 ## Live Demo
 
@@ -31,19 +31,22 @@ AgentFlow follows a few simple principles:
 
 ---
 
-## What You Can Do in the Demo
+## What You Can Do Locally
 
 Open `index.html` and you can:
 
 - 🎯 **View the Agent Team** — 7 agents with roles, icons, and capabilities
 - ✍️ **Enter a task goal** — type your request or load the 3D Earth example
 - 🔀 **Decompose tasks** — the Commander breaks your request into subtasks
-- 📋 **Track the Task Board** — view subtasks across Planned, Active, and Review columns
+- 📋 **Track the Task Board** — move subtasks through Planned, Active, Review, Done, Blocked, and Failed
+- 🧭 **Run workflow steps** — run one step at a time and track the current step
+- 📋 **Copy Agent Prompts** — generate structured prompts for external tools
 - 📝 **Fill in Agent Outputs** — paste results from your real AI tools manually
+- 💾 **Restore local state** — refresh the page without losing the current run
 - 📊 **Watch the Workflow Graph** — Mermaid diagram updates live
-- 📜 **See the Collaboration Log** — every action is timestamped
+- 📜 **See the Collaboration Log** — every important action is timestamped and structured
 - ✅ **Generate Final Output** — synthesize all results into Markdown
-- 📋 **Copy / Export / Import** — save and restore run records
+- 📋 **Copy / Export / Import** — save, restore, and replay run records
 
 ---
 
@@ -93,17 +96,17 @@ start index.html       # Windows
 xdg-open index.html    # Linux
 ```
 
-That's it. No `npm install`, no `pip install`, no API keys. v0.1.0 is a self-contained static page.
+That's it. No `npm install`, no `pip install`, no API keys. v0.2.0 is a self-contained local runtime.
 
-> **Note:** v0.1.0 uses Tailwind CDN and Mermaid CDN for convenience. An internet connection is required for full styling and diagrams. A fully offline build will be introduced in a later version.
+> **Note:** v0.2.0 uses Tailwind CDN and Mermaid CDN for convenience. An internet connection is required for full styling and diagrams. The runtime state itself is local and stored in your browser.
 
 ---
 
-## Project Structure (v0.1.0)
+## Project Structure (v0.2.0)
 
 ```text
 agentflow-studio/
-├── index.html                # Static workspace demo ← START HERE
+├── index.html                # Local runtime workspace ← START HERE
 ├── README.md
 ├── LICENSE
 ├── ROADMAP.md
@@ -119,12 +122,10 @@ agentflow-studio/
 │   ├── architecture.md
 │   └── workflow.md
 └── examples/                 # Example workflows
-    ├── 3d-earth-demo/
-    ├── code-review-workflow/
-    └── docs-generation/
+    └── 3d-earth-demo/
 ```
 
-> `apps/` and `packages/` will appear in v0.2.0+. See [ROADMAP.md](./ROADMAP.md) for the planned structure.
+> Backend apps and packages are intentionally deferred to later milestones. v0.2.0 remains a single-file local runtime.
 
 ---
 
@@ -172,10 +173,10 @@ steps:
 
 | Version | Goal | Status |
 |---------|------|--------|
-| v0.1.0 | Static demo — agent list, task board, mock workflow | 🟢 Active |
-| v0.2.0 | Manual workflow — task CRUD, agent assignment, local storage | 📋 Planned |
+| v0.1.0 | Static demo — agent list, task board, mock workflow | ✅ Complete |
+| v0.2.0 | Local Runtime — localStorage, state machine, prompt handoff, run replay | 🟢 Active |
 | v0.3.0 | Agent Protocol — standardized task input/output schema | 📋 Planned |
-| v0.4.0 | API integration — connect to real model backends | 📋 Planned |
+| v0.4.0 | API integration — backend storage and real model adapters | 📋 Planned |
 | v0.5.0 | Review & test loop — automated code review and QA | 📋 Planned |
 | v1.0.0 | Stable release — full visual workspace, plugin system | 📋 Planned |
 
