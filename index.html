@@ -994,8 +994,9 @@ function renderAgents() {
   
   root.innerHTML = agents.map(agent => {
     const isRunning = state.tasks.some(task => task.agent === agent.id && task.status === "active");
+    const activeBadgeColor = badgeMap[agent.color] || "text-zinc-400 bg-zinc-950/50 border-zinc-900/30";
     const badgeClass = isRunning 
-      ? `${badgeMap[agent.color]} border animate-pulse font-semibold` 
+      ? `${activeBadgeColor} border animate-pulse font-semibold` 
       : "text-zinc-500 bg-zinc-900 border-white/5";
     
     return `
@@ -1004,7 +1005,7 @@ function renderAgents() {
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2">
             <span class="text-xs font-semibold text-zinc-200">${escapeHtml(agent.name)}</span>
-            <span class="text-[10px] text-zinc-500 font-mono bg-zinc-950 px-1 py-0.2 rounded border border-white/5">${escapeHtml(agent.tool)}</span>
+            <span class="text-[10px] text-zinc-500 font-mono bg-zinc-950 px-1 py-0.5 rounded border border-white/5">${escapeHtml(agent.tool)}</span>
           </div>
           <div class="text-[11px] text-zinc-500 mt-1 font-sans leading-relaxed">${escapeHtml(agent.role)} - ${escapeHtml(agent.desc)}</div>
         </div>
@@ -1176,7 +1177,7 @@ function renderLogs() {
     System: "text-zinc-400",
     Commander: "text-cyan-400",
     Coder: "text-blue-400",
-    UI_Designer: "text-pink-400",
+    "UI Designer": "text-pink-400",
     Automation: "text-yellow-400",
     Reviewer: "text-purple-400",
     Tester: "text-green-400",
@@ -1238,8 +1239,8 @@ function attachBoardEvents() {
   if (!board.querySelectorAll) return;
   board.querySelectorAll(".task-status").forEach(input => input.addEventListener("change", event => changeTaskStatus(event.currentTarget.dataset.taskId, event.currentTarget.value)));
   board.querySelectorAll(".task-agent").forEach(input => input.addEventListener("change", event => updateTask(event.currentTarget.dataset.taskId, { agent: event.currentTarget.value })));
-  board.querySelectorAll(".task-title").forEach(input => input.addEventListener("input", event => updateTask(event.currentTarget.dataset.taskId, { title: event.currentTarget.value.trim() || "Untitled task" })));
-  board.querySelectorAll(".task-brief-field").forEach(input => input.addEventListener("input", event => updateTask(event.currentTarget.dataset.taskId, { brief: event.currentTarget.value.trim() })));
+  board.querySelectorAll(".task-title").forEach(input => input.addEventListener("change", event => updateTask(event.currentTarget.dataset.taskId, { title: event.currentTarget.value.trim() || "Untitled task" })));
+  board.querySelectorAll(".task-brief-field").forEach(input => input.addEventListener("change", event => updateTask(event.currentTarget.dataset.taskId, { brief: event.currentTarget.value.trim() })));
   board.querySelectorAll(".run-step").forEach(button => button.addEventListener("click", event => runStep(event.currentTarget.dataset.taskId)));
   board.querySelectorAll(".copy-prompt").forEach(button => button.addEventListener("click", event => copyAgentPrompt(event.currentTarget.dataset.taskId)));
   board.querySelectorAll(".delete-task").forEach(button => button.addEventListener("click", event => deleteTask(event.currentTarget.dataset.taskId)));
