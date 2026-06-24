@@ -721,7 +721,7 @@ function updateTask(taskId, patch) {
   const step = findStep(taskId);
   if (step) Object.assign(step, taskToStep(task), { prompt: step.prompt || "", output: task.output || step.output || "" });
   saveState();
-  renderAll();
+  setTimeout(renderAll, 0);
 }
 
 function deleteTask(taskId) {
@@ -988,7 +988,7 @@ function clearLocalState() {
 
 function renderAgents() {
   const root = getEl("agentList");
-  const colorMap = { cyan: "border-cyan-500/70", blue: "border-blue-500/70", pink: "border-pink-500/70", yellow: "border-yellow-500/70", purple: "border-purple-500/70", green: "border-green-500/70", orange: "border-orange-500/70" };
+  const colorMap = { cyan: "border-l-cyan-500/70", blue: "border-l-blue-500/70", pink: "border-l-pink-500/70", yellow: "border-l-yellow-500/70", purple: "border-l-purple-500/70", green: "border-l-green-500/70", orange: "border-l-orange-500/70" };
   const textMap = { cyan: "text-cyan-400", blue: "text-blue-400", pink: "text-pink-400", yellow: "text-yellow-400", purple: "text-purple-400", green: "text-green-400", orange: "text-orange-400" };
   const badgeMap = { cyan: "text-cyan-400 bg-cyan-950/50 border-cyan-900/30", blue: "text-blue-400 bg-blue-950/50 border-blue-900/30", pink: "text-pink-400 bg-pink-950/50 border-pink-900/30", yellow: "text-yellow-400 bg-yellow-950/50 border-yellow-900/30", purple: "text-purple-400 bg-purple-950/50 border-purple-900/30", green: "text-green-400 bg-green-950/50 border-green-900/30", orange: "text-orange-400 bg-orange-950/50 border-orange-900/30" };
   
@@ -1001,7 +1001,7 @@ function renderAgents() {
     
     return `
       <div class="bg-zinc-900/40 border border-white/5 hover:bg-zinc-900/70 hover:border-white/10 rounded-lg p-3 flex items-start gap-3 border-l-4 ${colorMap[agent.color] || "border-zinc-500"} transition-all duration-200">
-        <span class="w-8 h-8 rounded bg-zinc-950 text-xs font-semibold grid place-items-center shrink-0 border border-white/5 ${textMap[agent.color]} font-mono">${agent.name.slice(0, 2).toUpperCase()}</span>
+        <span class="w-8 h-8 rounded bg-zinc-950 text-xs font-semibold grid place-items-center shrink-0 border border-white/5 ${textMap[agent.color] || "text-zinc-400"} font-mono">${agent.name.slice(0, 2).toUpperCase()}</span>
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2">
             <span class="text-xs font-semibold text-zinc-200">${escapeHtml(agent.name)}</span>
