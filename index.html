@@ -988,21 +988,32 @@ function clearLocalState() {
 
 function renderAgents() {
   const root = getEl("agentList");
-  const colorMap = { cyan: "border-cyan-400", blue: "border-blue-400", pink: "border-pink-400", yellow: "border-yellow-400", purple: "border-purple-400", green: "border-green-400", orange: "border-orange-400" };
-  const badgeMap = { cyan: "text-cyan-400 bg-cyan-400/10", blue: "text-blue-400 bg-blue-400/10", pink: "text-pink-400 bg-pink-400/10", yellow: "text-yellow-400 bg-yellow-400/10", purple: "text-purple-400 bg-purple-400/10", green: "text-green-400 bg-green-400/10", orange: "text-orange-400 bg-orange-400/10" };
-  root.innerHTML = agents.map(agent => `
-    <div class="glass-hover rounded-lg p-3 flex items-start gap-3 border-l-2 ${colorMap[agent.color] || "border-zinc-500"}">
-      <span class="w-7 h-7 rounded bg-zinc-900 text-xs font-semibold grid place-items-center shrink-0">${agent.name.slice(0, 2).toUpperCase()}</span>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2">
-          <span class="text-sm font-medium text-zinc-200">${escapeHtml(agent.name)}</span>
-          <span class="text-[10px] text-zinc-600">${escapeHtml(agent.tool)}</span>
+  const colorMap = { cyan: "border-cyan-500/70", blue: "border-blue-500/70", pink: "border-pink-500/70", yellow: "border-yellow-500/70", purple: "border-purple-500/70", green: "border-green-500/70", orange: "border-orange-500/70" };
+  const textMap = { cyan: "text-cyan-400", blue: "text-blue-400", pink: "text-pink-400", yellow: "text-yellow-400", purple: "text-purple-400", green: "text-green-400", orange: "text-orange-400" };
+  const badgeMap = { cyan: "text-cyan-400 bg-cyan-950/50 border-cyan-900/30", blue: "text-blue-400 bg-blue-950/50 border-blue-900/30", pink: "text-pink-400 bg-pink-950/50 border-pink-900/30", yellow: "text-yellow-400 bg-yellow-950/50 border-yellow-900/30", purple: "text-purple-400 bg-purple-950/50 border-purple-900/30", green: "text-green-400 bg-green-950/50 border-green-900/30", orange: "text-orange-400 bg-orange-950/50 border-orange-900/30" };
+  
+  root.innerHTML = agents.map(agent => {
+    const isRunning = state.tasks.some(task => task.agent === agent.id && task.status === "active");
+    const badgeClass = isRunning 
+      ? `${badgeMap[agent.color]} border animate-pulse font-semibold` 
+      : "text-zinc-500 bg-zinc-900 border-white/5";
+    
+    return `
+      <div class="bg-zinc-900/40 border border-white/5 hover:bg-zinc-900/70 hover:border-white/10 rounded-lg p-3 flex items-start gap-3 border-l-4 ${colorMap[agent.color] || "border-zinc-500"} transition-all duration-200">
+        <span class="w-8 h-8 rounded bg-zinc-950 text-xs font-semibold grid place-items-center shrink-0 border border-white/5 ${textMap[agent.color]} font-mono">${agent.name.slice(0, 2).toUpperCase()}</span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-zinc-200">${escapeHtml(agent.name)}</span>
+            <span class="text-[10px] text-zinc-500 font-mono bg-zinc-950 px-1 py-0.2 rounded border border-white/5">${escapeHtml(agent.tool)}</span>
+          </div>
+          <div class="text-[11px] text-zinc-500 mt-1 font-sans leading-relaxed">${escapeHtml(agent.role)} - ${escapeHtml(agent.desc)}</div>
         </div>
-        <div class="text-xs text-zinc-500 mt-0.5">${escapeHtml(agent.role)} - ${escapeHtml(agent.desc)}</div>
+        <span class="text-[9px] border px-2 py-0.5 rounded-full shrink-0 tracking-wider ${badgeClass}">
+          ${isRunning ? "RUNNING" : "READY"}
+        </span>
       </div>
-      <span class="text-[10px] ${badgeMap[agent.color] || "text-zinc-500 bg-zinc-800"} px-1.5 py-0.5 rounded shrink-0">${state.tasks.some(task => task.agent === agent.id && task.status === "active") ? "RUNNING" : "READY"}</span>
-    </div>
-  `).join("");
+    `;
+  }).join("");
   getEl("agentCount").textContent = String(agents.length);
 }
 
@@ -1020,32 +1031,50 @@ function renderFlow() {
   state.tasks.forEach((task, index) => {
     const label = task.order + ". " + task.title + "<br/>" + (agentNames[task.agent] || task.agent);
     const nodeId = "T" + index;
-    const style = task.status === "done" ? "fill:#0e3a1e,stroke:#22c55e" :
-      task.status === "active" ? "fill:#0e3a3b,stroke:#06b6d4" :
-      task.status === "review" ? "fill:#2e0e3a,stroke:#a855f7" :
-      task.status === "blocked" ? "fill:#3a210e,stroke:#f97316" :
-      task.status === "failed" ? "fill:#3a0e1a,stroke:#f43f5e" :
-      "fill:#1e1b4b,stroke:#6366f1";
+    const style = task.status === "done" ? "fill:#062d16,stroke:#22c55e,stroke-width:1.5px" :
+      task.status === "active" ? "fill:#052e3d,stroke:#06b6d4,stroke-width:2px" :
+      task.status === "review" ? "fill:#290d3d,stroke:#a855f7,stroke-width:1.5px" :
+      task.status === "blocked" ? "fill:#331a05,stroke:#f97316,stroke-width:1.5px" :
+      task.status === "failed" ? "fill:#330612,stroke:#f43f5e,stroke-width:1.5px" :
+      "fill:#18181b,stroke:#3f3f46,stroke-width:1px";
     lines.push('  ' + nodeId + '["' + label.replaceAll('"', "'") + '"]');
-    lines.push("  style " + nodeId + " " + style + ",color:#e4e4e7");
+    lines.push("  style " + nodeId + " " + style + ",color:#f4f4f5");
     if (index > 0) lines.push("  T" + (index - 1) + " --> " + nodeId);
   });
 
   const current = findTask(state.currentStepId);
-  getEl("currentStepMetric").textContent = current ? "Next: " + current.order + ". " + current.title : "No next step";
-  const stepList = state.tasks.map(task => `
-    <div class="runtime-panel flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-      <div>
-        <div class="text-xs text-zinc-200">${task.order}. ${escapeHtml(task.title)}</div>
-        <div class="text-[11px] text-zinc-500">${escapeHtml(agentNames[task.agent] || task.agent)} - ${escapeHtml(statusLabels[task.status])}</div>
+  getEl("currentStepMetric").textContent = current ? "Next: Step " + current.order + " (" + current.title + ")" : "All steps completed";
+  
+  const stepList = state.tasks.map(task => {
+    const isCurrent = state.currentStepId === task.id;
+    const statusBadge = `<span class="status-badge ${statusColors[task.status]}">${statusLabels[task.status]}</span>`;
+    return `
+      <div class="bg-zinc-900/30 border border-white/5 rounded-lg p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${isCurrent ? 'ring-1 ring-cyan-500/30 bg-cyan-950/5' : ''}">
+        <div class="flex items-start gap-2.5">
+          <span class="w-5 h-5 rounded bg-zinc-950 border border-white/5 text-[10px] font-mono font-bold flex items-center justify-center shrink-0 text-zinc-400 mt-0.5">${task.order}</span>
+          <div>
+            <div class="text-xs font-semibold text-zinc-100 flex items-center gap-2 flex-wrap">
+              <span>${escapeHtml(task.title)}</span>
+              ${statusBadge}
+            </div>
+            <div class="text-[10px] text-zinc-500 mt-1 font-mono">${escapeHtml(agentNames[task.agent] || task.agent)} &bull; Expected: ${escapeHtml(task.expectedOutput)}</div>
+          </div>
+        </div>
+        <div class="flex gap-1.5 shrink-0 sm:justify-end">
+          <button class="btn btn-primary text-xs py-1 px-3 run-step" data-task-id="${escapeAttr(task.id)}">Run Step</button>
+          <button class="btn text-xs py-1 px-3 copy-prompt" data-task-id="${escapeAttr(task.id)}">Copy Prompt</button>
+        </div>
       </div>
-      <div class="flex gap-2">
-        <button class="btn run-step" data-task-id="${escapeAttr(task.id)}">Run Step</button>
-        <button class="btn copy-prompt" data-task-id="${escapeAttr(task.id)}">Copy Prompt</button>
-      </div>
+    `;
+  }).join("");
+  
+  root.innerHTML = `
+    <div class="bg-zinc-950/80 border border-white/5 rounded-xl p-4 mb-4 overflow-x-auto flex justify-center">
+      <div class="mermaid min-w-[300px] w-full flex justify-center">${lines.join("\n")}</div>
     </div>
-  `).join("");
-  root.innerHTML = '<div class="mermaid mb-3">' + lines.join("\n") + '</div><div class="space-y-2">' + stepList + '</div>';
+    <div class="space-y-2">${stepList}</div>
+  `;
+  
   try {
     if (window.mermaid && root.querySelector) {
       const renderResult = mermaid.run({ nodes: [root.querySelector(".mermaid")] });
@@ -1070,22 +1099,33 @@ function renderBoard() {
     column.innerHTML = columnTasks.map(task => {
       const agentOptions = agents.map(agent => `<option value="${agent.id}" ${agent.id === task.agent ? "selected" : ""}>${escapeHtml(agent.name)}</option>`).join("");
       const statusOptions = taskStatuses.map(item => `<option value="${item}" ${item === task.status ? "selected" : ""}>${statusLabels[item]}</option>`).join("");
+      const isCurrent = state.currentStepId === task.id;
+      
       return `
-        <div class="task-card ${state.currentStepId === task.id ? "is-current" : ""}">
-          <div class="flex items-center justify-between gap-2 mb-2">
-            <span class="text-[10px] mono text-zinc-500">STEP ${task.order}</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded ${statusColors[task.status]}">${statusLabels[task.status]}</span>
+        <div class="task-card ${isCurrent ? "is-current" : ""} space-y-3">
+          <div class="flex items-center justify-between gap-2 border-b border-white/5 pb-2">
+            <span class="text-[9px] font-mono text-zinc-500 font-semibold tracking-wider">STEP ${task.order}</span>
+            <span class="status-badge ${statusColors[task.status]} scale-90 origin-right">${statusLabels[task.status]}</span>
           </div>
-          <input class="task-field task-title mb-2" data-task-id="${escapeAttr(task.id)}" value="${escapeAttr(task.title)}" aria-label="Task title">
-          <textarea class="task-field task-brief-field mb-2" data-task-id="${escapeAttr(task.id)}" aria-label="Task brief">${escapeHtml(task.brief)}</textarea>
-          <div class="grid grid-cols-1 gap-2 mb-2">
-            <select class="task-field task-agent" data-task-id="${escapeAttr(task.id)}" aria-label="Assigned agent">${agentOptions}</select>
-            <select class="task-field task-status" data-task-id="${escapeAttr(task.id)}" aria-label="Task status">${statusOptions}</select>
+          
+          <input class="task-field task-title w-full rounded font-medium text-xs py-1" data-task-id="${escapeAttr(task.id)}" value="${escapeAttr(task.title)}" aria-label="Task title">
+          <textarea class="task-field task-brief-field w-full rounded text-zinc-400 text-xs py-1 leading-relaxed" data-task-id="${escapeAttr(task.id)}" aria-label="Task brief">${escapeHtml(task.brief)}</textarea>
+          
+          <div class="grid grid-cols-2 gap-1.5 pt-1">
+            <div class="flex flex-col gap-0.5">
+              <span class="text-[8px] text-zinc-500 uppercase tracking-wider font-mono pl-1">Assignee</span>
+              <select class="task-field task-agent rounded text-[11px] py-1 border-white/5" data-task-id="${escapeAttr(task.id)}" aria-label="Assigned agent">${agentOptions}</select>
+            </div>
+            <div class="flex flex-col gap-0.5">
+              <span class="text-[8px] text-zinc-500 uppercase tracking-wider font-mono pl-1">Status</span>
+              <select class="task-field task-status rounded text-[11px] py-1 border-white/5" data-task-id="${escapeAttr(task.id)}" aria-label="Task status">${statusOptions}</select>
+            </div>
           </div>
-          <div class="flex flex-wrap gap-2">
-            <button class="btn run-step" data-task-id="${escapeAttr(task.id)}">Run Step</button>
-            <button class="btn copy-prompt" data-task-id="${escapeAttr(task.id)}">Copy Prompt</button>
-            <button class="btn delete-task" data-task-id="${escapeAttr(task.id)}">Delete</button>
+          
+          <div class="flex flex-wrap gap-1.5 pt-2 border-t border-white/5">
+            <button class="btn btn-primary text-[10px] py-1 px-2.5 flex-1 run-step" data-task-id="${escapeAttr(task.id)}">Run</button>
+            <button class="btn text-[10px] py-1 px-2.5 flex-1 copy-prompt" data-task-id="${escapeAttr(task.id)}">Prompt</button>
+            <button class="btn btn-danger text-[10px] py-1 px-2.5 delete-task" data-task-id="${escapeAttr(task.id)}">Delete</button>
           </div>
         </div>
       `;
@@ -1100,17 +1140,25 @@ function renderOutputInputs() {
     root.innerHTML = '<p class="empty-state">Run task decomposition first, then paste each agent output here.</p>';
     return;
   }
+  
+  const textColors = { cyan: "text-cyan-400", blue: "text-blue-400", pink: "text-pink-400", yellow: "text-yellow-400", purple: "text-purple-400", green: "text-green-400", orange: "text-orange-400" };
+  const borderColors = { cyan: "border-cyan-500/20", blue: "border-blue-500/20", pink: "border-pink-500/20", yellow: "border-yellow-500/20", purple: "border-purple-500/20", green: "border-green-500/20", orange: "border-orange-500/20" };
+
   root.innerHTML = state.tasks.map(task => {
-    const agent = agents.find(item => item.id === task.agent);
+    const agent = agents.find(item => item.id === task.agent) || agents[0];
+    const agentColorText = textColors[agent.color] || "text-zinc-400";
+    const agentBorder = borderColors[agent.color] || "border-white/5";
     return `
-      <div class="runtime-panel">
-        <label class="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider" for="out-${escapeAttr(task.id)}">
-          ${escapeHtml(agent ? agent.name + " (" + agent.tool + ")" : task.agent)}: ${escapeHtml(task.title)}
+      <div class="bg-zinc-900/20 border ${agentBorder} rounded-lg p-3.5 space-y-2">
+        <label class="text-[10px] font-semibold uppercase tracking-wider flex items-center justify-between" for="out-${escapeAttr(task.id)}">
+          <span class="${agentColorText}">${escapeHtml(agent.name)} (${escapeHtml(agent.tool)})</span>
+          <span class="text-zinc-600 font-mono">Step ${task.order}</span>
         </label>
-        <textarea id="out-${escapeAttr(task.id)}" data-task-id="${escapeAttr(task.id)}" class="w-full mt-1 agent-output" style="min-height: 64px; resize: vertical;" placeholder="Paste this agent output here.">${escapeHtml(task.output)}</textarea>
-        <div class="flex gap-2 mt-2">
-          <button class="btn submit-output" data-task-id="${escapeAttr(task.id)}">Submit Output</button>
-          <button class="btn mark-done" data-task-id="${escapeAttr(task.id)}">Mark Done</button>
+        <div class="text-xs text-zinc-300 font-medium mb-1">${escapeHtml(task.title)}</div>
+        <textarea id="out-${escapeAttr(task.id)}" data-task-id="${escapeAttr(task.id)}" class="w-full mt-1 agent-output text-xs" style="min-height: 70px; resize: vertical;" placeholder="Paste agent output here...">${escapeHtml(task.output)}</textarea>
+        <div class="flex gap-2 justify-end pt-1">
+          <button class="btn btn-primary text-xs py-1 px-3 submit-output font-semibold" data-task-id="${escapeAttr(task.id)}">Submit Output</button>
+          <button class="btn text-xs py-1 px-3 mark-done" data-task-id="${escapeAttr(task.id)}">Mark Done</button>
         </div>
       </div>
     `;
@@ -1121,16 +1169,29 @@ function renderOutputInputs() {
 function renderLogs() {
   const root = getEl("logView");
   if (!state.logs.length) {
-    root.innerHTML = '<p class="empty-state">Waiting for workflow activity.</p>';
+    root.innerHTML = '<p class="empty-state">Waiting for activity...</p>';
     return;
   }
-  root.innerHTML = state.logs.slice(0, 40).map(log => `
-    <div class="log-line text-xs">
-      <span class="text-zinc-600">[${displayTime(log.time)}]</span>
-      <span class="text-cyan-400"> ${escapeHtml(log.actor)}</span>
-      <span class="text-zinc-400"> - ${escapeHtml(log.message || log.action)}</span>
-    </div>
-  `).join("");
+  const colors = {
+    System: "text-zinc-400",
+    Commander: "text-cyan-400",
+    Coder: "text-blue-400",
+    UI_Designer: "text-pink-400",
+    Automation: "text-yellow-400",
+    Reviewer: "text-purple-400",
+    Tester: "text-green-400",
+    Assistant: "text-orange-400"
+  };
+  root.innerHTML = state.logs.slice(0, 40).map(log => {
+    const actorColor = colors[log.actor] || "text-zinc-300";
+    return `
+      <div class="log-line text-[11px] leading-relaxed">
+        <span class="text-zinc-600 font-mono">[${displayTime(log.time)}]</span>
+        <span class="${actorColor} font-semibold"> ${escapeHtml(log.actor)}</span>
+        <span class="text-zinc-300"> - ${escapeHtml(log.message || log.action)}</span>
+      </div>
+    `;
+  }).join("");
 }
 
 function renderRunRecord() {
@@ -1178,7 +1239,7 @@ function attachBoardEvents() {
   board.querySelectorAll(".task-status").forEach(input => input.addEventListener("change", event => changeTaskStatus(event.currentTarget.dataset.taskId, event.currentTarget.value)));
   board.querySelectorAll(".task-agent").forEach(input => input.addEventListener("change", event => updateTask(event.currentTarget.dataset.taskId, { agent: event.currentTarget.value })));
   board.querySelectorAll(".task-title").forEach(input => input.addEventListener("input", event => updateTask(event.currentTarget.dataset.taskId, { title: event.currentTarget.value.trim() || "Untitled task" })));
-  board.querySelectorAll(".task-brief").forEach(input => input.addEventListener("input", event => updateTask(event.currentTarget.dataset.taskId, { brief: event.currentTarget.value.trim() })));
+  board.querySelectorAll(".task-brief-field").forEach(input => input.addEventListener("input", event => updateTask(event.currentTarget.dataset.taskId, { brief: event.currentTarget.value.trim() })));
   board.querySelectorAll(".run-step").forEach(button => button.addEventListener("click", event => runStep(event.currentTarget.dataset.taskId)));
   board.querySelectorAll(".copy-prompt").forEach(button => button.addEventListener("click", event => copyAgentPrompt(event.currentTarget.dataset.taskId)));
   board.querySelectorAll(".delete-task").forEach(button => button.addEventListener("click", event => deleteTask(event.currentTarget.dataset.taskId)));
