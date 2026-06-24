@@ -191,187 +191,231 @@
     text-align: center;
   }
 </style>
-</head>
-<body class="min-h-screen">
+</head><body class="min-h-screen flex flex-col justify-between">
 
-<!-- Header -->
-<header class="border-b border-white/5 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-  <div class="flex items-center gap-3">
-    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-sm font-bold">A</div>
-    <div>
-      <h1 class="text-lg font-semibold tracking-tight">AgentFlow</h1>
-      <p class="text-xs text-zinc-500">Multi-Agent Orchestration Workspace</p>
-    </div>
-  </div>
-  <div class="flex items-center gap-2 sm:gap-4 flex-wrap">
-    <span id="taskMetric" class="text-xs text-zinc-500 bg-zinc-900 px-2 py-1 rounded-full mono">0 tasks</span>
-    <span id="logMetric" class="text-xs text-zinc-500 bg-zinc-900 px-2 py-1 rounded-full mono">0 logs</span>
-    <span class="text-xs text-zinc-500 bg-zinc-900 px-2 py-1 rounded-full">local only</span>
-    <span class="text-xs text-cyan-400 bg-cyan-950/50 px-2 py-1 rounded-full">v0.2.0 Local Runtime</span>
-  </div>
-</header>
-
-<!-- Main Content -->
-<main class="grid grid-cols-1 lg:grid-cols-12 gap-4 p-4 max-w-[1600px] mx-auto" style="min-height: calc(100vh - 64px);">
-
-  <!-- ===== LEFT SIDEBAR: Agent Team ===== -->
-  <aside class="lg:col-span-3 glass rounded-xl p-4 overflow-y-auto" style="max-height: calc(100vh - 100px);">
-    <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">Agent Team <span id="agentCount" class="text-zinc-600">7</span></h2>
-    <div id="agentList" class="space-y-2"></div>
-
-    <div class="mt-6 pt-4 border-t border-white/5">
-      <p class="text-[10px] text-zinc-600 uppercase tracking-wider mb-2">v0.2 Scope</p>
-      <div class="glass-hover rounded-lg p-3">
-        <div class="text-sm font-medium text-zinc-300">Local Runtime</div>
-        <p class="text-xs text-zinc-500 mt-1">Persistent local state, manual agent prompts, step execution, and replayable run records.</p>
+  <!-- Header -->
+  <header class="border-b border-white/5 bg-zinc-950/80 backdrop-blur-md px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-sm font-bold shadow-md shadow-cyan-500/10">AF</div>
+      <div>
+        <h1 class="text-base font-semibold tracking-tight text-white flex items-center gap-2">
+          AgentFlow Studio
+          <span class="text-[10px] text-cyan-400 bg-cyan-950/50 border border-cyan-800/40 px-2 py-0.5 rounded-full font-normal">v0.2.0</span>
+        </h1>
+        <p class="text-xs text-zinc-500">Multi-Agent Local Orchestration Workspace</p>
       </div>
     </div>
-
-    <div class="mt-2 pt-4 border-t border-white/5">
-      <p class="text-[10px] text-zinc-600 uppercase tracking-wider mb-2">Configuration</p>
-      <div class="flex gap-2">
-        <span class="text-[10px] mono text-zinc-500 bg-zinc-900 px-2 py-1 rounded">agents.yaml</span>
-        <span class="text-[10px] mono text-zinc-500 bg-zinc-900 px-2 py-1 rounded">workflow.yaml</span>
-      </div>
+    <div class="flex items-center gap-2 flex-wrap">
+      <span id="taskMetric" class="text-xs text-zinc-400 bg-zinc-900 border border-white/5 px-2.5 py-1 rounded-md mono">0 tasks</span>
+      <span id="logMetric" class="text-xs text-zinc-400 bg-zinc-900 border border-white/5 px-2.5 py-1 rounded-md mono">0 logs</span>
+      <span class="text-[10px] text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-2 py-1 rounded-md flex items-center gap-1.5 font-medium uppercase tracking-wider">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Local Only
+      </span>
     </div>
-  </aside>
+  </header>
 
-  <!-- ===== CENTER: Intake + Workflow + Task Board ===== -->
-  <section class="lg:col-span-6 space-y-4">
-
-    <!-- Task Intake -->
-    <div class="glass rounded-xl p-4 glow-cyan">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Task Intake</h2>
-        <span class="text-[10px] text-cyan-400 bg-cyan-400/10 px-2 py-0.5 rounded-full">P0</span>
-      </div>
-      <textarea id="goalInput" class="w-full" style="min-height: 80px; resize: vertical;" placeholder="Describe what you want to build...">Build a cyberpunk 3D earth website with mouse rotation, wheel zoom, glowing atmosphere, and a single-file HTML delivery.</textarea>
-      <div class="flex gap-2 mt-3">
-        <button id="decomposeBtn" class="btn btn-primary">Decompose Task</button>
-        <button id="exampleBtn" class="btn">Load Example</button>
-        <button id="addTaskBtn" class="btn">Add Task</button>
-        <button id="resetBtn" class="btn btn-danger">Reset Run</button>
-        <button id="clearStateBtn" class="btn btn-danger">Clear Local State</button>
-      </div>
-    </div>
-
-    <!-- Workflow Runner -->
-    <div class="glass rounded-xl p-4 glow-purple">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Workflow Runner</h2>
-        <span id="currentStepMetric" class="text-[10px] text-purple-300 bg-purple-400/10 px-2 py-0.5 rounded-full mono">No step</span>
-      </div>
-      <div id="flowView" class="text-[10px]">
-        <p class="empty-state">Enter a goal and click Decompose Task to generate the workflow.</p>
-      </div>
-    </div>
-
-    <!-- Task Board -->
-    <div class="glass rounded-xl p-4">
-      <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">Task Board</h2>
-      <div id="taskBoard" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-        <div class="glass-hover rounded-lg p-3">
-          <h3 class="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Planned</h3>
-          <div id="col-planned"><p class="empty-state">No tasks yet.</p></div>
+  <!-- Main Content Dashboard -->
+  <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 max-w-[1700px] w-full mx-auto flex-1">
+    
+    <!-- LEFT SIDEBAR: Agent Team (Col-span-3) -->
+    <aside class="lg:col-span-3 flex flex-col gap-6">
+      <div class="panel-glass rounded-xl p-5 flex flex-col h-full">
+        <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
+          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Agent Team</h2>
+          <span id="agentCount" class="text-xs text-zinc-500 bg-zinc-900 px-2 py-0.5 rounded-full font-medium">0</span>
         </div>
-        <div class="glass-hover rounded-lg p-3">
-          <h3 class="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Active</h3>
-          <div id="col-active"><p class="empty-state">No tasks yet.</p></div>
-        </div>
-        <div class="glass-hover rounded-lg p-3">
-          <h3 class="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Review</h3>
-          <div id="col-review"><p class="empty-state">No tasks yet.</p></div>
-        </div>
-        <div class="glass-hover rounded-lg p-3">
-          <h3 class="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Done</h3>
-          <div id="col-done"><p class="empty-state">No tasks yet.</p></div>
-        </div>
-        <div class="glass-hover rounded-lg p-3">
-          <h3 class="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Blocked</h3>
-          <div id="col-blocked"><p class="empty-state">No tasks yet.</p></div>
-        </div>
-        <div class="glass-hover rounded-lg p-3">
-          <h3 class="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider mb-2">Failed</h3>
-          <div id="col-failed"><p class="empty-state">No tasks yet.</p></div>
+        <div id="agentList" class="space-y-2.5 overflow-y-auto max-h-[380px] lg:max-h-none flex-1 pr-1"></div>
+        
+        <div class="mt-6 pt-4 border-t border-white/5 space-y-3">
+          <div>
+            <p class="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">Runtime Config</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="text-[10px] mono text-cyan-400 bg-cyan-950/30 border border-cyan-900/30 px-2 py-0.5 rounded">agents.yaml</span>
+              <span class="text-[10px] mono text-purple-400 bg-purple-950/30 border border-purple-900/30 px-2 py-0.5 rounded">workflow.yaml</span>
+            </div>
+          </div>
+          <div class="bg-white/[0.02] border border-white/5 rounded-lg p-3">
+            <div class="text-xs font-medium text-zinc-300">Local Orchestration</div>
+            <p class="text-[11px] text-zinc-500 mt-1 leading-relaxed">Runs standard agents with context injection, local state, and replayable execution traces.</p>
+          </div>
         </div>
       </div>
+    </aside>
+
+    <!-- CENTER COLUMN: Intake & Execution Plan (Col-span-6) -->
+    <section class="lg:col-span-6 flex flex-col gap-6">
+      
+      <!-- Task Intake -->
+      <div class="panel-glass rounded-xl p-5 glow-cyan-active">
+        <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
+          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Task Intake</h2>
+          <span class="text-[10px] text-cyan-400 bg-cyan-950/50 border border-cyan-800/30 px-2 py-0.5 rounded-full">Orchestrator Mode</span>
+        </div>
+        <div class="relative">
+          <textarea id="goalInput" class="w-full text-sm font-sans" style="min-height: 90px; resize: vertical;" placeholder="Describe what you want to build..."></textarea>
+        </div>
+        <div class="flex flex-wrap gap-2 justify-between mt-4 border-t border-white/5 pt-4">
+          <div class="flex flex-wrap gap-2">
+            <button id="decomposeBtn" class="btn btn-primary">Decompose Task</button>
+            <button id="addTaskBtn" class="btn">Add Task</button>
+            <button id="exampleBtn" class="btn text-zinc-400">Load Example</button>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button id="resetBtn" class="btn btn-danger">Reset Run</button>
+            <button id="clearStateBtn" class="btn btn-danger">Clear State</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow Runner -->
+      <div class="panel-glass rounded-xl p-5 glow-purple-active">
+        <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
+          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Workflow Runner</h2>
+          <span id="currentStepMetric" class="text-[10px] text-purple-300 bg-purple-950/50 border border-purple-800/30 px-2.5 py-0.5 rounded-md mono">No active step</span>
+        </div>
+        <div id="flowView" class="space-y-4">
+          <p class="empty-state">Enter a goal and click Decompose Task to generate the workflow.</p>
+        </div>
+      </div>
+
+      <!-- Task Board -->
+      <div class="panel-glass rounded-xl p-5">
+        <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
+          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Task Board</h2>
+        </div>
+        <div id="taskBoard" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div class="bg-white/[0.01] border border-white/5 rounded-xl p-3 flex flex-col">
+            <h3 class="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
+              <span>Planned</span>
+            </h3>
+            <div id="col-planned" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
+          </div>
+          <div class="bg-white/[0.01] border border-white/5 rounded-xl p-3 flex flex-col">
+            <h3 class="text-[10px] font-semibold text-cyan-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
+              <span>Active</span>
+            </h3>
+            <div id="col-active" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
+          </div>
+          <div class="bg-white/[0.01] border border-white/5 rounded-xl p-3 flex flex-col">
+            <h3 class="text-[10px] font-semibold text-purple-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
+              <span>Review</span>
+            </h3>
+            <div id="col-review" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
+          </div>
+          <div class="bg-white/[0.01] border border-white/5 rounded-xl p-3 flex flex-col">
+            <h3 class="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
+              <span>Done</span>
+            </h3>
+            <div id="col-done" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
+          </div>
+          <div class="bg-white/[0.01] border border-white/5 rounded-xl p-3 flex flex-col">
+            <h3 class="text-[10px] font-semibold text-orange-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
+              <span>Blocked</span>
+            </h3>
+            <div id="col-blocked" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
+          </div>
+          <div class="bg-white/[0.01] border border-white/5 rounded-xl p-3 flex flex-col">
+            <h3 class="text-[10px] font-semibold text-rose-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
+              <span>Failed</span>
+            </h3>
+            <div id="col-failed" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT SIDEBAR: Outputs, Telemetry & Logs (Col-span-3) -->
+    <aside class="lg:col-span-3 flex flex-col gap-6">
+      
+      <!-- Agent Outputs -->
+      <div class="panel-glass rounded-xl p-5">
+        <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
+          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Agent Outputs</h2>
+        </div>
+        <div id="outputInputs" class="space-y-4 max-h-[350px] overflow-y-auto pr-1">
+          <p class="empty-state">Run task decomposition first, then paste each agent's output here.</p>
+        </div>
+      </div>
+
+      <!-- Prompt Preview -->
+      <div class="panel-glass rounded-xl p-5 glow-purple-active">
+        <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-3">
+          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Prompt Preview</h2>
+          <span class="text-[10px] text-purple-400 bg-purple-950/40 px-2 py-0.5 rounded border border-purple-900/30 font-medium">Handoff Text</span>
+        </div>
+        <div class="relative bg-[#050507] border border-white/5 rounded-lg p-3">
+          <div id="promptPreview" class="prompt-preview mono text-[11px] text-zinc-400 leading-relaxed overflow-y-auto max-h-[220px]">
+            <span class="empty-state">Run a step or copy a prompt to preview the agent handoff.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collaboration Log -->
+      <div class="panel-glass rounded-xl p-5">
+        <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-3">
+          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Collaboration Log</h2>
+        </div>
+        <div class="bg-[#050507] border border-white/5 rounded-lg p-3">
+          <div id="logView" class="space-y-2 max-h-[200px] overflow-y-auto mono text-[11px]">
+            <p class="empty-state">Waiting for workflow activity.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Final Output -->
+      <div class="panel-glass rounded-xl p-5 glow-green-active">
+        <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
+          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Final Output</h2>
+          <span class="text-[10px] text-emerald-400 bg-emerald-950/40 border border-emerald-800/30 px-2 py-0.5 rounded-full font-medium">Markdown</span>
+        </div>
+        <div class="bg-[#050507] border border-white/5 rounded-lg p-3 mb-4">
+          <div id="finalOutput" class="mono text-[11px] text-zinc-400 max-h-[160px] overflow-y-auto leading-relaxed" style="white-space: pre-wrap;">
+            <span class="empty-state">Run the workflow and collect agent notes to generate a final markdown record.</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 border-t border-white/5 pt-4 mb-3">
+          <button id="summarizeBtn" class="btn btn-primary w-full text-xs">Generate Summary</button>
+          <button id="copyBtn" class="btn w-full text-xs">Copy Markdown</button>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="exportJsonBtn" class="btn w-full text-xs">Export JSON</button>
+          <button id="importJsonBtn" class="btn w-full text-xs">Import JSON</button>
+          <input id="importJsonInput" type="file" accept="application/json,.json" hidden>
+        </div>
+      </div>
+
+      <!-- Run Record / Telemetry -->
+      <div class="panel-glass rounded-xl p-5">
+        <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-3">
+          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Telemetry State</h2>
+          <span class="text-[9px] text-zinc-500 uppercase tracking-wider mono">Live</span>
+        </div>
+        <div class="telemetry-container">
+          <pre id="runRecordView" class="mono text-[10px] text-zinc-500 leading-relaxed overflow-x-auto max-h-[120px]"></pre>
+        </div>
+      </div>
+
+    </aside>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/5 bg-zinc-950/40 px-6 py-4 flex flex-col sm:flex-row gap-3 sm:items-center justify-between text-[11px] text-zinc-500 mt-6">
+    <div class="flex items-center gap-4 flex-wrap">
+      <span>AgentFlow v0.2.0 - Local Runtime</span>
+      <span class="text-zinc-700">·</span>
+      <span>No backend or API keys</span>
+      <span class="text-zinc-700">·</span>
+      <span>MIT License</span>
     </div>
-
-  </section>
-
-  <!-- ===== RIGHT SIDEBAR: Outputs + Log + Final ===== -->
-  <aside class="lg:col-span-3 space-y-4">
-
-    <!-- Agent Outputs -->
-    <div class="glass rounded-xl p-4">
-      <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">Agent Outputs</h2>
-      <div id="outputInputs" class="space-y-3 max-h-80 overflow-y-auto">
-        <p class="empty-state">Run task decomposition first, then paste each agent's output here.</p>
-      </div>
+    <div class="flex items-center gap-1.5 flex-wrap font-sans text-zinc-600">
+      <span>Powered by</span>
+      <span class="mono text-zinc-500 bg-zinc-900 border border-white/5 px-1.5 py-0.5 rounded">index.html</span>
+      <span>+</span>
+      <span class="mono text-zinc-500 bg-zinc-900 border border-white/5 px-1.5 py-0.5 rounded">Tailwind CDN</span>
+      <span>+</span>
+      <span class="mono text-zinc-500 bg-zinc-900 border border-white/5 px-1.5 py-0.5 rounded">Mermaid</span>
     </div>
-
-    <!-- Prompt Preview -->
-    <div class="glass rounded-xl p-4 glow-purple">
-      <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">Prompt Preview</h2>
-      <div id="promptPreview" class="prompt-preview mono text-xs text-zinc-400">
-        <span class="empty-state">Run a step or copy a prompt to preview the agent handoff.</span>
-      </div>
-    </div>
-
-    <!-- Collaboration Log -->
-    <div class="glass rounded-xl p-4">
-      <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">Collaboration Log</h2>
-      <div id="logView" class="space-y-2 max-h-48 overflow-y-auto mono text-xs">
-        <p class="empty-state">Waiting for workflow activity.</p>
-      </div>
-    </div>
-
-    <!-- Final Output -->
-    <div class="glass rounded-xl p-4 glow-green">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Final Output</h2>
-        <span class="text-[10px] text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full">Markdown</span>
-      </div>
-      <div id="finalOutput" class="mono text-xs text-zinc-400 max-h-60 overflow-y-auto" style="white-space: pre-wrap;">
-        <span class="empty-state">Run the workflow and collect agent notes to generate a final markdown record.</span>
-      </div>
-      <div class="flex gap-2 mt-3">
-        <button id="summarizeBtn" class="btn btn-primary">Generate Final Output</button>
-        <button id="copyBtn" class="btn">Copy Markdown</button>
-      </div>
-      <div class="flex gap-2 mt-2">
-        <button id="exportJsonBtn" class="btn">Export JSON</button>
-        <button id="importJsonBtn" class="btn">Import JSON</button>
-        <input id="importJsonInput" type="file" accept="application/json,.json" hidden>
-      </div>
-    </div>
-
-    <!-- Run Record -->
-    <div class="glass rounded-xl p-4">
-      <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-3">Run Record</h2>
-      <div id="runRecordView" class="runtime-panel mono text-[11px] text-zinc-500 max-h-44 overflow-y-auto">
-        Waiting for local runtime state.
-      </div>
-    </div>
-
-  </aside>
-
-</main>
-
-<!-- Footer -->
-<footer class="border-t border-white/5 px-6 py-3 flex flex-col sm:flex-row gap-2 sm:items-center justify-between text-[10px] text-zinc-600">
-  <div class="flex items-center gap-4">
-    <span>AgentFlow v0.2.0 - Local Runtime</span><span>·</span>
-    <span>No backend or API keys</span><span>·</span>
-    <span>MIT License</span>
-  </div>
-  <div class="flex items-center gap-2">
-    <span>Built with</span>
-    <span class="mono text-zinc-500">index.html</span><span>+</span>
-    <span class="mono text-zinc-500">Tailwind CDN</span><span>+</span>
-    <span class="mono text-zinc-500">Mermaid</span>
-  </div>
-</footer>
+  </footer>
 
 <script>
 // ============================================================
