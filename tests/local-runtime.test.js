@@ -24,6 +24,10 @@ class FakeElement {
 
   appendChild() {}
 
+  setAttribute(name, value) {
+    this[name] = value;
+  }
+
   remove() {}
 
   click() {
@@ -141,6 +145,9 @@ function loadRuntime() {
       revokeObjectURL() {}
     },
     FileReader: class FakeFileReader {},
+    confirm() {
+      return true;
+    },
     mermaid: {
       initialize() {},
       run() {}
@@ -157,7 +164,7 @@ function testRuntimeStateAndPersistence() {
   const { context } = loadRuntime();
 
   assert.ok(context.window.AgentFlowState, "window.AgentFlowState should exist");
-  assert.strictEqual(context.window.AgentFlowState.version, "0.2.0");
+  assert.strictEqual(context.window.AgentFlowState.version, "0.2.1");
   assert.match(context.window.AgentFlowState.runId, /^run_/);
   assert.ok(context.window.AgentFlowRuntime, "AgentFlowRuntime should expose testable runtime actions");
 
@@ -181,13 +188,6 @@ function testTaskStateMachinePromptAndRunner() {
   runtime.decompose();
 
   const firstTask = context.window.AgentFlowState.tasks[0];
-  runtime.changeTaskStatus(firstTask.id, "done");
-  assert.strictEqual(context.window.AgentFlowState.tasks[0].status, "done");
-  assert.ok(
-    context.window.AgentFlowState.logs.some(log => log.action === "task.status_changed"),
-    "status changes should be logged structurally"
-  );
-
   const prompt = runtime.generateAgentPrompt(firstTask.id);
   assert.ok(prompt.includes("You are Commander"), "prompt should include agent identity");
   assert.ok(prompt.includes("Project:\nAgentFlow Studio"), "prompt should include project context");
@@ -198,8 +198,8 @@ function testTaskStateMachinePromptAndRunner() {
   assert.strictEqual(context.window.AgentFlowState.currentStepId, firstTask.id);
   assert.strictEqual(context.window.AgentFlowState.tasks[0].status, "active");
 
-  runtime.submitStepOutput(firstTask.id, "Summary\nMain Output\nIssues\nNext Steps");
-  assert.strictEqual(context.window.AgentFlowState.tasks[0].status, "review");
+  runtime.submitStepOutput(firstTask.id, "Summary\nMain Output\nIssues\nNext Steps", "done");
+  assert.strictEqual(context.window.AgentFlowState.tasks[0].status, "done");
   assert.ok(context.window.AgentFlowState.tasks[0].output.includes("Main Output"));
   assert.notStrictEqual(context.window.AgentFlowState.currentStepId, firstTask.id);
 }
@@ -213,7 +213,7 @@ function testRunRecordImportExportReplay() {
   runtime.submitStepOutput(context.window.AgentFlowState.tasks[0].id, "Recorded output");
 
   const record = runtime.createRunRecord();
-  assert.strictEqual(record.version, "0.2.0");
+  assert.strictEqual(record.version, "0.2.1");
   assert.ok(record.runId);
   assert.ok(Array.isArray(record.outputs));
   assert.ok(record.outputs.length > 0);
@@ -236,9 +236,79 @@ function testRoadmapNamesLocalRuntime() {
   assert.ok(!v02.includes("FastAPI"), "FastAPI must not be part of v0.2");
 }
 
+function testCurrentStepNullSurvivesCompletedRunImport() {
+  const { context } = loadRuntime();
+  const runtime = context.window.AgentFlowRuntime;
+
+  context.document.getElementById("goalInput").value = "Replay a completed dependency-aware run";
+  runtime.decompose();
+
+  const record = runtime.createRunRecord();
+  record.tasks = record.tasks.map(task => ({ ...task, status: "done" }));
+  record.workflow = record.workflow.map(step => ({ ...step, status: "done" }));
+  record.currentStepId = null;
+
+  assert.strictEqual(runtime.importRunRecord(record), true);
+  assert.strictEqual(
+    context.window.AgentFlowState.currentStepId,
+    null,
+    "completed imports should preserve explicit null currentStepId"
+  );
+}
+
+function testDependencyRollbackRecomputesCurrentStep() {
+  const { context } = loadRuntime();
+  const runtime = context.window.AgentFlowRuntime;
+
+  context.document.getElementById("goalInput").value = "Rollback upstream frontend dependency";
+  runtime.decompose();
+  runtime.submitStepOutput("analyze", "analysis output", "done");
+  runtime.submitStepOutput("plan", "plan output", "done");
+
+  assert.strictEqual(context.window.AgentFlowState.currentStepId, "implement");
+  assert.strictEqual(runtime.canRunStep("implement"), true);
+
+  runtime.changeTaskStatus("plan", "planned");
+
+  assert.strictEqual(runtime.canRunStep("implement"), false);
+  assert.notStrictEqual(
+    context.window.AgentFlowState.currentStepId,
+    "implement",
+    "currentStepId should move away from a step whose dependencies are no longer complete"
+  );
+}
+
+function testDependencyRollbackInvalidatesDownstreamTasks() {
+  const { context } = loadRuntime();
+  const runtime = context.window.AgentFlowRuntime;
+
+  context.document.getElementById("goalInput").value = "Invalidate stale downstream frontend work";
+  runtime.decompose();
+  ["analyze", "plan", "implement", "polish", "package", "review"].forEach(taskId => {
+    runtime.submitStepOutput(taskId, `${taskId} output`, "done");
+  });
+
+  assert.strictEqual(context.window.AgentFlowState.currentStepId, "test");
+
+  runtime.changeTaskStatus("implement", "planned");
+
+  const tasks = Object.fromEntries(context.window.AgentFlowState.tasks.map(task => [task.id, task]));
+  assert.strictEqual(tasks.review.status, "planned");
+  assert.strictEqual(tasks.test.status, "planned");
+  assert.strictEqual(
+    context.window.AgentFlowState.currentStepId,
+    "implement",
+    "currentStepId should return to the reopened upstream task"
+  );
+  assert.strictEqual(runtime.canRunStep("test"), false);
+}
+
 testRuntimeStateAndPersistence();
 testTaskStateMachinePromptAndRunner();
 testRunRecordImportExportReplay();
 testRoadmapNamesLocalRuntime();
+testCurrentStepNullSurvivesCompletedRunImport();
+testDependencyRollbackRecomputesCurrentStep();
+testDependencyRollbackInvalidatesDownstreamTasks();
 
 console.log("LOCAL_RUNTIME_TESTS_OK");

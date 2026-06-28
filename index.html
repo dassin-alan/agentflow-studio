@@ -794,7 +794,12 @@ function normalizeState(input) {
         submittedAt: task.updatedAt || normalized.updatedAt
       }));
   normalized.finalMarkdown = normalized.finalMarkdown || normalized.final_markdown || "";
-  normalized.currentStepId = normalized.currentStepId || (normalized.tasks[0] ? normalized.tasks[0].id : null);
+  if (Object.prototype.hasOwnProperty.call(input || {}, "currentStepId")) {
+    const currentExists = normalized.currentStepId === null || normalized.tasks.some(task => task.id === normalized.currentStepId);
+    normalized.currentStepId = currentExists ? normalized.currentStepId : (normalized.tasks[0] ? normalized.tasks[0].id : null);
+  } else {
+    normalized.currentStepId = normalized.tasks[0] ? normalized.tasks[0].id : null;
+  }
   normalized.status = normalized.status || "active";
   normalized.createdAt = normalized.createdAt || nowIso();
   normalized.updatedAt = normalized.updatedAt || normalized.createdAt;
@@ -912,6 +917,40 @@ function findStep(taskId) {
   return state.workflow.find(step => step.taskId === taskId || step.id === taskId);
 }
 
+function getDownstreamTaskIds(taskId) {
+  const seen = new Set();
+  const downstream = [];
+  const visit = (sourceId) => {
+    state.tasks.forEach(task => {
+      if (seen.has(task.id)) return;
+      if (!normalizeDependsOn(task.dependsOn).includes(sourceId)) return;
+      seen.add(task.id);
+      downstream.push(task.id);
+      visit(task.id);
+    });
+  };
+  visit(taskId);
+  return downstream;
+}
+
+function invalidateDownstreamTasks(taskId) {
+  const invalidatedTaskIds = getDownstreamTaskIds(taskId);
+  const stamp = nowIso();
+  invalidatedTaskIds.forEach(id => {
+    const downstreamTask = findTask(id);
+    if (downstreamTask && downstreamTask.status !== "planned") {
+      downstreamTask.status = "planned";
+      downstreamTask.updatedAt = stamp;
+    }
+    const downstreamStep = findStep(id);
+    if (downstreamStep && downstreamStep.status !== "planned") {
+      downstreamStep.status = "planned";
+      downstreamStep.updatedAt = stamp;
+    }
+  });
+  return invalidatedTaskIds;
+}
+
 function decompose() {
   const goal = getEl("goalInput").value.trim();
   if (!goal) {
@@ -989,8 +1028,15 @@ function changeTaskStatus(taskId, status) {
     step.status = status;
     step.updatedAt = task.updatedAt;
   }
-  addLog("System", "task.status_changed", { taskId, from: previousStatus, to: status }, task.title + " moved to " + statusLabels[status] + ".");
-  if (["done", "blocked", "failed"].includes(status) || state.currentStepId === taskId) {
+  const invalidatedTaskIds = previousStatus === "done" && status !== "done"
+    ? invalidateDownstreamTasks(taskId)
+    : [];
+  addLog("System", "task.status_changed", { taskId, from: previousStatus, to: status, invalidatedTaskIds }, task.title + " moved to " + statusLabels[status] + ".");
+  if (invalidatedTaskIds.length) {
+    addLog("System", "workflow.downstream_invalidated", { taskId, invalidatedTaskIds }, "Reset " + invalidatedTaskIds.length + " downstream task(s) after dependency rollback.");
+  }
+  const shouldAdvance = ["done", "blocked", "failed"].includes(status) || state.currentStepId === taskId;
+  if (shouldAdvance || !state.currentStepId || !canRunStep(state.currentStepId)) {
     state.currentStepId = getNextRunnableStep();
   }
   setTimeout(renderAll, 0);
