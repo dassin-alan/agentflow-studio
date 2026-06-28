@@ -3,59 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AgentFlow — Multi-Agent Orchestration Workspace</title>
+<title>AgentFlow — Dependency-aware Local Runtime</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <style>
+
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background-color: #030303;
-    color: #f4f4f5;
+    background-color: #09090b;
+    color: #a1a1aa;
     background-image: 
-      radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.05) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.05) 0px, transparent 50%);
+      linear-gradient(to right, rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 32px 32px;
     background-attachment: fixed;
   }
+  h1, h2, h3, h4, h5, h6, strong, b { color: #f4f4f5; }
   .mono { font-family: 'JetBrains Mono', monospace; }
   
   /* Glassmorphism Panels */
   .panel-glass {
-    background: rgba(9, 9, 11, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(16px);
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background: rgba(15, 15, 18, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
   }
   .panel-glass:hover {
-    border-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.08);
   }
   
-  /* Accent Glows */
+  /* Accent Glows (Sci-Fi / Dev Tool style) */
   .glow-cyan-active, .glow-cyan {
-    box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.15);
-    border-color: rgba(6, 182, 212, 0.3);
+    border-top: 2px solid rgba(6, 182, 212, 0.5);
+    background: linear-gradient(180deg, rgba(6, 182, 212, 0.04) 0%, rgba(15, 15, 18, 0.75) 30%);
   }
   .glow-purple-active, .glow-purple {
-    box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.15);
-    border-color: rgba(168, 85, 247, 0.3);
+    border-top: 2px solid rgba(168, 85, 247, 0.6);
+    background: linear-gradient(180deg, rgba(168, 85, 247, 0.05) 0%, rgba(15, 15, 18, 0.75) 40%);
+    box-shadow: 0 4px 30px -5px rgba(168, 85, 247, 0.15); /* Make workflow runner pop */
   }
   .glow-green-active, .glow-green {
-    box-shadow: 0 0 25px -5px rgba(34, 197, 94, 0.15);
-    border-color: rgba(34, 197, 94, 0.3);
+    border-top: 2px solid rgba(34, 197, 94, 0.4);
+    background: linear-gradient(180deg, rgba(34, 197, 94, 0.03) 0%, rgba(15, 15, 18, 0.75) 30%);
   }
   
   /* Backward-compatible Aliases */
-  .glass { background: rgba(9, 9, 11, 0.6); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(16px); transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+  .glass { background: rgba(15, 15, 18, 0.75); border: 1px solid rgba(255, 255, 255, 0.04); backdrop-filter: blur(12px); transition: border-color 0.3s ease; }
   .glass:hover, .glass-hover:hover { border-color: rgba(255, 255, 255, 0.1); }
-  .glass-hover {
-    border: 1px solid transparent;
-    transition: all 0.3s ease;
-  }
-  .glass-hover:hover {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.1);
-  }
+  .glass-hover { border: 1px solid transparent; transition: all 0.3s ease; }
+  .glass-hover:hover { background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.08); }
   .runtime-panel { background: rgba(9, 9, 11, 0.8); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 12px; }
   
   /* Dynamic Gradients */
@@ -68,107 +68,120 @@
   /* Custom Status Styles */
   .status-badge {
     padding: 2px 8px;
-    border-radius: 9999px;
+    border-radius: 4px;
     font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     border: 1px solid transparent;
+    font-family: 'JetBrains Mono', monospace;
   }
-  .status-planned { background: rgba(234, 179, 8, 0.08); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.2); }
-  .status-active { background: rgba(6, 182, 212, 0.08); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.2); animation: status-pulse 2s infinite; }
+  .status-planned { background: rgba(234, 179, 8, 0.05); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.2); }
+  .status-active { background: rgba(6, 182, 212, 0.1); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); animation: status-pulse 2s infinite; }
   .status-review { background: rgba(168, 85, 247, 0.08); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.2); }
-  .status-done { background: rgba(34, 197, 94, 0.08); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
-  .status-blocked { background: rgba(249, 115, 22, 0.08); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.2); }
-  .status-failed { background: rgba(244, 63, 94, 0.08); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.2); }
+  .status-done { background: rgba(34, 197, 94, 0.05); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
+  .status-blocked { background: rgba(249, 115, 22, 0.05); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.2); }
+  .status-failed { background: rgba(244, 63, 94, 0.05); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.2); }
   
   @keyframes status-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.3); }
+    50% { box-shadow: 0 0 0 4px rgba(6, 182, 212, 0); }
   }
   
   /* Custom Scrollbar */
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 9999px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.24); }
+  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
   
   /* Inputs, Textareas, Selects */
   textarea, input, select {
-    background: rgba(9, 9, 11, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
     color: #e4e4e7;
     padding: 8px 12px;
     outline: none;
     transition: all 0.2s ease;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
   }
   textarea:focus, input:focus, select:focus {
-    border-color: rgba(6, 182, 212, 0.5);
-    box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.15);
-    background: rgba(9, 9, 11, 0.95);
+    border-color: rgba(6, 182, 212, 0.4);
+    box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.1);
+    background: rgba(0, 0, 0, 0.5);
   }
   select option { background: #09090b; color: #e4e4e7; }
   
   /* Buttons */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-    padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+    padding: 8px 14px; border-radius: 4px; font-size: 12px; font-weight: 500;
     cursor: pointer; transition: all 0.2s ease;
     border: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(255, 255, 255, 0.03);
-    color: #e4e4e7;
+    color: #a1a1aa;
     user-select: none;
+    font-family: 'Inter', sans-serif;
   }
   .btn:hover {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.15);
-    transform: translateY(-1px);
+    color: #f4f4f5;
   }
   .btn:active {
-    transform: translateY(0);
+    transform: scale(0.98);
   }
   .btn-primary {
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(168, 85, 247, 0.2));
-    border-color: rgba(6, 182, 212, 0.4);
+    background: rgba(6, 182, 212, 0.1);
+    border-color: rgba(6, 182, 212, 0.3);
     color: #22d3ee;
   }
   .btn-primary:hover {
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.35), rgba(168, 85, 247, 0.35));
-    border-color: rgba(6, 182, 212, 0.6);
-    box-shadow: 0 0 12px rgba(6, 182, 212, 0.2);
+    background: rgba(6, 182, 212, 0.15);
+    border-color: rgba(6, 182, 212, 0.5);
+    color: #67e8f9;
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.15);
   }
   .btn-danger {
-    background: rgba(244, 63, 94, 0.1);
-    border-color: rgba(244, 63, 94, 0.3);
+    background: rgba(244, 63, 94, 0.05);
+    border-color: rgba(244, 63, 94, 0.2);
     color: #fb7185;
   }
   .btn-danger:hover {
-    background: rgba(244, 63, 94, 0.2);
-    border-color: rgba(244, 63, 94, 0.5);
-    box-shadow: 0 0 12px rgba(244, 63, 94, 0.15);
+    background: rgba(244, 63, 94, 0.15);
+    border-color: rgba(244, 63, 94, 0.4);
+    color: #fecdd3;
+  }
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+    transform: none;
+    box-shadow: none;
   }
   
   .prompt-preview { white-space: pre-wrap; max-height: 220px; overflow: auto; }
   
   /* Task card styles */
   .task-card {
-    background: rgba(24, 24, 27, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.04);
-    border-radius: 8px;
+    background: rgba(15, 15, 18, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
     padding: 12px;
     transition: all 0.3s ease;
   }
+  .task-card:hover {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
   .task-card.is-current {
-    border-color: rgba(6, 182, 212, 0.5);
-    background: rgba(6, 182, 212, 0.02);
-    box-shadow: 0 0 20px -5px rgba(6, 182, 212, 0.15);
+    border-color: rgba(6, 182, 212, 0.4);
+    background: rgba(6, 182, 212, 0.04);
+    box-shadow: inset 3px 0 0 rgba(6, 182, 212, 0.8);
   }
   .task-field {
     width: 100%;
-    font-size: 12px;
     padding: 6px 10px;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.25);
   }
   .task-brief-field {
     min-height: 48px;
@@ -181,26 +194,156 @@
     transition: border-color 0.2s ease;
   }
   .log-line:hover {
-    border-left-color: rgba(6, 182, 212, 0.5);
+    border-left-color: rgba(6, 182, 212, 0.4);
   }
   .empty-state {
     color: #52525b;
     font-style: italic;
-    font-size: 13px;
+    font-size: 12px;
     padding: 16px 0;
     text-align: center;
   }
+  .dependency-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 2px 6px;
+    font-size: 9px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+  }
+  .dependency-ready { color: #22d3ee; background: rgba(6, 182, 212, 0.05); border-color: rgba(6, 182, 212, 0.15); }
+  .dependency-waiting { color: #facc15; background: rgba(234, 179, 8, 0.05); border-color: rgba(234, 179, 8, 0.15); }
+  .dependency-terminal { color: #71717a; background: rgba(113, 113, 122, 0.05); border-color: rgba(113, 113, 122, 0.15); }
+  
+  .toast-stack {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 100;
+    width: min(340px, calc(100vw - 40px));
+  }
+  .toast {
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(15, 15, 18, 0.95);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    padding: 12px 16px;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #e4e4e7;
+    font-family: 'Inter', sans-serif;
+  }
+  .toast-success { border-left: 3px solid #22c55e; }
+  .toast-warning { border-left: 3px solid #eab308; }
+  .toast-error { border-left: 3px solid #ef4444; }
+  .toast-info { border-left: 3px solid #06b6d4; }
+
+  .product-hero {
+    background: rgba(15, 15, 18, 0.5);
+    border: 1px solid rgba(6, 182, 212, 0.15);
+    border-top: 2px solid rgba(6, 182, 212, 0.5);
+    position: relative;
+    overflow: hidden;
+  }
+  .product-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 100% 0%, rgba(6, 182, 212, 0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .product-hero > * { position: relative; z-index: 1; }
+  .hero-stat {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 6px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .hero-stat b {
+    display: block;
+    font-size: 18px;
+    line-height: 1.1;
+    color: #f8fafc;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .hero-stat span {
+    display: block;
+    margin-top: 4px;
+    color: #71717a;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .pipeline {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .pipeline-step {
+    border: 1px solid rgba(255,255,255,0.05);
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 6px;
+    padding: 10px;
+    position: relative;
+  }
+  .pipeline-step small {
+    color: #06b6d4;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    opacity: 0.8;
+  }
+  .pipeline-step strong {
+    display: block;
+    color: #d4d4d8;
+    font-size: 11px;
+    margin-top: 2px;
+  }
+  .hero-pipeline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .section-label {
+    font-size: 11px !important;
+    letter-spacing: 0.1em !important;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .board-column {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+  }
+  @media (max-width: 1024px) {
+    .command-column { order: 1; }
+    .output-column { order: 2; }
+    .agent-column { order: 3; }
+    .pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .pipeline { grid-template-columns: 1fr; }
+  }
+
 </style>
 </head><body class="min-h-screen flex flex-col justify-between">
 
   <!-- Header -->
-  <header class="border-b border-white/5 bg-zinc-950/80 backdrop-blur-md px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky top-0 z-50">
+  <header class="border-b border-white/5 bg-zinc-950/85 backdrop-blur-md px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky top-0 z-50">
     <div class="flex items-center gap-3">
       <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-sm font-bold shadow-md shadow-cyan-500/10">AF</div>
       <div>
         <h1 class="text-base font-semibold tracking-tight text-white flex items-center gap-2">
           AgentFlow Studio
-          <span class="text-[10px] text-cyan-400 bg-cyan-950/50 border border-cyan-800/40 px-2 py-0.5 rounded-full font-normal">v0.2.0</span>
+          <span class="text-[10px] text-cyan-400 bg-cyan-950/50 border border-cyan-800/40 px-2 py-0.5 rounded-full font-normal">v0.2.1</span>
         </h1>
         <p class="text-xs text-zinc-500">Multi-Agent Local Orchestration Workspace</p>
       </div>
@@ -216,12 +359,43 @@
 
   <!-- Main Content Dashboard -->
   <main class="grid grid-cols-1 lg:grid-cols-12 gap-6 p-6 max-w-[1700px] w-full mx-auto flex-1">
+    <section class="product-hero rounded-2xl p-6 lg:col-span-12">
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
+        <div class="xl:col-span-6 flex flex-col justify-between gap-5">
+          <div>
+            <div class="mono text-[11px] text-cyan-400 uppercase tracking-[0.18em] mb-3">Local-first orchestration console</div>
+            <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white">Turn one goal into a replayable multi-agent run.</h2>
+            <p class="text-sm md:text-[15px] text-zinc-400 leading-relaxed mt-3 max-w-2xl">
+              AgentFlow gives a local runtime for decomposing work, handing prompts to specialist agents, collecting dependency context, and exporting a clean run record without backend dependencies.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button class="btn btn-primary" onclick="document.getElementById('goalInput').focus()">Start from goal</button>
+            <button class="btn" onclick="loadDemoRun()">Load demo run</button>
+          </div>
+        </div>
+        <div class="xl:col-span-3 grid grid-cols-2 gap-3">
+          <div class="hero-stat"><b>7</b><span>specialist agents</span></div>
+          <div class="hero-stat"><b>DAG</b><span>dependency-aware workflow</span></div>
+          <div class="hero-stat"><b>Local</b><span>state + replay</span></div>
+          <div class="hero-stat"><b>JSON</b><span>portable run record</span></div>
+        </div>
+        <div class="xl:col-span-3">
+          <div class="pipeline hero-pipeline h-full">
+            <div class="pipeline-step"><small>01</small><strong>Describe Goal</strong></div>
+            <div class="pipeline-step"><small>02</small><strong>Decompose Work</strong></div>
+            <div class="pipeline-step"><small>03</small><strong>Run Agents</strong></div>
+            <div class="pipeline-step"><small>04</small><strong>Generate Record</strong></div>
+          </div>
+        </div>
+      </div>
+    </section>
     
     <!-- LEFT SIDEBAR: Agent Team (Col-span-3) -->
-    <aside class="lg:col-span-3 flex flex-col gap-6">
+    <aside class="agent-column lg:col-span-3 flex flex-col gap-6">
       <div class="panel-glass rounded-xl p-5 flex flex-col h-full">
         <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Agent Team</h2>
+          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Agent Team</h2>
           <span id="agentCount" class="text-xs text-zinc-500 bg-zinc-900 px-2 py-0.5 rounded-full font-medium">0</span>
         </div>
         <div id="agentList" class="space-y-2.5 overflow-y-auto max-h-[380px] lg:max-h-none flex-1 pr-1"></div>
@@ -236,23 +410,29 @@
           </div>
           <div class="bg-white/[0.02] border border-white/5 rounded-lg p-3">
             <div class="text-xs font-medium text-zinc-300">Local Orchestration</div>
-            <p class="text-[11px] text-zinc-500 mt-1 leading-relaxed">Runs standard agents with context injection, local state, and replayable execution traces.</p>
+            <p class="text-[11px] text-zinc-500 mt-1 leading-relaxed">Runs standard agents with dependency context injection, local state, and replayable execution traces.</p>
           </div>
         </div>
       </div>
     </aside>
 
     <!-- CENTER COLUMN: Intake & Execution Plan (Col-span-6) -->
-    <section class="lg:col-span-6 flex flex-col gap-6">
+    <section class="command-column lg:col-span-6 flex flex-col gap-6">
       
       <!-- Task Intake -->
       <div class="panel-glass rounded-xl p-5 glow-cyan-active">
         <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Task Intake</h2>
+          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Task Intake</h2>
           <span class="text-[10px] text-cyan-400 bg-cyan-950/50 border border-cyan-800/30 px-2 py-0.5 rounded-full">Orchestrator Mode</span>
         </div>
         <div class="relative">
           <textarea id="goalInput" class="w-full text-sm font-sans" style="min-height: 90px; resize: vertical;" placeholder="Describe what you want to build..."></textarea>
+        </div>
+        <div class="pipeline mt-4">
+          <div class="pipeline-step"><small>Goal</small><strong>Capture intent</strong></div>
+          <div class="pipeline-step"><small>Plan</small><strong>Split into agents</strong></div>
+          <div class="pipeline-step"><small>Run</small><strong>Copy prompts</strong></div>
+          <div class="pipeline-step"><small>Record</small><strong>Export summary</strong></div>
         </div>
         <div class="flex flex-wrap gap-2 justify-between mt-4 border-t border-white/5 pt-4">
           <div class="flex flex-wrap gap-2">
@@ -270,9 +450,10 @@
       <!-- Workflow Runner -->
       <div class="panel-glass rounded-xl p-5 glow-purple-active">
         <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Workflow Runner</h2>
+          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Workflow Runner</h2>
           <span id="currentStepMetric" class="text-[10px] text-purple-300 bg-purple-950/50 border border-purple-800/30 px-2.5 py-0.5 rounded-md mono">No active step</span>
         </div>
+        <div id="runProgressView"></div>
         <div id="flowView" class="space-y-4">
           <p class="empty-state">Enter a goal and click Decompose Task to generate the workflow.</p>
         </div>
@@ -281,40 +462,40 @@
       <!-- Task Board -->
       <div class="panel-glass rounded-xl p-5">
         <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Task Board</h2>
+          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Task Board</h2>
         </div>
         <div id="taskBoard" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          <div class="bg-white/[0.01] border border-white/5 rounded-xl p-3 flex flex-col">
+          <div class="board-column rounded-xl p-3 flex flex-col">
             <h3 class="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
               <span>Planned</span>
             </h3>
             <div id="col-planned" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
           </div>
-          <div class="bg-white/[0.01] border border-white/5 rounded-xl p-3 flex flex-col">
+          <div class="board-column rounded-xl p-3 flex flex-col">
             <h3 class="text-[10px] font-semibold text-cyan-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
               <span>Active</span>
             </h3>
             <div id="col-active" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
           </div>
-          <div class="bg-white/[0.01] border border-white/5 rounded-xl p-3 flex flex-col">
+          <div class="board-column rounded-xl p-3 flex flex-col">
             <h3 class="text-[10px] font-semibold text-purple-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
               <span>Review</span>
             </h3>
             <div id="col-review" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
           </div>
-          <div class="bg-white/[0.01] border border-white/5 rounded-xl p-3 flex flex-col">
+          <div class="board-column rounded-xl p-3 flex flex-col">
             <h3 class="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
               <span>Done</span>
             </h3>
             <div id="col-done" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
           </div>
-          <div class="bg-white/[0.01] border border-white/5 rounded-xl p-3 flex flex-col">
+          <div class="board-column rounded-xl p-3 flex flex-col">
             <h3 class="text-[10px] font-semibold text-orange-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
               <span>Blocked</span>
             </h3>
             <div id="col-blocked" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
           </div>
-          <div class="bg-white/[0.01] border border-white/5 rounded-xl p-3 flex flex-col">
+          <div class="board-column rounded-xl p-3 flex flex-col">
             <h3 class="text-[10px] font-semibold text-rose-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
               <span>Failed</span>
             </h3>
@@ -325,24 +506,14 @@
     </section>
 
     <!-- RIGHT SIDEBAR: Outputs, Telemetry & Logs (Col-span-3) -->
-    <aside class="lg:col-span-3 flex flex-col gap-6">
+    <aside class="output-column lg:col-span-3 flex flex-col gap-6">
       
-      <!-- Agent Outputs -->
-      <div class="panel-glass rounded-xl p-5">
-        <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Agent Outputs</h2>
-        </div>
-        <div id="outputInputs" class="space-y-4 max-h-[350px] overflow-y-auto pr-1">
-          <p class="empty-state">Run task decomposition first, then paste each agent's output here.</p>
-        </div>
-      </div>
-
       <!-- Prompt Preview -->
-      <details class="panel-glass rounded-xl p-5 glow-purple-active group" open>
+            <details class="panel-glass rounded-xl p-5 group" open>
         <summary class="flex items-center justify-between border-b border-white/5 pb-3 mb-3 cursor-pointer list-none [&::-webkit-details-marker]:hidden select-none">
           <div class="flex items-center gap-2">
             <span class="text-zinc-500 group-open:rotate-180 transition-transform duration-200 text-xs inline-block">▼</span>
-            <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Prompt Preview</h2>
+            <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Prompt Preview</h2>
           </div>
           <span class="text-[10px] text-purple-400 bg-purple-950/40 px-2 py-0.5 rounded border border-purple-900/30 font-medium">Handoff Text</span>
         </summary>
@@ -353,22 +524,20 @@
         </div>
       </details>
 
-      <!-- Collaboration Log -->
-      <div class="panel-glass rounded-xl p-5">
-        <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-3">
-          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Collaboration Log</h2>
+      <!-- Agent Outputs -->
+            <div class="panel-glass rounded-xl p-5">
+        <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
+          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Agent Outputs</h2>
         </div>
-        <div class="bg-[#050507] border border-white/5 rounded-lg p-3">
-          <div id="logView" class="space-y-2 max-h-[200px] overflow-y-auto mono text-[11px]">
-            <p class="empty-state">Waiting for workflow activity.</p>
-          </div>
+        <div id="outputInputs" class="space-y-4 max-h-[350px] overflow-y-auto pr-1">
+          <p class="empty-state">Run task decomposition first, then paste each agent's output here.</p>
         </div>
       </div>
 
       <!-- Final Output -->
-      <div class="panel-glass rounded-xl p-5 glow-green-active">
+            <div class="panel-glass rounded-xl p-5 glow-green-active">
         <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-          <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Final Output</h2>
+          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Final Output</h2>
           <span class="text-[10px] text-emerald-400 bg-emerald-950/40 border border-emerald-800/30 px-2 py-0.5 rounded-full font-medium">Markdown</span>
         </div>
         <div class="bg-[#050507] border border-white/5 rounded-lg p-3 mb-4">
@@ -386,9 +555,21 @@
           <input id="importJsonInput" type="file" accept="application/json,.json" hidden>
         </div>
       </div>
+      
+      <!-- Collaboration Log -->
+            <div class="panel-glass rounded-xl p-5">
+        <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-3">
+          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Collaboration Log</h2>
+        </div>
+        <div class="bg-[#050507] border border-white/5 rounded-lg p-3">
+          <div id="logView" class="space-y-2 max-h-[200px] overflow-y-auto mono text-[11px]">
+            <p class="empty-state">Waiting for workflow activity.</p>
+          </div>
+        </div>
+      </div>
 
       <!-- Run Record / Telemetry -->
-      <details class="panel-glass rounded-xl p-5 group" open>
+            <details class="panel-glass rounded-xl p-5 group">
         <summary class="flex items-center justify-between border-b border-white/5 pb-3 mb-3 cursor-pointer list-none [&::-webkit-details-marker]:hidden select-none">
           <div class="flex items-center gap-2">
             <span class="text-zinc-500 group-open:rotate-180 transition-transform duration-200 text-xs inline-block">▼</span>
@@ -401,17 +582,19 @@
         </div>
       </details>
 
-    </aside>
+</aside>
   </main>
 
   <!-- Footer -->
+  <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
   <footer class="border-t border-white/5 bg-zinc-950/40 px-6 py-4 flex flex-col sm:flex-row gap-3 sm:items-center justify-between text-[11px] text-zinc-500 mt-6">
     <div class="flex items-center gap-4 flex-wrap">
-      <span>AgentFlow v0.2.0 - Local Runtime</span>
+      <span>AgentFlow v0.2.1 - Dependency-aware Local Runtime</span>
       <span class="text-zinc-700">·</span>
-      <span>No backend or API keys</span>
+      <span>Local-first orchestration</span>
       <span class="text-zinc-700">·</span>
-      <span>MIT License</span>
+      <span>Replayable agent handoffs</span>
     </div>
     <div class="flex items-center gap-1.5 flex-wrap font-sans text-zinc-600">
       <span>Powered by</span>
@@ -425,11 +608,12 @@
 
 <script>
 // ============================================================
-// AgentFlow v0.2.0 - Local Runtime
+// AgentFlow v0.2.1 - Dependency-aware Local Runtime
 // ============================================================
 
-const VERSION = "0.2.0";
+const VERSION = "0.2.1";
 const STORAGE_KEY = "agentflow:v0.2:state";
+const RUN_RECORD_SCHEMA_VERSION = "agentflow.runrecord.v0.2";
 
 const agents = [
   { id: "commander", name: "Commander", tool: "X", role: "Planner", color: "cyan", desc: "Clarifies goals, splits work, and owns final decisions." },
@@ -469,22 +653,22 @@ const runtimeConstraints = [
 
 const presets = {
   frontend: [
-    ["analyze", "Analyze requirements", "commander", "Extract goal, constraints, target format, and acceptance criteria.", "Requirements summary and acceptance criteria."],
-    ["plan", "Create task plan", "commander", "Break the request into ordered implementation steps.", "Ordered task list with assigned agents."],
-    ["implement", "Generate core code", "coder", "Create the first working version.", "Working code or implementation notes."],
-    ["polish", "Improve interface", "ui_designer", "Refine visual hierarchy, layout, and interaction details.", "UI, interaction, or presentation improvements."],
-    ["package", "Package output", "automation", "Prepare deliverables and local files.", "Local files, commands, or reproducible delivery notes."],
-    ["review", "Review quality", "reviewer", "Find defects, missing requirements, and risky assumptions.", "Issues, risks, and suggested fixes."],
-    ["test", "Run QA pass", "tester", "Check expected behavior and responsive layout.", "Test notes and remaining gaps."],
-    ["document", "Write docs and handoff", "assistant", "Summarize final result and usage notes.", "Markdown handoff record."]
+    { id: "analyze", title: "Analyze requirements", agent: "commander", brief: "Extract goal, constraints, target format, and acceptance criteria.", expectedOutput: "Requirements summary and acceptance criteria.", dependsOn: [] },
+    { id: "plan", title: "Create task plan", agent: "commander", brief: "Break the request into ordered implementation steps.", expectedOutput: "Ordered task list with assigned agents.", dependsOn: ["analyze"] },
+    { id: "implement", title: "Generate core code", agent: "coder", brief: "Create the first working version.", expectedOutput: "Working code or implementation notes.", dependsOn: ["plan"] },
+    { id: "polish", title: "Improve interface", agent: "ui_designer", brief: "Refine visual hierarchy, layout, and interaction details.", expectedOutput: "UI, interaction, or presentation improvements.", dependsOn: ["plan"] },
+    { id: "package", title: "Package output", agent: "automation", brief: "Prepare deliverables and local files.", expectedOutput: "Local files, commands, or reproducible delivery notes.", dependsOn: ["implement"] },
+    { id: "review", title: "Review quality", agent: "reviewer", brief: "Find defects, missing requirements, and risky assumptions.", expectedOutput: "Issues, risks, and suggested fixes.", dependsOn: ["implement", "polish", "package"] },
+    { id: "test", title: "Run QA pass", agent: "tester", brief: "Check expected behavior and responsive layout.", expectedOutput: "Test notes and remaining gaps.", dependsOn: ["review"] },
+    { id: "document", title: "Write docs and handoff", agent: "assistant", brief: "Summarize final result and usage notes.", expectedOutput: "Markdown handoff record.", dependsOn: ["test"] }
   ],
   generic: [
-    ["analyze", "Analyze request", "commander", "Clarify objective, constraints, and success criteria.", "Requirements summary and acceptance criteria."],
-    ["plan", "Create workflow", "commander", "Split the work into clear agent-owned steps.", "Ordered workflow plan."],
-    ["execute", "Produce first output", "coder", "Create the main artifact.", "Main artifact or implementation notes."],
-    ["review", "Review output", "reviewer", "Check quality, gaps, and risks.", "Review findings and risks."],
-    ["test", "Validate result", "tester", "Verify the output against the original request.", "Validation notes and remaining gaps."],
-    ["docs", "Prepare final summary", "assistant", "Generate a reusable handoff record.", "Final markdown summary."]
+    { id: "analyze", title: "Analyze request", agent: "commander", brief: "Clarify objective, constraints, and success criteria.", expectedOutput: "Requirements summary and acceptance criteria.", dependsOn: [] },
+    { id: "plan", title: "Create workflow", agent: "commander", brief: "Split the work into clear agent-owned steps.", expectedOutput: "Ordered workflow plan.", dependsOn: ["analyze"] },
+    { id: "execute", title: "Produce first output", agent: "coder", brief: "Create the main artifact.", expectedOutput: "Main artifact or implementation notes.", dependsOn: ["plan"] },
+    { id: "review", title: "Review output", agent: "reviewer", brief: "Check quality, gaps, and risks.", expectedOutput: "Review findings and risks.", dependsOn: ["execute"] },
+    { id: "test", title: "Validate result", agent: "tester", brief: "Verify the output against the original request.", expectedOutput: "Validation notes and remaining gaps.", dependsOn: ["review"] },
+    { id: "docs", title: "Prepare final summary", agent: "assistant", brief: "Generate a reusable handoff record.", expectedOutput: "Final markdown summary.", dependsOn: ["test"] }
   ]
 };
 
@@ -546,6 +730,12 @@ function createInitialState(goal = "") {
   };
 }
 
+function normalizeDependsOn(value) {
+  if (Array.isArray(value)) return value.filter(Boolean).map(String);
+  if (typeof value === "string" && value.trim()) return value.split(",").map(item => item.trim()).filter(Boolean);
+  return [];
+}
+
 function normalizeTask(task, index) {
   const status = taskStatuses.includes(task.status) ? task.status : "planned";
   return {
@@ -556,6 +746,7 @@ function normalizeTask(task, index) {
     status,
     brief: task.brief || "",
     expectedOutput: task.expectedOutput || task.expected_output || "Structured response with summary, main output, issues, and next steps.",
+    dependsOn: normalizeDependsOn(task.dependsOn || task.depends_on),
     output: task.output || "",
     updatedAt: task.updatedAt || nowIso()
   };
@@ -569,6 +760,7 @@ function taskToStep(task) {
     title: task.title,
     agent: task.agent,
     status: task.status,
+    dependsOn: normalizeDependsOn(task.dependsOn || task.depends_on),
     prompt: "",
     output: task.output || "",
     updatedAt: task.updatedAt || nowIso()
@@ -579,6 +771,7 @@ function normalizeState(input) {
   const base = createInitialState(input && input.goal ? input.goal : "");
   const normalized = Object.assign(base, input || {});
   normalized.version = VERSION;
+  normalized.schemaVersion = normalized.schemaVersion || RUN_RECORD_SCHEMA_VERSION;
   normalized.agents = clone(agents);
   normalized.tasks = Array.isArray(normalized.tasks) ? normalized.tasks.map(normalizeTask) : [];
   normalized.workflow = Array.isArray(normalized.workflow) && normalized.workflow.length
@@ -586,7 +779,8 @@ function normalizeState(input) {
         const task = normalized.tasks.find(item => item.id === (step.taskId || step.id));
         return Object.assign(task ? taskToStep(task) : taskToStep(normalizeTask(step, index)), step, {
           id: step.id || (task ? task.id : "step_" + (index + 1)),
-          taskId: step.taskId || step.id || (task ? task.id : "task_" + (index + 1))
+          taskId: step.taskId || step.id || (task ? task.id : "task_" + (index + 1)),
+          dependsOn: normalizeDependsOn(step.dependsOn || step.depends_on || (task ? task.dependsOn : []))
         });
       })
     : normalized.tasks.map(taskToStep);
@@ -624,11 +818,14 @@ function saveState() {
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return normalizeState(JSON.parse(raw));
+    if (raw) {
+      const restored = normalizeState(JSON.parse(raw));
+      if (restored.tasks.length || restored.goal || restored.logs.length > 1) return restored;
+    }
   } catch (error) {
     console.warn("AgentFlow localStorage restore failed", error);
   }
-  return createInitialState(getEl("goalInput").value.trim());
+  return createDemoState();
 }
 
 function addLog(actor, action, data = {}, message = "") {
@@ -653,17 +850,58 @@ function choosePreset(goal) {
 }
 
 function buildTasks(goal) {
-  return choosePreset(goal).map((item, index) => ({
-    id: item[0],
+  return choosePreset(goal).map((item, index) => normalizeTask({
+    id: item.id,
     order: index + 1,
-    title: item[1],
-    agent: item[2],
+    title: item.title,
+    agent: item.agent,
     status: "planned",
-    brief: item[3],
-    expectedOutput: item[4],
+    brief: item.brief,
+    expectedOutput: item.expectedOutput,
+    dependsOn: item.dependsOn,
     output: "",
     updatedAt: nowIso()
+  }, index));
+}
+
+function createDemoState() {
+  const goal = "Refine the AgentFlow frontend UI for a local multi-agent orchestration workspace, with a stronger control hero, clearer workflow hierarchy, and a reusable run record.";
+  const stamp = nowIso();
+  const tasks = buildTasks(goal);
+  const statusPlan = ["done", "done", "active", "review", "planned", "planned", "planned", "planned"];
+  const demoOutputs = {
+    analyze: "Summary\nDefined a local-first orchestration workspace with no backend dependency.\n\nMain Output\nAcceptance criteria: task decomposition, agent handoff prompts, output collection, JSON export, and final markdown generation.\n\nIssues / Risks\nKeep the interface focused so the control surface does not become a dense debugging wall.\n\nNext Steps\nMove implementation to Coder and UI polish to UI Designer.",
+    plan: "Summary\nCreated an ordered multi-agent workflow.\n\nMain Output\nCommander owns decomposition, Coder builds the runtime, UI Designer improves hierarchy, Automation packages files, Reviewer checks risks, Tester validates behavior, Assistant writes handoff notes.\n\nIssues / Risks\nKanban and prompt preview can duplicate actions if visual priority is not managed.\n\nNext Steps\nRun the implementation step.",
+    implement: "Summary\nCore runtime is active.\n\nMain Output\nState normalization, localStorage persistence, prompt generation, task status transitions, and import/export paths are wired.\n\nIssues / Risks\nNeeds browser verification and a clearer first-run demo state.\n\nNext Steps\nSubmit output to Review after QA pass.",
+    polish: "Summary\nUI review requested stronger product framing.\n\nMain Output\nAdd command hero, reduce glass noise, increase readable type, and make the primary workflow path visible above the fold.\n\nIssues / Risks\nDo not over-style logs and telemetry; they should remain secondary.\n\nNext Steps\nApply visual hierarchy pass."
+  };
+  tasks.forEach((task, index) => {
+    task.status = statusPlan[index] || "planned";
+    task.output = demoOutputs[task.id] || "";
+    task.updatedAt = stamp;
+  });
+  const demoState = normalizeState(Object.assign(createInitialState(goal), {
+    createdAt: stamp,
+    updatedAt: stamp,
+    goal,
+    tasks,
+    workflow: tasks.map(taskToStep),
+    outputs: tasks.filter(task => task.output).map(task => ({
+      taskId: task.id,
+      agent: task.agent,
+      output: task.output,
+      submittedAt: stamp
+    })),
+    logs: [
+      { time: stamp, actor: "System", action: "demo.loaded", message: "Loaded a demonstration run for presentation review.", data: { mode: "demo" } },
+      { time: stamp, actor: "Commander", action: "workflow.decomposed", message: "Created 8 subtasks from the product refinement goal.", data: { taskCount: 8 } },
+      { time: stamp, actor: "Coder", action: "workflow.step_started", message: "Running step: Generate core code.", data: { taskId: "implement" } },
+      { time: stamp, actor: "UI Designer", action: "review.ready", message: "UI polish notes are ready for review.", data: { taskId: "polish" } }
+    ],
+    currentStepId: "implement",
+    finalMarkdown: "# AgentFlow Demo Run\n\n## Goal\nRefine the AgentFlow frontend UI for a local multi-agent orchestration workspace, with a stronger control hero, clearer workflow hierarchy, and a reusable run record.\n\n## Current State\n- Analyze requirements: done\n- Create task plan: done\n- Generate core code: active\n- Improve interface: review\n\n## Presentation Notes\nThis default run shows the product in motion immediately, so screenshots communicate the workflow without requiring setup."
   }));
+  return demoState;
 }
 
 function findTask(taskId) {
@@ -704,6 +942,7 @@ function addTask() {
     status: "planned",
     brief: "Describe the work this agent should perform.",
     expectedOutput: "Structured response with summary, main output, issues, and next steps.",
+    dependsOn: [],
     output: "",
     updatedAt: nowIso()
   };
@@ -727,9 +966,13 @@ function updateTask(taskId, patch) {
 function deleteTask(taskId) {
   const task = findTask(taskId);
   if (!task) return;
+  if (!confirm("Delete task: " + task.title + "?")) return;
   state.tasks = state.tasks.filter(item => item.id !== taskId).map((item, index) => Object.assign(item, { order: index + 1 }));
+  state.tasks.forEach(item => {
+    item.dependsOn = normalizeDependsOn(item.dependsOn).filter(id => id !== taskId);
+  });
   state.workflow = state.tasks.map(taskToStep);
-  state.currentStepId = state.currentStepId === taskId ? (state.tasks[0] ? state.tasks[0].id : null) : state.currentStepId;
+  state.currentStepId = state.currentStepId === taskId ? getNextRunnableStep() : state.currentStepId;
   addLog("System", "task.deleted", { taskId }, "Deleted task: " + task.title);
   renderAll();
 }
@@ -747,7 +990,74 @@ function changeTaskStatus(taskId, status) {
     step.updatedAt = task.updatedAt;
   }
   addLog("System", "task.status_changed", { taskId, from: previousStatus, to: status }, task.title + " moved to " + statusLabels[status] + ".");
+  if (["done", "blocked", "failed"].includes(status) || state.currentStepId === taskId) {
+    state.currentStepId = getNextRunnableStep();
+  }
   setTimeout(renderAll, 0);
+}
+
+function isTaskComplete(taskId) {
+  const task = findTask(taskId);
+  return Boolean(task && task.status === "done");
+}
+
+function getDependencyStatus(taskId) {
+  const task = findTask(taskId);
+  const dependencies = task ? normalizeDependsOn(task.dependsOn) : [];
+  const completed = dependencies.filter(isTaskComplete);
+  const missing = dependencies.filter(id => !isTaskComplete(id));
+  return {
+    ready: dependencies.length === completed.length,
+    completed,
+    missing
+  };
+}
+
+function canRunStep(taskId) {
+  const task = findTask(taskId);
+  if (!task) return false;
+  if (["done", "failed", "blocked"].includes(task.status)) return false;
+  return getDependencyStatus(taskId).ready;
+}
+
+function getRunnableSteps() {
+  return state.tasks
+    .filter(task => canRunStep(task.id))
+    .sort((a, b) => a.order - b.order);
+}
+
+function getNextRunnableStep() {
+  const next = getRunnableSteps()[0];
+  return next ? next.id : null;
+}
+
+function getDependencyContext(taskId) {
+  const task = findTask(taskId);
+  if (!task) return [];
+  return normalizeDependsOn(task.dependsOn).map(id => {
+    const dependency = findTask(id);
+    const agent = dependency ? agents.find(item => item.id === dependency.agent) : null;
+    return {
+      id,
+      title: dependency ? dependency.title : id,
+      agent: agent ? agent.name : (dependency ? dependency.agent : "Unknown"),
+      status: dependency ? dependency.status : "missing",
+      output: dependency && dependency.output ? dependency.output : "No output recorded."
+    };
+  });
+}
+
+function indentText(text, prefix = "  ") {
+  return String(text || "").split("\n").map(line => prefix + line).join("\n");
+}
+
+function formatDependencyContext(taskId) {
+  const dependencies = getDependencyContext(taskId);
+  if (!dependencies.length) return "No dependencies.";
+  return dependencies.map(item => [
+    "- " + item.title + " [" + item.status + "] via " + item.agent,
+    indentText(item.output || "No output recorded.", "  ")
+  ].join("\n")).join("\n\n");
 }
 
 function generateAgentPrompt(taskId) {
@@ -756,11 +1066,12 @@ function generateAgentPrompt(taskId) {
   const agent = agents.find(item => item.id === task.agent) || agents[0];
   return [
     "You are " + agent.name + ", acting as " + agent.role + ".",
+    "Tool: " + agent.tool,
     "",
     "Project:",
     "AgentFlow Studio",
     "",
-    "Goal:",
+    "User Goal:",
     state.goal || getEl("goalInput").value.trim() || "No goal provided.",
     "",
     "Current Task:",
@@ -769,7 +1080,10 @@ function generateAgentPrompt(taskId) {
     "Task Brief:",
     task.brief || "No brief provided.",
     "",
-    "Constraints:",
+    "Dependency Context:",
+    formatDependencyContext(taskId),
+    "",
+    "Runtime Constraints:",
     ...runtimeConstraints.map(item => "- " + item),
     "",
     "Expected Output:",
@@ -799,30 +1113,39 @@ function copyAgentPrompt(taskId) {
   return prompt;
 }
 
+function describeDependencyBlock(taskId) {
+  const status = getDependencyStatus(taskId);
+  if (status.ready) return "";
+  const titles = status.missing.map(id => {
+    const task = findTask(id);
+    return task ? task.title : id;
+  });
+  return "Waiting for: " + (titles.join(", ") || "required dependencies");
+}
+
 function runStep(taskId) {
   const task = findTask(taskId);
   if (!task) return;
+  if (!canRunStep(taskId)) {
+    const reason = describeDependencyBlock(taskId) || "Step cannot be run in its current status.";
+    addLog("System", "workflow.step_blocked_by_dependencies", { taskId, dependsOn: normalizeDependsOn(task.dependsOn), missing: getDependencyStatus(taskId).missing }, reason);
+    notify("warning", reason);
+    renderAll();
+    return;
+  }
   state.currentStepId = taskId;
   task.status = "active";
   task.updatedAt = nowIso();
   const step = findStep(taskId);
+  const prompt = generateAgentPrompt(taskId);
   if (step) {
     step.status = "active";
-    step.prompt = generateAgentPrompt(taskId);
+    step.prompt = prompt;
     step.updatedAt = task.updatedAt;
   }
-  getEl("promptPreview").textContent = generateAgentPrompt(taskId);
+  getEl("promptPreview").textContent = prompt;
   addLog("System", "workflow.step_started", { taskId, agent: task.agent }, "Running step: " + task.title);
   renderAll();
-}
-
-function nextStepAfter(taskId) {
-  const sorted = state.tasks.slice().sort((a, b) => a.order - b.order);
-  const currentIndex = sorted.findIndex(task => task.id === taskId);
-  for (let index = currentIndex + 1; index < sorted.length; index += 1) {
-    if (!["done", "failed", "blocked"].includes(sorted[index].status)) return sorted[index].id;
-  }
-  return null;
 }
 
 function submitStepOutput(taskId, output, nextStatus = "review") {
@@ -842,15 +1165,24 @@ function submitStepOutput(taskId, output, nextStatus = "review") {
     state.outputs = state.outputs.filter(item => item.taskId !== taskId);
     state.outputs.push({ taskId, agent: task.agent, output: finalOutput, submittedAt: task.updatedAt });
   }
-  state.currentStepId = nextStepAfter(taskId);
+  state.currentStepId = ["done", "review"].includes(task.status) ? getNextRunnableStep() : taskId;
   addLog("System", "workflow.output_submitted", { taskId, nextStepId: state.currentStepId }, "Saved output for " + task.title + ".");
+  notify("success", "Saved output for " + task.title + ".");
   renderAll();
 }
 
 function createRunRecord() {
   saveState();
   return {
+    schemaVersion: RUN_RECORD_SCHEMA_VERSION,
     version: VERSION,
+    runtime: "local",
+    environment: {
+      appVersion: VERSION,
+      storage: "localStorage",
+      backend: "none",
+      apiKeys: "none"
+    },
     runId: state.runId,
     createdAt: state.createdAt,
     updatedAt: state.updatedAt,
@@ -865,16 +1197,166 @@ function createRunRecord() {
   };
 }
 
+function migrateRunRecord(record) {
+  if (!record || typeof record !== "object" || Array.isArray(record)) return record;
+  const migrated = clone(record);
+  migrated.version = migrated.version || "0.1.x";
+  migrated.schemaVersion = migrated.schemaVersion || RUN_RECORD_SCHEMA_VERSION;
+  if (migrated.final_markdown && !migrated.finalMarkdown) migrated.finalMarkdown = migrated.final_markdown;
+  if (Array.isArray(migrated.tasks)) {
+    migrated.tasks = migrated.tasks.map(task => {
+      const next = Object.assign({}, task);
+      if (next.expected_output && !next.expectedOutput) next.expectedOutput = next.expected_output;
+      if (next.depends_on && !next.dependsOn) next.dependsOn = next.depends_on;
+      next.dependsOn = normalizeDependsOn(next.dependsOn);
+      return next;
+    });
+  }
+  if (Array.isArray(migrated.workflow)) {
+    migrated.workflow = migrated.workflow.map(step => {
+      const next = Object.assign({}, step);
+      if (next.depends_on && !next.dependsOn) next.dependsOn = next.depends_on;
+      next.dependsOn = normalizeDependsOn(next.dependsOn);
+      return next;
+    });
+  }
+  return migrated;
+}
+
+function validateRunRecord(record) {
+  const errors = [];
+  if (!record || typeof record !== "object" || Array.isArray(record)) {
+    return { valid: false, errors: ["RunRecord must be an object."] };
+  }
+  if (!Array.isArray(record.tasks)) errors.push("tasks must be an array.");
+  if (record.workflow !== undefined && !Array.isArray(record.workflow)) errors.push("workflow must be an array when present.");
+  if (Array.isArray(record.tasks)) {
+    const seenIds = new Set();
+    const taskIds = new Set();
+    record.tasks.forEach((task, index) => {
+      ["id", "title", "agent", "status"].forEach(field => {
+        if (!task[field]) errors.push("tasks[" + index + "]." + field + " is required.");
+      });
+      if (task.status && !taskStatuses.includes(task.status)) errors.push("tasks[" + index + "].status is invalid.");
+      if (task.agent && !agents.some(agent => agent.id === task.agent)) errors.push("tasks[" + index + "].agent is unknown.");
+      if (task.dependsOn !== undefined && !Array.isArray(task.dependsOn)) errors.push("tasks[" + index + "].dependsOn must be an array.");
+      // Duplicate task ID check
+      if (task.id) {
+        if (seenIds.has(task.id)) {
+          errors.push("tasks[" + index + "].id is duplicate: " + task.id);
+        } else {
+          seenIds.add(task.id);
+          taskIds.add(task.id);
+        }
+      }
+    });
+    // dependsOn reference + self-dependency checks
+    record.tasks.forEach((task, index) => {
+      const deps = normalizeDependsOn(task.dependsOn);
+      deps.forEach(depId => {
+        if (depId === task.id) {
+          errors.push("tasks[" + index + "].dependsOn references itself: " + depId);
+        } else if (!taskIds.has(depId)) {
+          errors.push("tasks[" + index + "].dependsOn references unknown task: " + depId);
+        }
+      });
+    });
+    // Cycle detection
+    const cycleErrors = detectDependencyCycles(record.tasks);
+    cycleErrors.forEach(err => errors.push(err));
+  }
+  // Workflow step <-> task mapping validation
+  if (Array.isArray(record.workflow) && Array.isArray(record.tasks)) {
+    const taskIdSet = new Set(record.tasks.map(t => t.id));
+    record.workflow.forEach((step, index) => {
+      const stepId = step.taskId || step.id;
+      if (stepId && !taskIdSet.has(stepId)) {
+        errors.push("workflow[" + index + "] references unknown task: " + stepId);
+      }
+    });
+  }
+  return { valid: errors.length === 0, errors };
+}
+
+function detectDependencyCycles(tasks) {
+  const errors = [];
+  if (!Array.isArray(tasks) || tasks.length === 0) return errors;
+  const taskMap = {};
+  tasks.forEach(t => { taskMap[t.id] = t; });
+  const WHITE = 0, GRAY = 1, BLACK = 2;
+  const color = {};
+  tasks.forEach(t => { color[t.id] = WHITE; });
+
+  function dfs(nodeId, path) {
+    color[nodeId] = GRAY;
+    const task = taskMap[nodeId];
+    const deps = normalizeDependsOn(task ? task.dependsOn : []);
+    for (const depId of deps) {
+      if (color[depId] === GRAY) {
+        const cycleStart = path.indexOf(depId);
+        const cycle = path.slice(cycleStart).concat(depId).join(" → ");
+        errors.push("Dependency cycle detected: " + cycle);
+      } else if (color[depId] === WHITE) {
+        dfs(depId, path.concat(depId));
+      }
+    }
+    color[nodeId] = BLACK;
+  }
+
+  tasks.forEach(t => {
+    if (color[t.id] === WHITE) dfs(t.id, [t.id]);
+  });
+  return errors;
+}
+
+function validateDependencyGraph(tasks) {
+  if (!Array.isArray(tasks)) return { valid: false, errors: ["tasks must be an array."] };
+  const errors = [];
+  const taskIds = new Set(tasks.map(t => t.id));
+  const seenIds = new Set();
+  tasks.forEach((task, index) => {
+    if (!task.id) {
+      errors.push("tasks[" + index + "] is missing an id.");
+    } else if (seenIds.has(task.id)) {
+      errors.push("Duplicate task id: " + task.id);
+    } else {
+      seenIds.add(task.id);
+    }
+    const deps = normalizeDependsOn(task.dependsOn);
+    if (deps.includes(task.id)) {
+      errors.push("Self-dependency on task " + (task.id || index));
+    }
+    deps.forEach(depId => {
+      if (!taskIds.has(depId)) {
+        errors.push("Task " + (task.id || index) + " depends on unknown task: " + depId);
+      }
+    });
+  });
+  const cycleErrors = detectDependencyCycles(tasks);
+  cycleErrors.forEach(err => errors.push(err));
+  return { valid: errors.length === 0, errors };
+}
+
 function importRunRecord(record) {
-  state = normalizeState(record);
+  const migrated = migrateRunRecord(record);
+  const validation = validateRunRecord(migrated);
+  if (!validation.valid) {
+    addLog("Automation", "run.import_failed", { errors: validation.errors }, "Import failed validation. Current state was preserved.");
+    notify("error", "Import failed: " + validation.errors[0]);
+    renderAll();
+    return false;
+  }
+  state = normalizeState(migrated);
   getEl("goalInput").value = state.goal || "";
   getEl("finalOutput").textContent = state.finalMarkdown || "";
   if (!state.finalMarkdown) {
     getEl("finalOutput").innerHTML = '<span class="empty-state">Imported run has no final markdown yet.</span>';
   }
   addLog("Automation", "run.imported", { runId: state.runId }, "Imported run record.");
+  notify("success", "Imported run record.");
   saveState();
   renderAll();
+  return true;
 }
 
 function exportRunJson() {
@@ -883,7 +1365,7 @@ function exportRunJson() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = state.runId + ".agentflow-run.json";
+  link.download = state.runId + "-" + new Date().toISOString().replace(/[:.]/g, "-") + ".agentflow-run.json";
   document.body.appendChild(link);
   link.click();
   link.remove();
@@ -897,9 +1379,14 @@ function importRunJson(file) {
   const reader = new FileReader();
   reader.onload = event => {
     try {
+      if (!confirm("Import JSON will replace the current run state. Continue?")) {
+        notify("info", "Import cancelled.");
+        return;
+      }
       importRunRecord(JSON.parse(event.target.result));
     } catch (error) {
       addLog("Automation", "run.import_failed", { error: String(error) }, "Import failed. Not a valid AgentFlow JSON record.");
+      notify("error", "Import failed. Not a valid JSON file.");
       renderAll();
     }
   };
@@ -964,7 +1451,16 @@ function loadExample() {
   renderAll();
 }
 
+function loadDemoRun() {
+  state = createDemoState();
+  getEl("goalInput").value = state.goal;
+  getEl("finalOutput").textContent = state.finalMarkdown;
+  saveState();
+  renderAll();
+}
+
 function resetRun() {
+  if (!confirm("Reset this run and clear the current workflow?")) return;
   state = createInitialState("");
   getEl("goalInput").value = "";
   getEl("finalOutput").innerHTML = '<span class="empty-state">Run the workflow and collect agent notes to generate a final markdown record.</span>';
@@ -974,6 +1470,7 @@ function resetRun() {
 }
 
 function clearLocalState() {
+  if (!confirm("Clear localStorage state for AgentFlow?")) return;
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
@@ -1018,6 +1515,74 @@ function renderAgents() {
   getEl("agentCount").textContent = String(agents.length);
 }
 
+function getDependencyBadge(task) {
+  if (task.status === "done") return '<span class="dependency-chip dependency-terminal">Done</span>';
+  if (task.status === "active") return '<span class="dependency-chip dependency-ready">Running</span>';
+  if (task.status === "blocked") return '<span class="dependency-chip dependency-terminal">Blocked</span>';
+  if (task.status === "failed") return '<span class="dependency-chip dependency-terminal">Failed</span>';
+  const status = getDependencyStatus(task.id);
+  if (status.ready) return '<span class="dependency-chip dependency-ready">Ready</span>';
+  const titles = status.missing.map(id => {
+    const dependency = findTask(id);
+    return dependency ? dependency.title : id;
+  });
+  return '<span class="dependency-chip dependency-waiting">Waiting for: ' + escapeHtml(titles.join(", ")) + '</span>';
+}
+
+function escapeMermaidLabel(value) {
+  return String(value || "")
+    .replaceAll('"', "'")
+    .replaceAll("[", "(")
+    .replaceAll("]", ")")
+    .replaceAll("{", "(")
+    .replaceAll("}", ")")
+    .replaceAll("|", "/")
+    .replaceAll("\n", " ");
+}
+
+
+function renderProgress() {
+  const root = getEl("runProgressView");
+  if (!root) return;
+  if (!state.tasks || !state.tasks.length) {
+    root.innerHTML = '';
+    return;
+  }
+  const total = state.tasks.length;
+  const done = state.tasks.filter(t => t.status === "done").length;
+  const active = state.tasks.filter(t => t.status === "active").length;
+  const review = state.tasks.filter(t => t.status === "review").length;
+  const blocked = state.tasks.filter(t => t.status === "blocked").length;
+  const failed = state.tasks.filter(t => t.status === "failed").length;
+  
+  const plannedTasks = state.tasks.filter(t => t.status === "planned");
+  const ready = plannedTasks.filter(t => canRunStep(t.id)).length;
+  const waiting = plannedTasks.filter(t => !canRunStep(t.id)).length;
+
+  const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+  
+  root.innerHTML = `
+    <div class="bg-black/40 border border-white/5 rounded-lg p-4 mb-5 shadow-inner">
+      <div class="flex justify-between items-end mb-2.5">
+        <div class="text-[11px] font-mono font-semibold text-zinc-400 uppercase tracking-wider">Current Run Progress</div>
+        <div class="text-[13px] font-bold text-zinc-200 font-mono">${done} / ${total} Done</div>
+      </div>
+      <div class="w-full bg-zinc-900 rounded-full h-2 mb-3 overflow-hidden border border-white/5">
+        <div class="bg-cyan-500 h-2 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.6)] transition-all duration-500" style="width: ${percent}%"></div>
+      </div>
+      <div class="flex flex-wrap gap-x-3 gap-y-1.5 text-[10px] font-mono tracking-wider text-zinc-500 uppercase">
+        <span>Done <span class="text-emerald-400 font-bold">${done}</span></span> &middot;
+        <span>Active <span class="text-cyan-400 font-bold">${active}</span></span> &middot;
+        <span>Review <span class="text-purple-400 font-bold">${review}</span></span> &middot;
+        <span>Ready <span class="text-blue-400 font-bold">${ready}</span></span> &middot;
+        <span>Waiting <span class="text-yellow-400 font-bold">${waiting}</span></span> &middot;
+        <span>Blocked <span class="text-orange-400 font-bold">${blocked}</span></span> &middot;
+        <span>Failed <span class="text-rose-400 font-bold">${failed}</span></span>
+      </div>
+    </div>
+  `;
+}
+
 function renderFlow() {
   const root = getEl("flowView");
   if (!state.tasks.length) {
@@ -1030,7 +1595,7 @@ function renderFlow() {
   agents.forEach(agent => { agentNames[agent.id] = agent.name; });
   const lines = ["flowchart LR"];
   state.tasks.forEach((task, index) => {
-    const label = task.order + ". " + task.title + "<br/>" + (agentNames[task.agent] || task.agent);
+    const label = escapeMermaidLabel(task.order + ". " + task.title + "<br/>" + (agentNames[task.agent] || task.agent));
     const nodeId = "T" + index;
     const style = task.status === "done" ? "fill:#062d16,stroke:#22c55e,stroke-width:1.5px" :
       task.status === "active" ? "fill:#052e3d,stroke:#06b6d4,stroke-width:2px" :
@@ -1038,32 +1603,84 @@ function renderFlow() {
       task.status === "blocked" ? "fill:#331a05,stroke:#f97316,stroke-width:1.5px" :
       task.status === "failed" ? "fill:#330612,stroke:#f43f5e,stroke-width:1.5px" :
       "fill:#18181b,stroke:#3f3f46,stroke-width:1px";
-    lines.push('  ' + nodeId + '["' + label.replaceAll('"', "'") + '"]');
+    lines.push('  ' + nodeId + '["' + label + '"]');
     lines.push("  style " + nodeId + " " + style + ",color:#f4f4f5");
-    if (index > 0) lines.push("  T" + (index - 1) + " --> " + nodeId);
+    const dependencies = normalizeDependsOn(task.dependsOn);
+    if (dependencies.length) {
+      dependencies.forEach(depId => {
+        const depIndex = state.tasks.findIndex(item => item.id === depId);
+        if (depIndex >= 0) lines.push("  T" + depIndex + " --> " + nodeId);
+      });
+    } else if (index > 0 && !state.tasks.some(item => normalizeDependsOn(item.dependsOn).includes(task.id))) {
+      /* Independent root node; dependency edges are rendered where declared. */
+    }
   });
 
   const current = findTask(state.currentStepId);
-  getEl("currentStepMetric").textContent = current ? "Next: Step " + current.order + " (" + current.title + ")" : "All steps completed";
+  const hasIncomplete = state.tasks.some(t => !["done", "failed"].includes(t.status));
+  if (current) {
+    getEl("currentStepMetric").textContent = "Next: Step " + current.order + " (" + current.title + ")";
+  } else if (hasIncomplete) {
+    getEl("currentStepMetric").textContent = "No runnable step — blocked by dependencies";
+  } else {
+    getEl("currentStepMetric").textContent = "All steps completed";
+  }
   
+  const agentMap = {};
+  agents.forEach(a => agentMap[a.id] = a);
+
   const stepList = state.tasks.map(task => {
     const isCurrent = state.currentStepId === task.id;
     const statusBadge = `<span class="status-badge ${statusColors[task.status]}">${statusLabels[task.status]}</span>`;
+    const runnable = canRunStep(task.id);
+    let statusText = "";
+    let statusTextColor = "text-amber-400/90 bg-amber-950/20 border-amber-900/30";
+    if (task.status === "done") { statusText = "Completed"; statusTextColor = "text-emerald-400/90 bg-emerald-950/20 border-emerald-900/30"; }
+    else if (task.status === "review") { statusText = "Awaiting review"; statusTextColor = "text-purple-400/90 bg-purple-950/20 border-purple-900/30"; }
+    else if (task.status === "blocked") { statusText = "Blocked"; statusTextColor = "text-orange-400/90 bg-orange-950/20 border-orange-900/30"; }
+    else if (task.status === "failed") { statusText = "Failed"; statusTextColor = "text-rose-400/90 bg-rose-950/20 border-rose-900/30"; }
+    else if (task.status === "active") { statusText = "Running"; statusTextColor = "text-cyan-400/90 bg-cyan-950/20 border-cyan-900/30"; }
+    else if (runnable) { statusText = "Ready to run"; statusTextColor = "text-blue-400/90 bg-blue-950/20 border-blue-900/30"; }
+    else { statusText = describeDependencyBlock(task.id) || "Waiting for dependencies"; statusTextColor = "text-amber-400/90 bg-amber-950/20 border-amber-900/30"; }
+    
+    const disabledReason = runnable ? "" : statusText; // Keep this just in case it's used in tooltip
+    const agent = agentMap[task.agent];
+    const toolName = agent ? agent.tool : "Unknown";
+    const agentName = agent ? agent.name : task.agent;
+    
+    const cardBg = isCurrent ? "bg-[#0c1218] border-cyan-500/40 shadow-[inset_3px_0_0_#06b6d4]" : (runnable ? "bg-zinc-900/60 border-white/10" : "bg-zinc-900/30 border-white/5 opacity-80");
+    const runBtnClass = runnable ? "btn-primary shadow-[0_0_12px_rgba(6,182,212,0.25)] font-bold border-cyan-500/50" : "btn opacity-50";
+    
     return `
-      <div class="bg-zinc-900/30 border border-white/5 rounded-lg p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${isCurrent ? 'ring-1 ring-cyan-500/30 bg-cyan-950/5' : ''}">
-        <div class="flex items-start gap-2.5">
-          <span class="w-5 h-5 rounded bg-zinc-950 border border-white/5 text-[10px] font-mono font-bold flex items-center justify-center shrink-0 text-zinc-400 mt-0.5">${task.order}</span>
-          <div>
-            <div class="text-xs font-semibold text-zinc-100 flex items-center gap-2 flex-wrap">
-              <span>${escapeHtml(task.title)}</span>
+      <div class="rounded-lg p-4 flex flex-col sm:flex-row sm:items-start justify-between gap-4 border transition-all duration-200 ${cardBg}">
+        <div class="flex items-start gap-3 flex-1">
+          <div class="w-7 h-7 rounded bg-black/50 border border-white/10 text-xs font-mono font-bold flex items-center justify-center shrink-0 text-zinc-300 shadow-inner">${task.order}</div>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 flex-wrap mb-2">
+              <span class="text-sm font-semibold text-zinc-100">${escapeHtml(task.title)}</span>
               ${statusBadge}
+              ${getDependencyBadge(task)}
             </div>
-            <div class="text-[10px] text-zinc-500 mt-1 font-mono">${escapeHtml(agentNames[task.agent] || task.agent)} &bull; Expected: ${escapeHtml(task.expectedOutput)}</div>
+            
+            <div class="flex items-center gap-2 mb-2.5 flex-wrap">
+              <span class="text-[10px] font-mono text-cyan-400 bg-cyan-950/30 border border-cyan-900/40 px-2 py-0.5 rounded shadow-sm">${escapeHtml(agentName)}</span>
+              <span class="text-[10px] font-mono text-purple-400 bg-purple-950/30 border border-purple-900/40 px-2 py-0.5 rounded shadow-sm">${escapeHtml(toolName)}</span>
+            </div>
+            
+            <div class="text-xs text-zinc-400 leading-relaxed mb-2.5">
+              <strong class="text-zinc-300">Expected:</strong> ${escapeHtml(task.expectedOutput)}
+            </div>
+            
+            <div class="text-[11px] font-mono ${statusTextColor} border px-2 py-1.5 rounded-md inline-block">${escapeHtml(statusText)}</div>
           </div>
         </div>
-        <div class="flex gap-1.5 shrink-0 sm:justify-end">
-          <button class="btn btn-primary text-xs py-1 px-3 run-step" data-task-id="${escapeAttr(task.id)}">Run Step</button>
-          <button class="btn text-xs py-1 px-3 copy-prompt" data-task-id="${escapeAttr(task.id)}">Copy Prompt</button>
+        <div class="flex flex-col gap-2 shrink-0 sm:w-32">
+          <button class="btn ${runBtnClass} w-full text-xs py-2 run-step" data-task-id="${escapeAttr(task.id)}" ${runnable ? "" : "disabled"}>
+            Run Step
+          </button>
+          <button class="btn w-full text-xs py-2 copy-prompt hover:text-white" data-task-id="${escapeAttr(task.id)}">
+            Copy Prompt
+          </button>
         </div>
       </div>
     `;
@@ -1080,11 +1697,11 @@ function renderFlow() {
     if (window.mermaid && root.querySelector) {
       const renderResult = mermaid.run({ nodes: [root.querySelector(".mermaid")] });
       if (renderResult && typeof renderResult.catch === "function") {
-        renderResult.catch(error => console.warn("Mermaid render failed", error));
+        renderResult.catch(() => {});
       }
     }
   } catch (error) {
-    console.warn("Mermaid render failed", error);
+    /* Mermaid is decorative; keep the workflow list usable if diagram rendering is blocked. */
   }
   attachFlowEvents();
 }
@@ -1094,23 +1711,44 @@ function renderBoard() {
     const column = getEl("col-" + status);
     const columnTasks = state.tasks.filter(task => task.status === status);
     if (!columnTasks.length) {
-      column.innerHTML = '<p class="empty-state">No tasks</p>';
+      const emptyCopy = {
+        planned: "No queued work",
+        active: "No active agent run",
+        review: "Nothing awaiting review",
+        done: "No completed task",
+        blocked: "No blockers",
+        failed: "No failed tasks"
+      };
+      column.innerHTML = '<p class="empty-state">' + emptyCopy[status] + '</p>';
       return;
     }
     column.innerHTML = columnTasks.map(task => {
       const agentOptions = agents.map(agent => `<option value="${agent.id}" ${agent.id === task.agent ? "selected" : ""}>${escapeHtml(agent.name)}</option>`).join("");
       const statusOptions = taskStatuses.map(item => `<option value="${item}" ${item === task.status ? "selected" : ""}>${statusLabels[item]}</option>`).join("");
       const isCurrent = state.currentStepId === task.id;
+      const runnable = canRunStep(task.id);
+      let statusText = "";
+      if (task.status === "done") statusText = "Completed";
+      else if (task.status === "review") statusText = "Awaiting review";
+      else if (task.status === "blocked") statusText = "Blocked";
+      else if (task.status === "failed") statusText = "Failed";
+      else if (task.status === "active") statusText = "Running";
+      else if (runnable) statusText = "Ready to run";
+      else statusText = describeDependencyBlock(task.id) || "Waiting for dependencies";
+      
+      const disabledReason = runnable ? "" : statusText;
       
       return `
-        <div class="task-card ${isCurrent ? "is-current" : ""} space-y-3">
+        <div class="task-card ${isCurrent ? "is-current" : ""} space-y-2 opacity-80 hover:opacity-100">
           <div class="flex items-center justify-between gap-2 border-b border-white/5 pb-2">
             <span class="text-[9px] font-mono text-zinc-500 font-semibold tracking-wider">STEP ${task.order}</span>
             <span class="status-badge ${statusColors[task.status]} scale-90 origin-right">${statusLabels[task.status]}</span>
           </div>
+          <div>${getDependencyBadge(task)}</div>
+          <div class="text-[10px] text-amber-300/80">${escapeHtml(statusText)}</div>
           
-          <input class="task-field task-title w-full rounded font-medium text-xs py-1" data-task-id="${escapeAttr(task.id)}" value="${escapeAttr(task.title)}" aria-label="Task title">
-          <textarea class="task-field task-brief-field w-full rounded text-zinc-400 text-xs py-1 leading-relaxed" data-task-id="${escapeAttr(task.id)}" aria-label="Task brief">${escapeHtml(task.brief)}</textarea>
+          <input class="task-field task-title w-full rounded font-medium text-[11px] py-1 text-zinc-300" data-task-id="${escapeAttr(task.id)}" value="${escapeAttr(task.title)}" aria-label="Task title">
+          <textarea class="task-field task-brief-field w-full rounded text-zinc-400 text-[10px] py-1 text-zinc-500 leading-relaxed" data-task-id="${escapeAttr(task.id)}" aria-label="Task brief">${escapeHtml(task.brief)}</textarea>
           
           <div class="grid grid-cols-2 gap-1.5 pt-1">
             <div class="flex flex-col gap-0.5">
@@ -1124,7 +1762,7 @@ function renderBoard() {
           </div>
           
           <div class="flex flex-wrap gap-1.5 pt-2 border-t border-white/5">
-            <button class="btn btn-primary text-[10px] py-1 px-2.5 flex-1 run-step" data-task-id="${escapeAttr(task.id)}">Run</button>
+            <button class="btn btn-primary text-[10px] py-1 px-2.5 flex-1 run-step" data-task-id="${escapeAttr(task.id)}" ${runnable ? "" : "disabled"} title="${escapeAttr(disabledReason || "Run step")}">Run</button>
             <button class="btn text-[10px] py-1 px-2.5 flex-1 copy-prompt" data-task-id="${escapeAttr(task.id)}">Prompt</button>
             <button class="btn btn-danger text-[10px] py-1 px-2.5 delete-task" data-task-id="${escapeAttr(task.id)}">Delete</button>
           </div>
@@ -1215,10 +1853,36 @@ function updateMetrics() {
   getEl("logMetric").textContent = state.logs.length + " logs";
 }
 
+function notify(type, message) {
+  const allowed = ["success", "warning", "error", "info"];
+  const level = allowed.includes(type) ? type : "info";
+  let root = getEl("toastStack");
+  if (!root) {
+    root = document.createElement("div");
+    root.id = "toastStack";
+    root.className = "toast-stack";
+    document.body.appendChild(root);
+  }
+  const toast = document.createElement("div");
+  toast.className = "toast toast-" + level;
+  toast.setAttribute("role", level === "error" ? "alert" : "status");
+  toast.textContent = message;
+  root.appendChild(toast);
+  setTimeout(() => {
+    if (toast && toast.remove) toast.remove();
+  }, 3600);
+}
+
 function renderAll() {
   syncWindow();
   getEl("goalInput").value = state.goal || getEl("goalInput").value || "";
+  if (state.finalMarkdown) {
+    getEl("finalOutput").textContent = state.finalMarkdown;
+  } else {
+    getEl("finalOutput").innerHTML = '<span class="empty-state">Run the workflow and collect agent notes to generate a final markdown record.</span>';
+  }
   renderAgents();
+  renderProgress();
   renderFlow();
   renderBoard();
   renderOutputInputs();
@@ -1299,7 +1963,7 @@ function boot() {
   syncWindow();
   bindStaticEvents();
   renderAll();
-  addLog("System", "runtime.started", { version: VERSION }, "AgentFlow v0.2 local runtime initialized.");
+  addLog("System", "runtime.started", { version: VERSION }, "AgentFlow v0.2.1 dependency-aware local runtime initialized.");
   renderAll();
 }
 
@@ -1314,6 +1978,8 @@ window.AgentFlowRuntime = {
   runStep,
   submitStepOutput,
   createRunRecord,
+  migrateRunRecord,
+  validateRunRecord,
   importRunRecord,
   exportRunJson,
   importRunJson,
@@ -1322,7 +1988,16 @@ window.AgentFlowRuntime = {
   resetRun,
   clearLocalState,
   saveState,
-  loadState
+  loadState,
+  isTaskComplete,
+  getDependencyStatus,
+  canRunStep,
+  getRunnableSteps,
+  getNextRunnableStep,
+  getDependencyContext,
+  indentText,
+  formatDependencyContext,
+  notify
 };
 
 boot();

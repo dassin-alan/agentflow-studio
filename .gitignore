@@ -51,6 +51,7 @@ coverage/
 tmp/
 temp/
 *.tmp
+*.bak
 
 # Docker
 .docker/
