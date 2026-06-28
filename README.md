@@ -5,7 +5,7 @@
 
 AgentFlow helps you coordinate multiple AI coding agents, automation agents, reviewers, and testers in a structured workflow. Instead of asking one model to do everything, AgentFlow decomposes complex tasks into subtasks and routes them to specialized agents — with a visual workspace so you can see what's happening.
 
-> **Current status: v0.2.0 Local Runtime** — open `index.html` in your browser to run a persistent local agent workflow. No backend, no database, no API keys, and no build step required. Backend and API integrations are planned for later milestones. See [ROADMAP.md](./ROADMAP.md).
+> **Latest release: v0.2.1 Dependency-aware Local Runtime** — open `index.html` in your browser to run a persistent local agent workflow with DAG-based task dependencies, Ready / Waiting step states, dependency context prompts, and portable RunRecord JSON import/export. No backend, no database, no API keys, and no build step required. Backend and API integrations are planned for later milestones. See [ROADMAP.md](./ROADMAP.md).
 
 ## Live Demo
 
@@ -39,14 +39,14 @@ Open `index.html` and you can:
 - ✍️ **Enter a task goal** — type your request or load the 3D Earth example
 - 🔀 **Decompose tasks** — the Commander breaks your request into subtasks
 - 📋 **Track the Task Board** — move subtasks through Planned, Active, Review, Done, Blocked, and Failed
-- 🧭 **Run workflow steps** — run one step at a time and track the current step
-- 📋 **Copy Agent Prompts** — generate structured prompts for external tools
+- 🧭 **Run dependency-aware workflow steps** — unlock steps only when their dependencies are complete
+- 📋 **Copy Agent Prompts** — generate structured prompts with dependency context for external tools
 - 📝 **Fill in Agent Outputs** — paste results from your real AI tools manually
 - 💾 **Restore local state** — refresh the page without losing the current run
 - 📊 **Watch the Workflow Graph** — Mermaid diagram updates live
 - 📜 **See the Collaboration Log** — every important action is timestamped and structured
 - ✅ **Generate Final Output** — synthesize all results into Markdown
-- 📋 **Copy / Export / Import** — save, restore, and replay run records
+- 📋 **Copy / Export / Import** — save, validate, restore, and replay RunRecord JSON files
 
 ---
 
@@ -96,13 +96,13 @@ start index.html       # Windows
 xdg-open index.html    # Linux
 ```
 
-That's it. No `npm install`, no `pip install`, no API keys. v0.2.0 is a self-contained local runtime.
+That's it. No `npm install`, no `pip install`, no API keys. v0.2.1 is a self-contained dependency-aware local runtime.
 
-> **Note:** v0.2.0 uses Tailwind CDN and Mermaid CDN for convenience. An internet connection is required for full styling and diagrams. The runtime state itself is local and stored in your browser.
+> **Note:** v0.2.1 uses Tailwind CDN and Mermaid CDN for convenience. An internet connection is required for full styling and diagrams. The runtime state itself is local and stored in your browser.
 
 ---
 
-## Project Structure (v0.2.0)
+## Project Structure (v0.2.1)
 
 ```text
 agentflow-studio/
@@ -125,7 +125,7 @@ agentflow-studio/
     └── 3d-earth-demo/
 ```
 
-> Backend apps and packages are intentionally deferred to later milestones. v0.2.0 remains a single-file local runtime.
+> Backend apps and packages are intentionally deferred to later milestones. v0.2.1 remains a single-file local runtime.
 
 ---
 
@@ -174,7 +174,8 @@ steps:
 | Version | Goal | Status |
 |---------|------|--------|
 | v0.1.0 | Static demo — agent list, task board, mock workflow | ✅ Complete |
-| v0.2.0 | Local Runtime — localStorage, state machine, prompt handoff, run replay | 🟢 Active |
+| v0.2.0 | Local Runtime — localStorage, state machine, prompt handoff, run replay | ✅ Complete |
+| v0.2.1 | Dependency-aware Local Runtime — DAG dependencies, Ready / Waiting states, dependency context prompts, RunRecord validation | 🟢 Active |
 | v0.3.0 | Agent Protocol — standardized task input/output schema | 📋 Planned |
 | v0.4.0 | API integration — backend storage and real model adapters | 📋 Planned |
 | v0.5.0 | Review & test loop — automated code review and QA | 📋 Planned |
