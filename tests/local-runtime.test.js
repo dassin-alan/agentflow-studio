@@ -461,10 +461,20 @@ function testLanguagePreferenceFallbacks() {
 function testDeclaredInterfaceTranslationsResolve() {
   const { context } = loadRuntime();
   const html = fs.readFileSync(path.join(repoRoot, "index.html"), "utf8");
-  const keys = [...html.matchAll(/data-i18n(?:-placeholder|-title|-aria-label)?="([^"]+)"/g)]
+  const declaredKeys = [...html.matchAll(/data-i18n(?:-placeholder|-title|-aria-label)?="([^"]+)"/g)]
     .map(match => match[1]);
+  const literalKeys = [...html.matchAll(/\bt\("([^"]+)"(?:,|\))/g)]
+    .map(match => match[1]);
+  const generatedKeys = [
+    ...["planned", "active", "review", "done", "blocked", "failed"].map(status => "status." + status),
+    ...["planned", "active", "review", "done", "blocked", "failed"].map(status => "board.empty." + status),
+    ...["commander", "coder", "ui_designer", "automation", "reviewer", "tester", "assistant"]
+      .flatMap(agent => ["agent." + agent + ".role", "agent." + agent + ".description"])
+  ];
+  const keys = [...new Set([...declaredKeys, ...literalKeys, ...generatedKeys])];
 
-  assert.ok(keys.length >= 35, "the static interface should declare translation keys");
+  assert.ok(declaredKeys.length >= 35, "the static interface should declare translation keys");
+  assert.ok(keys.length >= 90, "static and dynamic interface keys should be covered");
   for (const language of ["en", "zh-CN"]) {
     context.window.AgentFlowI18n.setLanguage(language, { persist: false });
     keys.forEach(key => {
