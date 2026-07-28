@@ -458,11 +458,11 @@
       <div class="panel-glass rounded-xl p-5 glow-purple-active">
         <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
           <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider" data-i18n="workflow.title">Workflow Runner</h2>
-          <span id="currentStepMetric" class="text-[10px] text-purple-300 bg-purple-950/50 border border-purple-800/30 px-2.5 py-0.5 rounded-md mono">No active step</span>
+          <span id="currentStepMetric" class="text-[10px] text-purple-300 bg-purple-950/50 border border-purple-800/30 px-2.5 py-0.5 rounded-md mono" data-i18n="workflow.noStep">No step</span>
         </div>
         <div id="runProgressView"></div>
         <div id="flowView" class="space-y-4">
-          <p class="empty-state">Enter a goal and click Decompose Task to generate the workflow.</p>
+          <p class="empty-state" data-i18n="workflow.empty">Enter a goal and click Decompose Task to generate the workflow.</p>
         </div>
       </div>
 
@@ -692,7 +692,84 @@ const translations = {
     "footer.runtime": "AgentFlow v0.2.1 - Dependency-aware Local Runtime",
     "footer.localFirst": "Local-first orchestration",
     "footer.replayable": "Replayable agent handoffs",
-    "footer.poweredBy": "Powered by"
+    "footer.poweredBy": "Powered by",
+    "metrics.tasks": "{count} tasks",
+    "metrics.logs": "{count} logs",
+    "agent.commander.role": "Planner",
+    "agent.commander.description": "Clarifies goals, splits work, and owns final decisions.",
+    "agent.coder.role": "Build",
+    "agent.coder.description": "Core implementation, complex logic, and refactoring.",
+    "agent.ui_designer.role": "Visual",
+    "agent.ui_designer.description": "Designs visual interfaces, interactions, and prototypes.",
+    "agent.automation.role": "Ops",
+    "agent.automation.description": "Runs scripts, packaging, and repeatable checks.",
+    "agent.reviewer.role": "Review",
+    "agent.reviewer.description": "Checks architecture, maintainability, and risks.",
+    "agent.tester.role": "QA",
+    "agent.tester.description": "Validates behavior, edge cases, and user-facing quality.",
+    "agent.assistant.role": "Docs",
+    "agent.assistant.description": "Turns the run into docs, release notes, or handoff text.",
+    "agent.running": "RUNNING",
+    "agent.ready": "READY",
+    "dependency.done": "Done",
+    "dependency.running": "Running",
+    "dependency.blocked": "Blocked",
+    "dependency.failed": "Failed",
+    "dependency.ready": "Ready",
+    "dependency.waitingFor": "Waiting for: {items}",
+    "dependency.required": "required dependencies",
+    "task.completed": "Completed",
+    "task.awaitingReview": "Awaiting review",
+    "task.running": "Running",
+    "task.readyToRun": "Ready to run",
+    "task.waiting": "Waiting for dependencies",
+    "task.cannotRun": "Step cannot be run in its current status.",
+    "progress.current": "Current Run Progress",
+    "progress.doneCount": "{done} / {total} Done",
+    "progress.ready": "Ready",
+    "progress.waiting": "Waiting",
+    "workflow.empty": "Enter a goal and click Decompose Task to generate the workflow.",
+    "workflow.noStep": "No step",
+    "workflow.nextStep": "Next: Step {order} ({title})",
+    "workflow.noRunnable": "No runnable step - blocked by dependencies",
+    "workflow.allCompleted": "All steps completed",
+    "workflow.expected": "Expected:",
+    "workflow.runStep": "Run Step",
+    "workflow.copyPrompt": "Copy Prompt",
+    "common.unknown": "Unknown",
+    "board.empty.planned": "No queued work",
+    "board.empty.active": "No active agent run",
+    "board.empty.review": "Nothing awaiting review",
+    "board.empty.done": "No completed task",
+    "board.empty.blocked": "No blockers",
+    "board.empty.failed": "No failed tasks",
+    "board.step": "STEP {order}",
+    "board.assignee": "Assignee",
+    "board.status": "Status",
+    "board.taskTitle": "Task title",
+    "board.taskBrief": "Task brief",
+    "board.assignedAgent": "Assigned agent",
+    "board.taskStatus": "Task status",
+    "board.run": "Run",
+    "board.prompt": "Prompt",
+    "board.delete": "Delete",
+    "outputs.emptyDynamic": "Run task decomposition first, then paste each agent output here.",
+    "outputs.step": "Step {order}",
+    "outputs.placeholder": "Paste agent output here...",
+    "outputs.submit": "Submit Output",
+    "outputs.markDone": "Mark Done",
+    "logs.empty": "Waiting for activity...",
+    "import.noMarkdown": "Imported run has no final markdown yet.",
+    "confirm.deleteTask": "Delete task: {title}?",
+    "toast.stepBlocked": "This step is waiting for: {items}",
+    "toast.savedOutput": "Saved output for {title}.",
+    "toast.importFailed": "Import failed: {error}",
+    "toast.imported": "Imported run record.",
+    "confirm.importReplace": "Import JSON will replace the current run state. Continue?",
+    "toast.importCancelled": "Import cancelled.",
+    "toast.invalidJson": "Import failed. Not a valid JSON file.",
+    "confirm.resetRun": "Reset this run and clear the current workflow?",
+    "confirm.clearState": "Clear localStorage state for AgentFlow?"
   },
   "zh-CN": {
     "header.subtitle": "多 Agent 本地编排工作台",
@@ -760,7 +837,84 @@ const translations = {
     "footer.runtime": "AgentFlow v0.2.1 - 依赖感知本地运行时",
     "footer.localFirst": "本地优先编排",
     "footer.replayable": "可重放 Agent 交接",
-    "footer.poweredBy": "技术支持"
+    "footer.poweredBy": "技术支持",
+    "metrics.tasks": "{count} 个任务",
+    "metrics.logs": "{count} 条日志",
+    "agent.commander.role": "规划",
+    "agent.commander.description": "澄清目标、拆分工作并负责最终决策。",
+    "agent.coder.role": "开发",
+    "agent.coder.description": "负责核心实现、复杂逻辑和代码重构。",
+    "agent.ui_designer.role": "视觉",
+    "agent.ui_designer.description": "设计视觉界面、交互和原型。",
+    "agent.automation.role": "自动化",
+    "agent.automation.description": "运行脚本、打包流程和可重复检查。",
+    "agent.reviewer.role": "审查",
+    "agent.reviewer.description": "检查架构、可维护性和风险。",
+    "agent.tester.role": "测试",
+    "agent.tester.description": "验证行为、边界情况和用户体验质量。",
+    "agent.assistant.role": "文档",
+    "agent.assistant.description": "将运行结果整理为文档、发布说明或交接文本。",
+    "agent.running": "运行中",
+    "agent.ready": "准备就绪",
+    "dependency.done": "已完成",
+    "dependency.running": "运行中",
+    "dependency.blocked": "已阻塞",
+    "dependency.failed": "失败",
+    "dependency.ready": "就绪",
+    "dependency.waitingFor": "等待：{items}",
+    "dependency.required": "所需依赖",
+    "task.completed": "已完成",
+    "task.awaitingReview": "等待审查",
+    "task.running": "运行中",
+    "task.readyToRun": "可以运行",
+    "task.waiting": "等待依赖",
+    "task.cannotRun": "当前状态下无法运行此步骤。",
+    "progress.current": "当前运行进度",
+    "progress.doneCount": "已完成 {done} / {total}",
+    "progress.ready": "就绪",
+    "progress.waiting": "等待",
+    "workflow.empty": "输入目标并点击“拆分任务”以生成工作流。",
+    "workflow.noStep": "无可用步骤",
+    "workflow.nextStep": "下一步：步骤 {order}（{title}）",
+    "workflow.noRunnable": "没有可运行步骤 - 正在等待依赖",
+    "workflow.allCompleted": "所有步骤已完成",
+    "workflow.expected": "预期输出：",
+    "workflow.runStep": "运行步骤",
+    "workflow.copyPrompt": "复制提示词",
+    "common.unknown": "未知",
+    "board.empty.planned": "暂无排队任务",
+    "board.empty.active": "暂无运行中的 Agent",
+    "board.empty.review": "暂无待审查任务",
+    "board.empty.done": "暂无已完成任务",
+    "board.empty.blocked": "暂无阻塞项",
+    "board.empty.failed": "暂无失败任务",
+    "board.step": "步骤 {order}",
+    "board.assignee": "负责人",
+    "board.status": "状态",
+    "board.taskTitle": "任务标题",
+    "board.taskBrief": "任务说明",
+    "board.assignedAgent": "已分配 Agent",
+    "board.taskStatus": "任务状态",
+    "board.run": "运行",
+    "board.prompt": "提示词",
+    "board.delete": "删除",
+    "outputs.emptyDynamic": "请先拆分任务，然后在此粘贴各 Agent 的输出。",
+    "outputs.step": "步骤 {order}",
+    "outputs.placeholder": "在此粘贴 Agent 输出...",
+    "outputs.submit": "提交输出",
+    "outputs.markDone": "标记完成",
+    "logs.empty": "正在等待活动...",
+    "import.noMarkdown": "导入的运行记录尚无最终 Markdown。",
+    "confirm.deleteTask": "删除任务：{title}？",
+    "toast.stepBlocked": "此步骤正在等待：{items}",
+    "toast.savedOutput": "已保存 {title} 的输出。",
+    "toast.importFailed": "导入失败：{error}",
+    "toast.imported": "已导入运行记录。",
+    "confirm.importReplace": "导入 JSON 将替换当前运行状态，是否继续？",
+    "toast.importCancelled": "已取消导入。",
+    "toast.invalidJson": "导入失败，文件不是有效的 JSON。",
+    "confirm.resetRun": "重置本次运行并清除当前工作流？",
+    "confirm.clearState": "清除 AgentFlow 的 localStorage 状态？"
   }
 };
 
@@ -785,6 +939,10 @@ const statusLabels = {
   blocked: "Blocked",
   failed: "Failed"
 };
+
+function getStatusLabel(status) {
+  return t("status." + status);
+}
 const statusColors = {
   planned: "status-planned",
   active: "status-active",
@@ -1230,7 +1388,7 @@ function updateTask(taskId, patch) {
 function deleteTask(taskId) {
   const task = findTask(taskId);
   if (!task) return;
-  if (!confirm("Delete task: " + task.title + "?")) return;
+  if (!confirm(t("confirm.deleteTask", { title: task.title }))) return;
   state.tasks = state.tasks.filter(item => item.id !== taskId).map((item, index) => Object.assign(item, { order: index + 1 }));
   state.tasks.forEach(item => {
     item.dependsOn = normalizeDependsOn(item.dependsOn).filter(id => id !== taskId);
@@ -1394,6 +1552,18 @@ function describeDependencyBlock(taskId) {
   return "Waiting for: " + (titles.join(", ") || "required dependencies");
 }
 
+function describeDependencyBlockUi(taskId) {
+  const status = getDependencyStatus(taskId);
+  if (status.ready) return "";
+  const titles = status.missing.map(id => {
+    const task = findTask(id);
+    return task ? task.title : id;
+  });
+  return t("dependency.waitingFor", {
+    items: titles.join(", ") || t("dependency.required")
+  });
+}
+
 const statusToneClasses = {
   done: "text-emerald-400/90 bg-emerald-950/20 border-emerald-900/30",
   review: "text-purple-400/90 bg-purple-950/20 border-purple-900/30",
@@ -1406,15 +1576,15 @@ const statusToneClasses = {
 
 function getTaskStatusPresentation(task) {
   const fixedStates = {
-    done: { text: "Completed", tone: "done" },
-    review: { text: "Awaiting review", tone: "review" },
-    blocked: { text: "Blocked", tone: "blocked" },
-    failed: { text: "Failed", tone: "failed" },
-    active: { text: "Running", tone: "active" }
+    done: { text: t("task.completed"), tone: "done" },
+    review: { text: t("task.awaitingReview"), tone: "review" },
+    blocked: { text: t("status.blocked"), tone: "blocked" },
+    failed: { text: t("status.failed"), tone: "failed" },
+    active: { text: t("task.running"), tone: "active" }
   };
   if (fixedStates[task.status]) return fixedStates[task.status];
-  if (canRunStep(task.id)) return { text: "Ready to run", tone: "ready" };
-  return { text: describeDependencyBlock(task.id) || "Waiting for dependencies", tone: "waiting" };
+  if (canRunStep(task.id)) return { text: t("task.readyToRun"), tone: "ready" };
+  return { text: describeDependencyBlockUi(task.id) || t("task.waiting"), tone: "waiting" };
 }
 
 function runStep(taskId) {
@@ -1423,7 +1593,7 @@ function runStep(taskId) {
   if (!canRunStep(taskId)) {
     const reason = describeDependencyBlock(taskId) || "Step cannot be run in its current status.";
     addLog("System", "workflow.step_blocked_by_dependencies", { taskId, dependsOn: normalizeDependsOn(task.dependsOn), missing: getDependencyStatus(taskId).missing }, reason);
-    notify("warning", reason);
+    notify("warning", describeDependencyBlockUi(taskId) || t("task.cannotRun"));
     renderAll();
     return;
   }
@@ -1461,7 +1631,7 @@ function submitStepOutput(taskId, output, nextStatus = "review") {
   }
   state.currentStepId = ["done", "review"].includes(task.status) ? getNextRunnableStep() : taskId;
   addLog("System", "workflow.output_submitted", { taskId, nextStepId: state.currentStepId }, "Saved output for " + task.title + ".");
-  notify("success", "Saved output for " + task.title + ".");
+  notify("success", t("toast.savedOutput", { title: task.title }));
   renderAll();
 }
 
@@ -1608,7 +1778,7 @@ function importRunRecord(record) {
   const validation = validateRunRecord(migrated);
   if (!validation.valid) {
     addLog("Automation", "run.import_failed", { errors: validation.errors }, "Import failed validation. Current state was preserved.");
-    notify("error", "Import failed: " + validation.errors[0]);
+    notify("error", t("toast.importFailed", { error: validation.errors[0] }));
     renderAll();
     return false;
   }
@@ -1616,10 +1786,10 @@ function importRunRecord(record) {
   getEl("goalInput").value = state.goal || "";
   getEl("finalOutput").textContent = state.finalMarkdown || "";
   if (!state.finalMarkdown) {
-    getEl("finalOutput").innerHTML = '<span class="empty-state">Imported run has no final markdown yet.</span>';
+    getEl("finalOutput").innerHTML = '<span class="empty-state">' + escapeHtml(t("import.noMarkdown")) + '</span>';
   }
   addLog("Automation", "run.imported", { runId: state.runId }, "Imported run record.");
-  notify("success", "Imported run record.");
+  notify("success", t("toast.imported"));
   saveState();
   renderAll();
   return true;
@@ -1645,14 +1815,14 @@ function importRunJson(file) {
   const reader = new FileReader();
   reader.onload = event => {
     try {
-      if (!confirm("Import JSON will replace the current run state. Continue?")) {
-        notify("info", "Import cancelled.");
+      if (!confirm(t("confirm.importReplace"))) {
+        notify("info", t("toast.importCancelled"));
         return;
       }
       importRunRecord(JSON.parse(event.target.result));
     } catch (error) {
       addLog("Automation", "run.import_failed", { error: String(error) }, "Import failed. Not a valid AgentFlow JSON record.");
-      notify("error", "Import failed. Not a valid JSON file.");
+      notify("error", t("toast.invalidJson"));
       renderAll();
     }
   };
@@ -1726,17 +1896,17 @@ function loadDemoRun() {
 }
 
 function resetRun() {
-  if (!confirm("Reset this run and clear the current workflow?")) return;
+  if (!confirm(t("confirm.resetRun"))) return;
   state = createInitialState("");
   getEl("goalInput").value = "";
-  getEl("finalOutput").innerHTML = '<span class="empty-state">Run the workflow and collect agent notes to generate a final markdown record.</span>';
+  getEl("finalOutput").innerHTML = '<span class="empty-state">' + escapeHtml(t("final.empty")) + '</span>';
   addLog("System", "run.reset", { runId: state.runId }, "Started a fresh local run.");
   saveState();
   renderAll();
 }
 
 function clearLocalState() {
-  if (!confirm("Clear localStorage state for AgentFlow?")) return;
+  if (!confirm(t("confirm.clearState"))) return;
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
@@ -1744,7 +1914,7 @@ function clearLocalState() {
   }
   state = createInitialState("");
   getEl("goalInput").value = "";
-  getEl("finalOutput").innerHTML = '<span class="empty-state">Run the workflow and collect agent notes to generate a final markdown record.</span>';
+  getEl("finalOutput").innerHTML = '<span class="empty-state">' + escapeHtml(t("final.empty")) + '</span>';
   syncWindow();
   renderAll();
 }
@@ -1770,10 +1940,10 @@ function renderAgents() {
             <span class="text-xs font-semibold text-zinc-200">${escapeHtml(agent.name)}</span>
             <span class="text-[10px] text-zinc-500 font-mono bg-zinc-950 px-1 py-0.5 rounded border border-white/5">${escapeHtml(agent.tool)}</span>
           </div>
-          <div class="text-[11px] text-zinc-500 mt-1 font-sans leading-relaxed">${escapeHtml(agent.role)} - ${escapeHtml(agent.desc)}</div>
+          <div class="text-[11px] text-zinc-500 mt-1 font-sans leading-relaxed">${escapeHtml(t("agent." + agent.id + ".role"))} - ${escapeHtml(t("agent." + agent.id + ".description"))}</div>
         </div>
         <span class="text-[9px] border px-2 py-0.5 rounded-full shrink-0 tracking-wider ${badgeClass}">
-          ${isRunning ? "RUNNING" : "READY"}
+          ${isRunning ? t("agent.running") : t("agent.ready")}
         </span>
       </div>
     `;
@@ -1782,17 +1952,19 @@ function renderAgents() {
 }
 
 function getDependencyBadge(task) {
-  if (task.status === "done") return '<span class="dependency-chip dependency-terminal">Done</span>';
-  if (task.status === "active") return '<span class="dependency-chip dependency-ready">Running</span>';
-  if (task.status === "blocked") return '<span class="dependency-chip dependency-terminal">Blocked</span>';
-  if (task.status === "failed") return '<span class="dependency-chip dependency-terminal">Failed</span>';
+  if (task.status === "done") return '<span class="dependency-chip dependency-terminal">' + escapeHtml(t("dependency.done")) + '</span>';
+  if (task.status === "active") return '<span class="dependency-chip dependency-ready">' + escapeHtml(t("dependency.running")) + '</span>';
+  if (task.status === "blocked") return '<span class="dependency-chip dependency-terminal">' + escapeHtml(t("dependency.blocked")) + '</span>';
+  if (task.status === "failed") return '<span class="dependency-chip dependency-terminal">' + escapeHtml(t("dependency.failed")) + '</span>';
   const status = getDependencyStatus(task.id);
-  if (status.ready) return '<span class="dependency-chip dependency-ready">Ready</span>';
+  if (status.ready) return '<span class="dependency-chip dependency-ready">' + escapeHtml(t("dependency.ready")) + '</span>';
   const titles = status.missing.map(id => {
     const dependency = findTask(id);
     return dependency ? dependency.title : id;
   });
-  return '<span class="dependency-chip dependency-waiting">Waiting for: ' + escapeHtml(titles.join(", ")) + '</span>';
+  return '<span class="dependency-chip dependency-waiting">' + escapeHtml(t("dependency.waitingFor", {
+    items: titles.join(", ") || t("dependency.required")
+  })) + '</span>';
 }
 
 function escapeMermaidLabel(value) {
@@ -1830,20 +2002,20 @@ function renderProgress() {
   root.innerHTML = `
     <div class="bg-black/40 border border-white/5 rounded-lg p-4 mb-5 shadow-inner">
       <div class="flex justify-between items-end mb-2.5">
-        <div class="text-[11px] font-mono font-semibold text-zinc-400 uppercase tracking-wider">Current Run Progress</div>
-        <div class="text-[13px] font-bold text-zinc-200 font-mono">${done} / ${total} Done</div>
+        <div class="text-[11px] font-mono font-semibold text-zinc-400 uppercase tracking-wider">${escapeHtml(t("progress.current"))}</div>
+        <div class="text-[13px] font-bold text-zinc-200 font-mono">${escapeHtml(t("progress.doneCount", { done, total }))}</div>
       </div>
       <div class="w-full bg-zinc-900 rounded-full h-2 mb-3 overflow-hidden border border-white/5">
         <div class="bg-cyan-500 h-2 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.6)] transition-all duration-500" style="width: ${percent}%"></div>
       </div>
       <div class="flex flex-wrap gap-x-3 gap-y-1.5 text-[10px] font-mono tracking-wider text-zinc-500 uppercase">
-        <span>Done <span class="text-emerald-400 font-bold">${done}</span></span> &middot;
-        <span>Active <span class="text-cyan-400 font-bold">${active}</span></span> &middot;
-        <span>Review <span class="text-purple-400 font-bold">${review}</span></span> &middot;
-        <span>Ready <span class="text-blue-400 font-bold">${ready}</span></span> &middot;
-        <span>Waiting <span class="text-yellow-400 font-bold">${waiting}</span></span> &middot;
-        <span>Blocked <span class="text-orange-400 font-bold">${blocked}</span></span> &middot;
-        <span>Failed <span class="text-rose-400 font-bold">${failed}</span></span>
+        <span>${escapeHtml(getStatusLabel("done"))} <span class="text-emerald-400 font-bold">${done}</span></span> &middot;
+        <span>${escapeHtml(getStatusLabel("active"))} <span class="text-cyan-400 font-bold">${active}</span></span> &middot;
+        <span>${escapeHtml(getStatusLabel("review"))} <span class="text-purple-400 font-bold">${review}</span></span> &middot;
+        <span>${escapeHtml(t("progress.ready"))} <span class="text-blue-400 font-bold">${ready}</span></span> &middot;
+        <span>${escapeHtml(t("progress.waiting"))} <span class="text-yellow-400 font-bold">${waiting}</span></span> &middot;
+        <span>${escapeHtml(getStatusLabel("blocked"))} <span class="text-orange-400 font-bold">${blocked}</span></span> &middot;
+        <span>${escapeHtml(getStatusLabel("failed"))} <span class="text-rose-400 font-bold">${failed}</span></span>
       </div>
     </div>
   `;
@@ -1852,8 +2024,8 @@ function renderProgress() {
 function renderFlow() {
   const root = getEl("flowView");
   if (!state.tasks.length) {
-    root.innerHTML = '<p class="empty-state">Enter a goal and click Decompose Task to generate the workflow.</p>';
-    getEl("currentStepMetric").textContent = "No step";
+    root.innerHTML = '<p class="empty-state">' + escapeHtml(t("workflow.empty")) + '</p>';
+    getEl("currentStepMetric").textContent = t("workflow.noStep");
     return;
   }
 
@@ -1880,11 +2052,11 @@ function renderFlow() {
   const current = findTask(state.currentStepId);
   const hasIncomplete = state.tasks.some(t => !["done", "failed"].includes(t.status));
   if (current) {
-    getEl("currentStepMetric").textContent = "Next: Step " + current.order + " (" + current.title + ")";
+    getEl("currentStepMetric").textContent = t("workflow.nextStep", { order: current.order, title: current.title });
   } else if (hasIncomplete) {
-    getEl("currentStepMetric").textContent = "No runnable step — blocked by dependencies";
+    getEl("currentStepMetric").textContent = t("workflow.noRunnable");
   } else {
-    getEl("currentStepMetric").textContent = "All steps completed";
+    getEl("currentStepMetric").textContent = t("workflow.allCompleted");
   }
   
   const agentMap = {};
@@ -1892,13 +2064,13 @@ function renderFlow() {
 
   const stepList = state.tasks.map(task => {
     const isCurrent = state.currentStepId === task.id;
-    const statusBadge = `<span class="status-badge ${statusColors[task.status]}">${statusLabels[task.status]}</span>`;
+    const statusBadge = `<span class="status-badge ${statusColors[task.status]}">${escapeHtml(getStatusLabel(task.status))}</span>`;
     const runnable = canRunStep(task.id);
     const statusPresentation = getTaskStatusPresentation(task);
     const statusText = statusPresentation.text;
     const statusTextColor = statusToneClasses[statusPresentation.tone];
     const agent = agentMap[task.agent];
-    const toolName = agent ? agent.tool : "Unknown";
+    const toolName = agent ? agent.tool : t("common.unknown");
     const agentName = agent ? agent.name : task.agent;
     
     const cardBg = isCurrent ? "bg-[#0c1218] border-cyan-500/40 shadow-[inset_3px_0_0_#06b6d4]" : (runnable ? "bg-zinc-900/60 border-white/10" : "bg-zinc-900/30 border-white/5 opacity-80");
@@ -1921,7 +2093,7 @@ function renderFlow() {
             </div>
             
             <div class="text-xs text-zinc-400 leading-relaxed mb-2.5">
-              <strong class="text-zinc-300">Expected:</strong> ${escapeHtml(task.expectedOutput)}
+              <strong class="text-zinc-300">${escapeHtml(t("workflow.expected"))}</strong> ${escapeHtml(task.expectedOutput)}
             </div>
             
             <div class="text-[11px] font-mono ${statusTextColor} border px-2 py-1.5 rounded-md inline-block">${escapeHtml(statusText)}</div>
@@ -1929,10 +2101,10 @@ function renderFlow() {
         </div>
         <div class="flex flex-col gap-2 shrink-0 sm:w-32">
           <button class="btn ${runBtnClass} w-full text-xs py-2 run-step" data-task-id="${escapeAttr(task.id)}" ${runnable ? "" : "disabled"}>
-            Run Step
+            ${escapeHtml(t("workflow.runStep"))}
           </button>
           <button class="btn w-full text-xs py-2 copy-prompt hover:text-white" data-task-id="${escapeAttr(task.id)}">
-            Copy Prompt
+            ${escapeHtml(t("workflow.copyPrompt"))}
           </button>
         </div>
       </div>
@@ -1964,20 +2136,12 @@ function renderBoard() {
     const column = getEl("col-" + status);
     const columnTasks = state.tasks.filter(task => task.status === status);
     if (!columnTasks.length) {
-      const emptyCopy = {
-        planned: "No queued work",
-        active: "No active agent run",
-        review: "Nothing awaiting review",
-        done: "No completed task",
-        blocked: "No blockers",
-        failed: "No failed tasks"
-      };
-      column.innerHTML = '<p class="empty-state">' + emptyCopy[status] + '</p>';
+      column.innerHTML = '<p class="empty-state">' + escapeHtml(t("board.empty." + status)) + '</p>';
       return;
     }
     column.innerHTML = columnTasks.map(task => {
       const agentOptions = agents.map(agent => `<option value="${agent.id}" ${agent.id === task.agent ? "selected" : ""}>${escapeHtml(agent.name)}</option>`).join("");
-      const statusOptions = taskStatuses.map(item => `<option value="${item}" ${item === task.status ? "selected" : ""}>${statusLabels[item]}</option>`).join("");
+      const statusOptions = taskStatuses.map(item => `<option value="${item}" ${item === task.status ? "selected" : ""}>${escapeHtml(getStatusLabel(item))}</option>`).join("");
       const isCurrent = state.currentStepId === task.id;
       const runnable = canRunStep(task.id);
       const statusText = getTaskStatusPresentation(task).text;
@@ -1986,30 +2150,30 @@ function renderBoard() {
       return `
         <div class="task-card ${isCurrent ? "is-current" : ""} space-y-2 opacity-80 hover:opacity-100">
           <div class="flex items-center justify-between gap-2 border-b border-white/5 pb-2">
-            <span class="text-[9px] font-mono text-zinc-500 font-semibold tracking-wider">STEP ${task.order}</span>
-            <span class="status-badge ${statusColors[task.status]} scale-90 origin-right">${statusLabels[task.status]}</span>
+            <span class="text-[9px] font-mono text-zinc-500 font-semibold tracking-wider">${escapeHtml(t("board.step", { order: task.order }))}</span>
+            <span class="status-badge ${statusColors[task.status]} scale-90 origin-right">${escapeHtml(getStatusLabel(task.status))}</span>
           </div>
           <div>${getDependencyBadge(task)}</div>
           <div class="text-[10px] text-amber-300/80">${escapeHtml(statusText)}</div>
           
-          <input class="task-field task-title w-full rounded font-medium text-[11px] py-1 text-zinc-300" data-task-id="${escapeAttr(task.id)}" value="${escapeAttr(task.title)}" aria-label="Task title">
-          <textarea class="task-field task-brief-field w-full rounded text-zinc-400 text-[10px] py-1 text-zinc-500 leading-relaxed" data-task-id="${escapeAttr(task.id)}" aria-label="Task brief">${escapeHtml(task.brief)}</textarea>
+          <input class="task-field task-title w-full rounded font-medium text-[11px] py-1 text-zinc-300" data-task-id="${escapeAttr(task.id)}" value="${escapeAttr(task.title)}" aria-label="${escapeAttr(t("board.taskTitle"))}">
+          <textarea class="task-field task-brief-field w-full rounded text-zinc-400 text-[10px] py-1 text-zinc-500 leading-relaxed" data-task-id="${escapeAttr(task.id)}" aria-label="${escapeAttr(t("board.taskBrief"))}">${escapeHtml(task.brief)}</textarea>
           
           <div class="grid grid-cols-2 gap-1.5 pt-1">
             <div class="flex flex-col gap-0.5">
-              <span class="text-[8px] text-zinc-500 uppercase tracking-wider font-mono pl-1">Assignee</span>
-              <select class="task-field task-agent rounded text-[11px] py-1 border-white/5" data-task-id="${escapeAttr(task.id)}" aria-label="Assigned agent">${agentOptions}</select>
+              <span class="text-[8px] text-zinc-500 uppercase tracking-wider font-mono pl-1">${escapeHtml(t("board.assignee"))}</span>
+              <select class="task-field task-agent rounded text-[11px] py-1 border-white/5" data-task-id="${escapeAttr(task.id)}" aria-label="${escapeAttr(t("board.assignedAgent"))}">${agentOptions}</select>
             </div>
             <div class="flex flex-col gap-0.5">
-              <span class="text-[8px] text-zinc-500 uppercase tracking-wider font-mono pl-1">Status</span>
-              <select class="task-field task-status rounded text-[11px] py-1 border-white/5" data-task-id="${escapeAttr(task.id)}" aria-label="Task status">${statusOptions}</select>
+              <span class="text-[8px] text-zinc-500 uppercase tracking-wider font-mono pl-1">${escapeHtml(t("board.status"))}</span>
+              <select class="task-field task-status rounded text-[11px] py-1 border-white/5" data-task-id="${escapeAttr(task.id)}" aria-label="${escapeAttr(t("board.taskStatus"))}">${statusOptions}</select>
             </div>
           </div>
           
           <div class="flex flex-wrap gap-1.5 pt-2 border-t border-white/5">
-            <button class="btn btn-primary text-[10px] py-1 px-2.5 flex-1 run-step" data-task-id="${escapeAttr(task.id)}" ${runnable ? "" : "disabled"} title="${escapeAttr(disabledReason || "Run step")}">Run</button>
-            <button class="btn text-[10px] py-1 px-2.5 flex-1 copy-prompt" data-task-id="${escapeAttr(task.id)}">Prompt</button>
-            <button class="btn btn-danger text-[10px] py-1 px-2.5 delete-task" data-task-id="${escapeAttr(task.id)}">Delete</button>
+            <button class="btn btn-primary text-[10px] py-1 px-2.5 flex-1 run-step" data-task-id="${escapeAttr(task.id)}" ${runnable ? "" : "disabled"} title="${escapeAttr(disabledReason || t("workflow.runStep"))}">${escapeHtml(t("board.run"))}</button>
+            <button class="btn text-[10px] py-1 px-2.5 flex-1 copy-prompt" data-task-id="${escapeAttr(task.id)}">${escapeHtml(t("board.prompt"))}</button>
+            <button class="btn btn-danger text-[10px] py-1 px-2.5 delete-task" data-task-id="${escapeAttr(task.id)}">${escapeHtml(t("board.delete"))}</button>
           </div>
         </div>
       `;
@@ -2021,7 +2185,7 @@ function renderBoard() {
 function renderOutputInputs() {
   const root = getEl("outputInputs");
   if (!state.tasks.length) {
-    root.innerHTML = '<p class="empty-state">Run task decomposition first, then paste each agent output here.</p>';
+    root.innerHTML = '<p class="empty-state">' + escapeHtml(t("outputs.emptyDynamic")) + '</p>';
     return;
   }
   
@@ -2036,13 +2200,13 @@ function renderOutputInputs() {
       <div class="bg-zinc-900/20 border ${agentBorder} rounded-lg p-3.5 space-y-2">
         <label class="text-[10px] font-semibold uppercase tracking-wider flex items-center justify-between" for="out-${escapeAttr(task.id)}">
           <span class="${agentColorText}">${escapeHtml(agent.name)} (${escapeHtml(agent.tool)})</span>
-          <span class="text-zinc-600 font-mono">Step ${task.order}</span>
+          <span class="text-zinc-600 font-mono">${escapeHtml(t("outputs.step", { order: task.order }))}</span>
         </label>
         <div class="text-xs text-zinc-300 font-medium mb-1">${escapeHtml(task.title)}</div>
-        <textarea id="out-${escapeAttr(task.id)}" data-task-id="${escapeAttr(task.id)}" class="w-full mt-1 agent-output text-xs" style="min-height: 70px; resize: vertical;" placeholder="Paste agent output here...">${escapeHtml(task.output)}</textarea>
+        <textarea id="out-${escapeAttr(task.id)}" data-task-id="${escapeAttr(task.id)}" class="w-full mt-1 agent-output text-xs" style="min-height: 70px; resize: vertical;" placeholder="${escapeAttr(t("outputs.placeholder"))}">${escapeHtml(task.output)}</textarea>
         <div class="flex gap-2 justify-end pt-1">
-          <button class="btn btn-primary text-xs py-1 px-3 submit-output font-semibold" data-task-id="${escapeAttr(task.id)}">Submit Output</button>
-          <button class="btn text-xs py-1 px-3 mark-done" data-task-id="${escapeAttr(task.id)}">Mark Done</button>
+          <button class="btn btn-primary text-xs py-1 px-3 submit-output font-semibold" data-task-id="${escapeAttr(task.id)}">${escapeHtml(t("outputs.submit"))}</button>
+          <button class="btn text-xs py-1 px-3 mark-done" data-task-id="${escapeAttr(task.id)}">${escapeHtml(t("outputs.markDone"))}</button>
         </div>
       </div>
     `;
@@ -2053,7 +2217,7 @@ function renderOutputInputs() {
 function renderLogs() {
   const root = getEl("logView");
   if (!state.logs.length) {
-    root.innerHTML = '<p class="empty-state">Waiting for activity...</p>';
+    root.innerHTML = '<p class="empty-state">' + escapeHtml(t("logs.empty")) + '</p>';
     return;
   }
   const colors = {
@@ -2094,8 +2258,8 @@ function renderRunRecord() {
 }
 
 function updateMetrics() {
-  getEl("taskMetric").textContent = state.tasks.length + " tasks";
-  getEl("logMetric").textContent = state.logs.length + " logs";
+  getEl("taskMetric").textContent = t("metrics.tasks", { count: state.tasks.length });
+  getEl("logMetric").textContent = t("metrics.logs", { count: state.logs.length });
 }
 
 function notify(type, message) {
@@ -2124,7 +2288,7 @@ function renderAll() {
   if (state.finalMarkdown) {
     getEl("finalOutput").textContent = state.finalMarkdown;
   } else {
-    getEl("finalOutput").innerHTML = '<span class="empty-state">Run the workflow and collect agent notes to generate a final markdown record.</span>';
+    getEl("finalOutput").innerHTML = '<span class="empty-state">' + escapeHtml(t("final.empty")) + '</span>';
   }
   renderAgents();
   renderProgress();

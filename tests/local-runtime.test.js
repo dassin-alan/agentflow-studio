@@ -473,6 +473,27 @@ function testDeclaredInterfaceTranslationsResolve() {
   }
 }
 
+function testDynamicInterfaceCopySwitchesWithoutTranslatingRunData() {
+  const { context } = loadRuntime();
+  const runtime = context.window.AgentFlowRuntime;
+  const i18n = context.window.AgentFlowI18n;
+
+  context.document.getElementById("goalInput").value = "Build a bilingual control panel";
+  runtime.decompose();
+  const stateBefore = JSON.stringify(context.window.AgentFlowState);
+
+  i18n.setLanguage("zh-CN");
+
+  assert.match(context.document.getElementById("taskMetric").textContent, /个任务$/);
+  assert.match(context.document.getElementById("agentList").innerHTML, /准备就绪|运行中/);
+  assert.match(context.document.getElementById("runProgressView").innerHTML, /当前运行进度/);
+  assert.match(context.document.getElementById("flowView").innerHTML, /运行步骤/);
+  assert.match(context.document.getElementById("col-planned").innerHTML, /运行|提示词|删除/);
+  assert.match(context.document.getElementById("outputInputs").innerHTML, /提交输出/);
+  assert.strictEqual(JSON.stringify(context.window.AgentFlowState), stateBefore);
+  assert.strictEqual(context.window.AgentFlowState.goal, "Build a bilingual control panel");
+}
+
 testRuntimeStateAndPersistence();
 testTaskStateMachinePromptAndRunner();
 testRunRecordImportExportReplay();
@@ -487,5 +508,6 @@ testImportRejectsInvalidDependencyGraphs();
 testInterfaceLanguageToggleAndPersistence();
 testLanguagePreferenceFallbacks();
 testDeclaredInterfaceTranslationsResolve();
+testDynamicInterfaceCopySwitchesWithoutTranslatingRunData();
 
 console.log("LOCAL_RUNTIME_TESTS_OK");
