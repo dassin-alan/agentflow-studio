@@ -458,6 +458,21 @@ function testLanguagePreferenceFallbacks() {
   assert.strictEqual(blockedContext.window.AgentFlowI18n.getLanguage(), "zh-CN");
 }
 
+function testDeclaredInterfaceTranslationsResolve() {
+  const { context } = loadRuntime();
+  const html = fs.readFileSync(path.join(repoRoot, "index.html"), "utf8");
+  const keys = [...html.matchAll(/data-i18n(?:-placeholder|-title|-aria-label)?="([^"]+)"/g)]
+    .map(match => match[1]);
+
+  assert.ok(keys.length >= 35, "the static interface should declare translation keys");
+  for (const language of ["en", "zh-CN"]) {
+    context.window.AgentFlowI18n.setLanguage(language, { persist: false });
+    keys.forEach(key => {
+      assert.notStrictEqual(context.window.AgentFlowI18n.t(key), key, `${language} is missing ${key}`);
+    });
+  }
+}
+
 testRuntimeStateAndPersistence();
 testTaskStateMachinePromptAndRunner();
 testRunRecordImportExportReplay();
@@ -471,5 +486,6 @@ testRestoredOversizedLogHistoryIsTruncated();
 testImportRejectsInvalidDependencyGraphs();
 testInterfaceLanguageToggleAndPersistence();
 testLanguagePreferenceFallbacks();
+testDeclaredInterfaceTranslationsResolve();
 
 console.log("LOCAL_RUNTIME_TESTS_OK");

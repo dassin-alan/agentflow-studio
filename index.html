@@ -350,7 +350,7 @@
           AgentFlow Studio
           <span class="text-[10px] text-cyan-400 bg-cyan-950/50 border border-cyan-800/40 px-2 py-0.5 rounded-full font-normal">v0.2.1</span>
         </h1>
-        <p class="text-xs text-zinc-500">Multi-Agent Local Orchestration Workspace</p>
+        <p class="text-xs text-zinc-500" data-i18n="header.subtitle">Multi-Agent Local Orchestration Workspace</p>
       </div>
     </div>
     <div class="flex items-center gap-2 flex-wrap">
@@ -370,29 +370,29 @@
       <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 items-stretch">
         <div class="xl:col-span-6 flex flex-col justify-between gap-5">
           <div>
-            <div class="mono text-[11px] text-cyan-400 uppercase tracking-[0.18em] mb-3">Local-first orchestration console</div>
-            <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white">Turn one goal into a replayable multi-agent run.</h2>
-            <p class="text-sm md:text-[15px] text-zinc-400 leading-relaxed mt-3 max-w-2xl">
+            <div class="mono text-[11px] text-cyan-400 uppercase tracking-[0.18em] mb-3" data-i18n="hero.eyebrow">Local-first orchestration console</div>
+            <h2 class="text-3xl md:text-4xl font-semibold tracking-tight text-white" data-i18n="hero.title">Turn one goal into a replayable multi-agent run.</h2>
+            <p class="text-sm md:text-[15px] text-zinc-400 leading-relaxed mt-3 max-w-2xl" data-i18n="hero.description">
               AgentFlow gives a local runtime for decomposing work, handing prompts to specialist agents, collecting dependency context, and exporting a clean run record without backend dependencies.
             </p>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button class="btn btn-primary" onclick="document.getElementById('goalInput').focus()">Start from goal</button>
-            <button class="btn" onclick="loadDemoRun()">Load demo run</button>
+            <button class="btn btn-primary" onclick="document.getElementById('goalInput').focus()" data-i18n="hero.startGoal">Start from goal</button>
+            <button class="btn" onclick="loadDemoRun()" data-i18n="hero.loadDemo">Load demo run</button>
           </div>
         </div>
         <div class="xl:col-span-3 grid grid-cols-2 gap-3">
-          <div class="hero-stat"><b>7</b><span>specialist agents</span></div>
-          <div class="hero-stat"><b>DAG</b><span>dependency-aware workflow</span></div>
-          <div class="hero-stat"><b>Local</b><span>state + replay</span></div>
-          <div class="hero-stat"><b>JSON</b><span>portable run record</span></div>
+          <div class="hero-stat"><b>7</b><span data-i18n="hero.specialistAgents">specialist agents</span></div>
+          <div class="hero-stat"><b>DAG</b><span data-i18n="hero.dependencyWorkflow">dependency-aware workflow</span></div>
+          <div class="hero-stat"><b data-i18n="hero.localValue">Local</b><span data-i18n="hero.stateReplay">state + replay</span></div>
+          <div class="hero-stat"><b>JSON</b><span data-i18n="hero.portableRecord">portable run record</span></div>
         </div>
         <div class="xl:col-span-3">
           <div class="pipeline hero-pipeline h-full">
-            <div class="pipeline-step"><small>01</small><strong>Describe Goal</strong></div>
-            <div class="pipeline-step"><small>02</small><strong>Decompose Work</strong></div>
-            <div class="pipeline-step"><small>03</small><strong>Run Agents</strong></div>
-            <div class="pipeline-step"><small>04</small><strong>Generate Record</strong></div>
+            <div class="pipeline-step"><small>01</small><strong data-i18n="hero.describeGoal">Describe Goal</strong></div>
+            <div class="pipeline-step"><small>02</small><strong data-i18n="hero.decomposeWork">Decompose Work</strong></div>
+            <div class="pipeline-step"><small>03</small><strong data-i18n="hero.runAgents">Run Agents</strong></div>
+            <div class="pipeline-step"><small>04</small><strong data-i18n="hero.generateRecord">Generate Record</strong></div>
           </div>
         </div>
       </div>
@@ -402,22 +402,22 @@
     <aside class="agent-column lg:col-span-3 flex flex-col gap-6">
       <div class="panel-glass rounded-xl p-5 flex flex-col h-full">
         <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Agent Team</h2>
+          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider" data-i18n="agents.title">Agent Team</h2>
           <span id="agentCount" class="text-xs text-zinc-500 bg-zinc-900 px-2 py-0.5 rounded-full font-medium">0</span>
         </div>
         <div id="agentList" class="space-y-2.5 overflow-y-auto max-h-[380px] lg:max-h-none flex-1 pr-1"></div>
         
         <div class="mt-6 pt-4 border-t border-white/5 space-y-3">
           <div>
-            <p class="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5">Runtime Config</p>
+            <p class="text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5" data-i18n="agents.runtimeConfig">Runtime Config</p>
             <div class="flex flex-wrap gap-1.5">
               <span class="text-[10px] mono text-cyan-400 bg-cyan-950/30 border border-cyan-900/30 px-2 py-0.5 rounded">agents.yaml</span>
               <span class="text-[10px] mono text-purple-400 bg-purple-950/30 border border-purple-900/30 px-2 py-0.5 rounded">workflow.yaml</span>
             </div>
           </div>
           <div class="bg-white/[0.02] border border-white/5 rounded-lg p-3">
-            <div class="text-xs font-medium text-zinc-300">Local Orchestration</div>
-            <p class="text-[11px] text-zinc-500 mt-1 leading-relaxed">Runs standard agents with dependency context injection, local state, and replayable execution traces.</p>
+            <div class="text-xs font-medium text-zinc-300" data-i18n="agents.localOrchestration">Local Orchestration</div>
+            <p class="text-[11px] text-zinc-500 mt-1 leading-relaxed" data-i18n="agents.localDescription">Runs standard agents with dependency context injection, local state, and replayable execution traces.</p>
           </div>
         </div>
       </div>
@@ -429,27 +429,27 @@
       <!-- Task Intake -->
       <div class="panel-glass rounded-xl p-5 glow-cyan-active">
         <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Task Intake</h2>
-          <span class="text-[10px] text-cyan-400 bg-cyan-950/50 border border-cyan-800/30 px-2 py-0.5 rounded-full">Orchestrator Mode</span>
+          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider" data-i18n="intake.title">Task Intake</h2>
+          <span class="text-[10px] text-cyan-400 bg-cyan-950/50 border border-cyan-800/30 px-2 py-0.5 rounded-full" data-i18n="intake.mode">Orchestrator Mode</span>
         </div>
         <div class="relative">
-          <textarea id="goalInput" class="w-full text-sm font-sans" style="min-height: 90px; resize: vertical;" placeholder="Describe what you want to build..."></textarea>
+          <textarea id="goalInput" class="w-full text-sm font-sans" style="min-height: 90px; resize: vertical;" placeholder="Describe what you want to build..." data-i18n-placeholder="intake.placeholder"></textarea>
         </div>
         <div class="pipeline mt-4">
-          <div class="pipeline-step"><small>Goal</small><strong>Capture intent</strong></div>
-          <div class="pipeline-step"><small>Plan</small><strong>Split into agents</strong></div>
-          <div class="pipeline-step"><small>Run</small><strong>Copy prompts</strong></div>
-          <div class="pipeline-step"><small>Record</small><strong>Export summary</strong></div>
+          <div class="pipeline-step"><small data-i18n="intake.goal">Goal</small><strong data-i18n="intake.captureIntent">Capture intent</strong></div>
+          <div class="pipeline-step"><small data-i18n="intake.plan">Plan</small><strong data-i18n="intake.splitAgents">Split into agents</strong></div>
+          <div class="pipeline-step"><small data-i18n="intake.run">Run</small><strong data-i18n="intake.copyPrompts">Copy prompts</strong></div>
+          <div class="pipeline-step"><small data-i18n="intake.record">Record</small><strong data-i18n="intake.exportSummary">Export summary</strong></div>
         </div>
         <div class="flex flex-wrap gap-2 justify-between mt-4 border-t border-white/5 pt-4">
           <div class="flex flex-wrap gap-2">
-            <button id="decomposeBtn" class="btn btn-primary">Decompose Task</button>
-            <button id="addTaskBtn" class="btn">Add Task</button>
-            <button id="exampleBtn" class="btn text-zinc-400">Load Example</button>
+            <button id="decomposeBtn" class="btn btn-primary" data-i18n="action.decompose">Decompose Task</button>
+            <button id="addTaskBtn" class="btn" data-i18n="action.addTask">Add Task</button>
+            <button id="exampleBtn" class="btn text-zinc-400" data-i18n="action.loadExample">Load Example</button>
           </div>
           <div class="flex flex-wrap gap-2">
-            <button id="resetBtn" class="btn btn-danger">Reset Run</button>
-            <button id="clearStateBtn" class="btn btn-danger">Clear State</button>
+            <button id="resetBtn" class="btn btn-danger" data-i18n="action.resetRun">Reset Run</button>
+            <button id="clearStateBtn" class="btn btn-danger" data-i18n="action.clearState">Clear State</button>
           </div>
         </div>
       </div>
@@ -457,7 +457,7 @@
       <!-- Workflow Runner -->
       <div class="panel-glass rounded-xl p-5 glow-purple-active">
         <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Workflow Runner</h2>
+          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider" data-i18n="workflow.title">Workflow Runner</h2>
           <span id="currentStepMetric" class="text-[10px] text-purple-300 bg-purple-950/50 border border-purple-800/30 px-2.5 py-0.5 rounded-md mono">No active step</span>
         </div>
         <div id="runProgressView"></div>
@@ -469,44 +469,44 @@
       <!-- Task Board -->
       <div class="panel-glass rounded-xl p-5">
         <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Task Board</h2>
+          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider" data-i18n="board.title">Task Board</h2>
         </div>
         <div id="taskBoard" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           <div class="board-column rounded-xl p-3 flex flex-col">
             <h3 class="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
-              <span>Planned</span>
+              <span data-i18n="status.planned">Planned</span>
             </h3>
-            <div id="col-planned" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
+            <div id="col-planned" class="space-y-3 flex-1"><p class="empty-state" data-i18n="board.noTasks">No tasks</p></div>
           </div>
           <div class="board-column rounded-xl p-3 flex flex-col">
             <h3 class="text-[10px] font-semibold text-cyan-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
-              <span>Active</span>
+              <span data-i18n="status.active">Active</span>
             </h3>
-            <div id="col-active" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
+            <div id="col-active" class="space-y-3 flex-1"><p class="empty-state" data-i18n="board.noTasks">No tasks</p></div>
           </div>
           <div class="board-column rounded-xl p-3 flex flex-col">
             <h3 class="text-[10px] font-semibold text-purple-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
-              <span>Review</span>
+              <span data-i18n="status.review">Review</span>
             </h3>
-            <div id="col-review" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
+            <div id="col-review" class="space-y-3 flex-1"><p class="empty-state" data-i18n="board.noTasks">No tasks</p></div>
           </div>
           <div class="board-column rounded-xl p-3 flex flex-col">
             <h3 class="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
-              <span>Done</span>
+              <span data-i18n="status.done">Done</span>
             </h3>
-            <div id="col-done" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
+            <div id="col-done" class="space-y-3 flex-1"><p class="empty-state" data-i18n="board.noTasks">No tasks</p></div>
           </div>
           <div class="board-column rounded-xl p-3 flex flex-col">
             <h3 class="text-[10px] font-semibold text-orange-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
-              <span>Blocked</span>
+              <span data-i18n="status.blocked">Blocked</span>
             </h3>
-            <div id="col-blocked" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
+            <div id="col-blocked" class="space-y-3 flex-1"><p class="empty-state" data-i18n="board.noTasks">No tasks</p></div>
           </div>
           <div class="board-column rounded-xl p-3 flex flex-col">
             <h3 class="text-[10px] font-semibold text-rose-400 uppercase tracking-wider mb-2 pb-1 border-b border-white/5 flex justify-between items-center">
-              <span>Failed</span>
+              <span data-i18n="status.failed">Failed</span>
             </h3>
-            <div id="col-failed" class="space-y-3 flex-1"><p class="empty-state">No tasks</p></div>
+            <div id="col-failed" class="space-y-3 flex-1"><p class="empty-state" data-i18n="board.noTasks">No tasks</p></div>
           </div>
         </div>
       </div>
@@ -520,13 +520,13 @@
         <summary class="flex items-center justify-between border-b border-white/5 pb-3 mb-3 cursor-pointer list-none [&::-webkit-details-marker]:hidden select-none">
           <div class="flex items-center gap-2">
             <span class="text-zinc-500 group-open:rotate-180 transition-transform duration-200 text-xs inline-block">▼</span>
-            <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Prompt Preview</h2>
+            <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider" data-i18n="panel.promptPreview">Prompt Preview</h2>
           </div>
-          <span class="text-[10px] text-purple-400 bg-purple-950/40 px-2 py-0.5 rounded border border-purple-900/30 font-medium">Handoff Text</span>
+          <span class="text-[10px] text-purple-400 bg-purple-950/40 px-2 py-0.5 rounded border border-purple-900/30 font-medium" data-i18n="panel.handoffText">Handoff Text</span>
         </summary>
         <div class="relative bg-[#050507] border border-white/5 rounded-lg p-3">
           <div id="promptPreview" class="prompt-preview mono text-[11px] text-zinc-400 leading-relaxed overflow-y-auto max-h-[220px]">
-            <span class="empty-state">Run a step or copy a prompt to preview the agent handoff.</span>
+            <span class="empty-state" data-i18n="prompt.empty">Run a step or copy a prompt to preview the agent handoff.</span>
           </div>
         </div>
       </details>
@@ -534,31 +534,31 @@
       <!-- Agent Outputs -->
             <div class="panel-glass rounded-xl p-5">
         <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Agent Outputs</h2>
+          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider" data-i18n="panel.agentOutputs">Agent Outputs</h2>
         </div>
         <div id="outputInputs" class="space-y-4 max-h-[350px] overflow-y-auto pr-1">
-          <p class="empty-state">Run task decomposition first, then paste each agent's output here.</p>
+          <p class="empty-state" data-i18n="outputs.empty">Run task decomposition first, then paste each agent's output here.</p>
         </div>
       </div>
 
       <!-- Final Output -->
             <div class="panel-glass rounded-xl p-5 glow-green-active">
         <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Final Output</h2>
+          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider" data-i18n="panel.finalOutput">Final Output</h2>
           <span class="text-[10px] text-emerald-400 bg-emerald-950/40 border border-emerald-800/30 px-2 py-0.5 rounded-full font-medium">Markdown</span>
         </div>
         <div class="bg-[#050507] border border-white/5 rounded-lg p-3 mb-4">
           <div id="finalOutput" class="mono text-[11px] text-zinc-400 max-h-[160px] overflow-y-auto leading-relaxed" style="white-space: pre-wrap;">
-            <span class="empty-state">Run the workflow and collect agent notes to generate a final markdown record.</span>
+            <span class="empty-state" data-i18n="final.empty">Run the workflow and collect agent notes to generate a final markdown record.</span>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2 border-t border-white/5 pt-4 mb-3">
-          <button id="summarizeBtn" class="btn btn-primary w-full text-xs">Generate Summary</button>
-          <button id="copyBtn" class="btn w-full text-xs">Copy Markdown</button>
+          <button id="summarizeBtn" class="btn btn-primary w-full text-xs" data-i18n="action.generateSummary">Generate Summary</button>
+          <button id="copyBtn" class="btn w-full text-xs" data-i18n="action.copyMarkdown">Copy Markdown</button>
         </div>
         <div class="grid grid-cols-2 gap-2">
-          <button id="exportJsonBtn" class="btn w-full text-xs">Export JSON</button>
-          <button id="importJsonBtn" class="btn w-full text-xs">Import JSON</button>
+          <button id="exportJsonBtn" class="btn w-full text-xs" data-i18n="action.exportJson">Export JSON</button>
+          <button id="importJsonBtn" class="btn w-full text-xs" data-i18n="action.importJson">Import JSON</button>
           <input id="importJsonInput" type="file" accept="application/json,.json" hidden>
         </div>
       </div>
@@ -566,11 +566,11 @@
       <!-- Collaboration Log -->
             <div class="panel-glass rounded-xl p-5">
         <div class="flex items-center justify-between border-b border-white/5 pb-3 mb-3">
-          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider">Collaboration Log</h2>
+          <h2 class="section-label text-xs font-semibold text-zinc-400 uppercase tracking-wider" data-i18n="panel.collaborationLog">Collaboration Log</h2>
         </div>
         <div class="bg-[#050507] border border-white/5 rounded-lg p-3">
           <div id="logView" class="space-y-2 max-h-[200px] overflow-y-auto mono text-[11px]">
-            <p class="empty-state">Waiting for workflow activity.</p>
+            <p class="empty-state" data-i18n="logs.waiting">Waiting for workflow activity.</p>
           </div>
         </div>
       </div>
@@ -580,9 +580,9 @@
         <summary class="flex items-center justify-between border-b border-white/5 pb-3 mb-3 cursor-pointer list-none [&::-webkit-details-marker]:hidden select-none">
           <div class="flex items-center gap-2">
             <span class="text-zinc-500 group-open:rotate-180 transition-transform duration-200 text-xs inline-block">▼</span>
-            <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Telemetry State</h2>
+            <h2 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider" data-i18n="panel.telemetry">Telemetry State</h2>
           </div>
-          <span class="text-[9px] text-zinc-500 uppercase tracking-wider mono">Live</span>
+          <span class="text-[9px] text-zinc-500 uppercase tracking-wider mono" data-i18n="telemetry.live">Live</span>
         </summary>
         <div class="telemetry-container">
           <pre id="runRecordView" class="mono text-[10px] text-zinc-500 leading-relaxed overflow-x-auto max-h-[120px]"></pre>
@@ -597,14 +597,14 @@
 
   <footer class="border-t border-white/5 bg-zinc-950/40 px-6 py-4 flex flex-col sm:flex-row gap-3 sm:items-center justify-between text-[11px] text-zinc-500 mt-6">
     <div class="flex items-center gap-4 flex-wrap">
-      <span>AgentFlow v0.2.1 - Dependency-aware Local Runtime</span>
+      <span data-i18n="footer.runtime">AgentFlow v0.2.1 - Dependency-aware Local Runtime</span>
       <span class="text-zinc-700">·</span>
-      <span>Local-first orchestration</span>
+      <span data-i18n="footer.localFirst">Local-first orchestration</span>
       <span class="text-zinc-700">·</span>
-      <span>Replayable agent handoffs</span>
+      <span data-i18n="footer.replayable">Replayable agent handoffs</span>
     </div>
     <div class="flex items-center gap-1.5 flex-wrap font-sans text-zinc-600">
-      <span>Powered by</span>
+      <span data-i18n="footer.poweredBy">Powered by</span>
       <span class="mono text-zinc-500 bg-zinc-900 border border-white/5 px-1.5 py-0.5 rounded">index.html</span>
       <span>+</span>
       <span class="mono text-zinc-500 bg-zinc-900 border border-white/5 px-1.5 py-0.5 rounded">Tailwind CDN</span>
@@ -627,14 +627,140 @@ const SUPPORTED_LANGUAGES = ["en", "zh-CN"];
 
 const translations = {
   en: {
+    "header.subtitle": "Multi-Agent Local Orchestration Workspace",
     "header.localOnly": "Local Only",
     "language.switchToChinese": "Switch to Chinese",
-    "language.switchToEnglish": "Switch to English"
+    "language.switchToEnglish": "Switch to English",
+    "hero.eyebrow": "Local-first orchestration console",
+    "hero.title": "Turn one goal into a replayable multi-agent run.",
+    "hero.description": "AgentFlow gives a local runtime for decomposing work, handing prompts to specialist agents, collecting dependency context, and exporting a clean run record without backend dependencies.",
+    "hero.startGoal": "Start from goal",
+    "hero.loadDemo": "Load demo run",
+    "hero.specialistAgents": "specialist agents",
+    "hero.dependencyWorkflow": "dependency-aware workflow",
+    "hero.localValue": "Local",
+    "hero.stateReplay": "state + replay",
+    "hero.portableRecord": "portable run record",
+    "hero.describeGoal": "Describe Goal",
+    "hero.decomposeWork": "Decompose Work",
+    "hero.runAgents": "Run Agents",
+    "hero.generateRecord": "Generate Record",
+    "agents.title": "Agent Team",
+    "agents.runtimeConfig": "Runtime Config",
+    "agents.localOrchestration": "Local Orchestration",
+    "agents.localDescription": "Runs standard agents with dependency context injection, local state, and replayable execution traces.",
+    "intake.title": "Task Intake",
+    "intake.mode": "Orchestrator Mode",
+    "intake.placeholder": "Describe what you want to build...",
+    "intake.goal": "Goal",
+    "intake.captureIntent": "Capture intent",
+    "intake.plan": "Plan",
+    "intake.splitAgents": "Split into agents",
+    "intake.run": "Run",
+    "intake.copyPrompts": "Copy prompts",
+    "intake.record": "Record",
+    "intake.exportSummary": "Export summary",
+    "action.decompose": "Decompose Task",
+    "action.addTask": "Add Task",
+    "action.loadExample": "Load Example",
+    "action.resetRun": "Reset Run",
+    "action.clearState": "Clear State",
+    "workflow.title": "Workflow Runner",
+    "board.title": "Task Board",
+    "status.planned": "Planned",
+    "status.active": "Active",
+    "status.review": "Review",
+    "status.done": "Done",
+    "status.blocked": "Blocked",
+    "status.failed": "Failed",
+    "board.noTasks": "No tasks",
+    "panel.promptPreview": "Prompt Preview",
+    "panel.handoffText": "Handoff Text",
+    "prompt.empty": "Run a step or copy a prompt to preview the agent handoff.",
+    "panel.agentOutputs": "Agent Outputs",
+    "outputs.empty": "Run task decomposition first, then paste each agent's output here.",
+    "panel.finalOutput": "Final Output",
+    "final.empty": "Run the workflow and collect agent notes to generate a final markdown record.",
+    "action.generateSummary": "Generate Summary",
+    "action.copyMarkdown": "Copy Markdown",
+    "action.exportJson": "Export JSON",
+    "action.importJson": "Import JSON",
+    "panel.collaborationLog": "Collaboration Log",
+    "logs.waiting": "Waiting for workflow activity.",
+    "panel.telemetry": "Telemetry State",
+    "telemetry.live": "Live",
+    "footer.runtime": "AgentFlow v0.2.1 - Dependency-aware Local Runtime",
+    "footer.localFirst": "Local-first orchestration",
+    "footer.replayable": "Replayable agent handoffs",
+    "footer.poweredBy": "Powered by"
   },
   "zh-CN": {
+    "header.subtitle": "多 Agent 本地编排工作台",
     "header.localOnly": "仅限本地",
     "language.switchToChinese": "切换为中文",
-    "language.switchToEnglish": "切换为英文"
+    "language.switchToEnglish": "切换为英文",
+    "hero.eyebrow": "本地优先编排控制台",
+    "hero.title": "将一个目标转化为可重放的多 Agent 运行。",
+    "hero.description": "AgentFlow 提供本地运行时，用于拆分工作、向专业 Agent 交接提示词、收集依赖上下文，并在无需后端的情况下导出完整运行记录。",
+    "hero.startGoal": "从目标开始",
+    "hero.loadDemo": "加载演示运行",
+    "hero.specialistAgents": "个专业 Agent",
+    "hero.dependencyWorkflow": "依赖感知工作流",
+    "hero.localValue": "本地",
+    "hero.stateReplay": "状态与重放",
+    "hero.portableRecord": "可移植运行记录",
+    "hero.describeGoal": "描述目标",
+    "hero.decomposeWork": "拆分工作",
+    "hero.runAgents": "运行 Agent",
+    "hero.generateRecord": "生成记录",
+    "agents.title": "Agent 团队",
+    "agents.runtimeConfig": "运行时配置",
+    "agents.localOrchestration": "本地编排",
+    "agents.localDescription": "通过依赖上下文注入、本地状态和可重放执行轨迹运行标准 Agent。",
+    "intake.title": "任务输入",
+    "intake.mode": "编排器模式",
+    "intake.placeholder": "描述你想要构建的内容...",
+    "intake.goal": "目标",
+    "intake.captureIntent": "捕获意图",
+    "intake.plan": "计划",
+    "intake.splitAgents": "分配给 Agent",
+    "intake.run": "运行",
+    "intake.copyPrompts": "复制提示词",
+    "intake.record": "记录",
+    "intake.exportSummary": "导出摘要",
+    "action.decompose": "拆分任务",
+    "action.addTask": "添加任务",
+    "action.loadExample": "加载示例",
+    "action.resetRun": "重置运行",
+    "action.clearState": "清除状态",
+    "workflow.title": "工作流运行器",
+    "board.title": "任务看板",
+    "status.planned": "计划中",
+    "status.active": "进行中",
+    "status.review": "待审查",
+    "status.done": "已完成",
+    "status.blocked": "已阻塞",
+    "status.failed": "失败",
+    "board.noTasks": "暂无任务",
+    "panel.promptPreview": "提示词预览",
+    "panel.handoffText": "交接文本",
+    "prompt.empty": "运行步骤或复制提示词后，可在此预览 Agent 交接内容。",
+    "panel.agentOutputs": "Agent 输出",
+    "outputs.empty": "请先拆分任务，然后在此粘贴各 Agent 的输出。",
+    "panel.finalOutput": "最终输出",
+    "final.empty": "运行工作流并收集 Agent 记录，以生成最终 Markdown 运行记录。",
+    "action.generateSummary": "生成摘要",
+    "action.copyMarkdown": "复制 Markdown",
+    "action.exportJson": "导出 JSON",
+    "action.importJson": "导入 JSON",
+    "panel.collaborationLog": "协作日志",
+    "logs.waiting": "正在等待工作流活动。",
+    "panel.telemetry": "遥测状态",
+    "telemetry.live": "实时",
+    "footer.runtime": "AgentFlow v0.2.1 - 依赖感知本地运行时",
+    "footer.localFirst": "本地优先编排",
+    "footer.replayable": "可重放 Agent 交接",
+    "footer.poweredBy": "技术支持"
   }
 };
 
