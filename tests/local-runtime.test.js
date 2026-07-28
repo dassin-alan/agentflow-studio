@@ -16,6 +16,7 @@ class FakeElement {
     this.listeners = {};
     this.className = "";
     this.style = {};
+    this.attributes = {};
   }
 
   addEventListener(type, handler) {
@@ -25,7 +26,14 @@ class FakeElement {
   appendChild() {}
 
   setAttribute(name, value) {
-    this[name] = value;
+    this.attributes[name] = String(value);
+    this[name] = String(value);
+  }
+
+  getAttribute(name) {
+    return Object.prototype.hasOwnProperty.call(this.attributes, name)
+      ? this.attributes[name]
+      : null;
   }
 
   remove() {}
@@ -71,8 +79,12 @@ function createDocument() {
     "agentList",
     "taskMetric",
     "logMetric",
+    "languageToggle",
+    "localOnlyLabel",
     "goalInput",
     "flowView",
+    "runProgressView",
+    "currentStepMetric",
     "taskBoard",
     "col-planned",
     "col-active",
@@ -99,20 +111,29 @@ function createDocument() {
   for (const id of requiredIds) {
     elements.set(id, new FakeElement(id));
   }
+  elements.get("localOnlyLabel").setAttribute("data-i18n", "header.localOnly");
+
+  const documentElement = new FakeElement("html");
 
   return {
     body: new FakeElement("body"),
+    documentElement,
     createElement() {
       return new FakeElement();
     },
     getElementById(id) {
       if (!elements.has(id)) elements.set(id, new FakeElement(id));
       return elements.get(id);
+    },
+    querySelectorAll(selector) {
+      const match = selector.match(/^\[([^\]]+)\]$/);
+      if (!match) return [];
+      return [...elements.values()].filter(element => element.getAttribute(match[1]) !== null);
     }
   };
 }
 
-function loadRuntime() {
+function loadRuntime(options = {}) {
   const html = fs.readFileSync(path.join(repoRoot, "index.html"), "utf8");
   const scripts = [...html.matchAll(/<script(?:[^>]*)>([\s\S]*?)<\/script>/g)]
     .map(match => match[1])
@@ -120,10 +141,11 @@ function loadRuntime() {
   assert.strictEqual(scripts.length, 1, "index.html should keep one inline runtime script");
 
   const clipboard = { value: "" };
+  const storage = options.localStorage || createLocalStorage();
   const context = {
-    console,
+    console: options.console || console,
     document: createDocument(),
-    localStorage: createLocalStorage(),
+    localStorage: storage,
     navigator: {
       clipboard: {
         writeText(text) {
@@ -392,6 +414,50 @@ function testImportRejectsInvalidDependencyGraphs() {
   assert.strictEqual(context.window.AgentFlowState.tasks.length, taskCountBefore, "rejected imports must preserve current state");
 }
 
+function testInterfaceLanguageToggleAndPersistence() {
+  const storage = createLocalStorage();
+  const { context } = loadRuntime({ localStorage: storage });
+  const i18n = context.window.AgentFlowI18n;
+
+  assert.ok(i18n, "window.AgentFlowI18n should expose the UI language controller");
+  assert.strictEqual(i18n.getLanguage(), "en");
+  assert.strictEqual(context.document.documentElement.lang, "en");
+  assert.strictEqual(context.document.getElementById("localOnlyLabel").textContent, "Local Only");
+
+  const runtimeBefore = JSON.stringify(context.window.AgentFlowState);
+  i18n.toggleLanguage();
+
+  assert.strictEqual(i18n.getLanguage(), "zh-CN");
+  assert.strictEqual(context.document.documentElement.lang, "zh-CN");
+  assert.strictEqual(context.document.getElementById("localOnlyLabel").textContent, "仅限本地");
+  assert.strictEqual(context.document.getElementById("languageToggle").textContent, "EN");
+  assert.strictEqual(storage.getItem("agentflow:ui-language"), "zh-CN");
+  assert.strictEqual(JSON.stringify(context.window.AgentFlowState), runtimeBefore);
+
+  const reloaded = loadRuntime({ localStorage: storage }).context;
+  assert.strictEqual(reloaded.window.AgentFlowI18n.getLanguage(), "zh-CN");
+
+  reloaded.window.AgentFlowI18n.toggleLanguage();
+  assert.strictEqual(reloaded.window.AgentFlowI18n.getLanguage(), "en");
+  assert.strictEqual(reloaded.document.getElementById("languageToggle").textContent, "中文");
+}
+
+function testLanguagePreferenceFallbacks() {
+  const invalidStorage = createLocalStorage();
+  invalidStorage.setItem("agentflow:ui-language", "fr");
+  const invalidContext = loadRuntime({ localStorage: invalidStorage }).context;
+  assert.strictEqual(invalidContext.window.AgentFlowI18n.getLanguage(), "en");
+
+  const blockedStorage = createLocalStorage();
+  blockedStorage.setItem = () => { throw new Error("storage blocked"); };
+  const blockedContext = loadRuntime({
+    localStorage: blockedStorage,
+    console: { log() {}, warn() {}, error() {} }
+  }).context;
+  assert.doesNotThrow(() => blockedContext.window.AgentFlowI18n.setLanguage("zh-CN"));
+  assert.strictEqual(blockedContext.window.AgentFlowI18n.getLanguage(), "zh-CN");
+}
+
 testRuntimeStateAndPersistence();
 testTaskStateMachinePromptAndRunner();
 testRunRecordImportExportReplay();
@@ -403,5 +469,7 @@ testPresetSelectionByGoalKeywords();
 testLogHistoryIsCapped();
 testRestoredOversizedLogHistoryIsTruncated();
 testImportRejectsInvalidDependencyGraphs();
+testInterfaceLanguageToggleAndPersistence();
+testLanguagePreferenceFallbacks();
 
 console.log("LOCAL_RUNTIME_TESTS_OK");

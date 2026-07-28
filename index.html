@@ -323,6 +323,11 @@
     border: 1px solid rgba(255, 255, 255, 0.03);
     border-radius: 8px;
   }
+  .language-toggle {
+    min-width: 4.25rem;
+    justify-content: center;
+    white-space: nowrap;
+  }
   @media (max-width: 1024px) {
     .command-column { order: 1; }
     .output-column { order: 2; }
@@ -351,8 +356,10 @@
     <div class="flex items-center gap-2 flex-wrap">
       <span id="taskMetric" class="text-xs text-zinc-400 bg-zinc-900 border border-white/5 px-2.5 py-1 rounded-md mono">0 tasks</span>
       <span id="logMetric" class="text-xs text-zinc-400 bg-zinc-900 border border-white/5 px-2.5 py-1 rounded-md mono">0 logs</span>
+      <button id="languageToggle" type="button" class="btn language-toggle text-xs" title="Switch to Chinese" aria-label="Switch to Chinese">中文</button>
       <span class="text-[10px] text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-2 py-1 rounded-md flex items-center gap-1.5 font-medium uppercase tracking-wider">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Local Only
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span id="localOnlyLabel" data-i18n="header.localOnly">Local Only</span>
       </span>
     </div>
   </header>
@@ -615,6 +622,23 @@ const VERSION = "0.2.1";
 const STORAGE_KEY = "agentflow:v0.2:state";
 const RUN_RECORD_SCHEMA_VERSION = "agentflow.runrecord.v0.2";
 const MAX_LOGS = 200;
+const LANGUAGE_STORAGE_KEY = "agentflow:ui-language";
+const SUPPORTED_LANGUAGES = ["en", "zh-CN"];
+
+const translations = {
+  en: {
+    "header.localOnly": "Local Only",
+    "language.switchToChinese": "Switch to Chinese",
+    "language.switchToEnglish": "Switch to English"
+  },
+  "zh-CN": {
+    "header.localOnly": "仅限本地",
+    "language.switchToChinese": "切换为中文",
+    "language.switchToEnglish": "切换为英文"
+  }
+};
+
+let currentLanguage = "en";
 
 const agents = [
   { id: "commander", name: "Commander", tool: "X", role: "Planner", color: "cyan", desc: "Clarifies goals, splits work, and owns final decisions." },
@@ -710,6 +734,79 @@ function escapeAttr(value) {
 
 function getEl(id) {
   return document.getElementById(id);
+}
+
+function normalizeLanguage(language) {
+  return SUPPORTED_LANGUAGES.includes(language) ? language : "en";
+}
+
+function t(key, params = {}) {
+  const languageCatalog = translations[currentLanguage] || translations.en;
+  const template = languageCatalog[key] || translations.en[key] || key;
+  return Object.entries(params).reduce(
+    (text, [name, value]) => text.replaceAll("{" + name + "}", String(value)),
+    template
+  );
+}
+
+function loadLanguagePreference() {
+  try {
+    return normalizeLanguage(localStorage.getItem(LANGUAGE_STORAGE_KEY));
+  } catch {
+    return "en";
+  }
+}
+
+function applyStaticTranslations() {
+  if (!document.querySelectorAll) return;
+  const bindings = [
+    ["[data-i18n]", "data-i18n", "textContent"],
+    ["[data-i18n-placeholder]", "data-i18n-placeholder", "placeholder"],
+    ["[data-i18n-title]", "data-i18n-title", "title"],
+    ["[data-i18n-aria-label]", "data-i18n-aria-label", "aria-label"]
+  ];
+  bindings.forEach(([selector, attribute, target]) => {
+    document.querySelectorAll(selector).forEach(element => {
+      const key = element.getAttribute(attribute);
+      if (!key) return;
+      if (target === "textContent") element.textContent = t(key);
+      else element.setAttribute(target, t(key));
+    });
+  });
+}
+
+function updateLanguageControl() {
+  const button = getEl("languageToggle");
+  if (!button) return;
+  const isEnglish = currentLanguage === "en";
+  button.textContent = isEnglish ? "中文" : "EN";
+  const action = t(isEnglish ? "language.switchToChinese" : "language.switchToEnglish");
+  button.setAttribute("title", action);
+  button.setAttribute("aria-label", action);
+}
+
+function setLanguage(language, options = {}) {
+  currentLanguage = normalizeLanguage(language);
+  if (document.documentElement) document.documentElement.lang = currentLanguage;
+  if (options.persist !== false) {
+    try {
+      localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage);
+    } catch (error) {
+      console.warn("AgentFlow language preference save failed", error);
+    }
+  }
+  applyStaticTranslations();
+  updateLanguageControl();
+  if (options.render !== false && state) renderAll();
+  return currentLanguage;
+}
+
+function toggleLanguage() {
+  return setLanguage(currentLanguage === "en" ? "zh-CN" : "en");
+}
+
+function getLanguage() {
+  return currentLanguage;
 }
 
 function createInitialState(goal = "") {
@@ -1958,6 +2055,7 @@ function attachOutputEvents() {
 }
 
 function bindStaticEvents() {
+  getEl("languageToggle").addEventListener("click", toggleLanguage);
   getEl("decomposeBtn").addEventListener("click", decompose);
   getEl("exampleBtn").addEventListener("click", loadExample);
   getEl("addTaskBtn").addEventListener("click", addTask);
@@ -1974,6 +2072,7 @@ function bindStaticEvents() {
 }
 
 function boot() {
+  setLanguage(loadLanguagePreference(), { persist: false, render: false });
   try {
     if (window.mermaid) {
       mermaid.initialize({ startOnLoad: true, theme: "dark", themeVariables: { fontSize: "11px", fontFamily: "JetBrains Mono, monospace" } });
@@ -2020,6 +2119,13 @@ window.AgentFlowRuntime = {
   indentText,
   formatDependencyContext,
   notify
+};
+
+window.AgentFlowI18n = {
+  getLanguage,
+  setLanguage,
+  toggleLanguage,
+  t
 };
 
 boot();
