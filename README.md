@@ -47,6 +47,7 @@ Open `index.html` and you can:
 - 📜 **See the Collaboration Log** — every important action is timestamped and structured
 - ✅ **Generate Final Output** — synthesize all results into Markdown
 - 📋 **Copy / Export / Import** — save, validate, restore, and replay RunRecord JSON files
+- **Switch interface language** — toggle English / Simplified Chinese while workflow data and RunRecords remain unchanged; the UI preference is stored locally
 
 ---
 
