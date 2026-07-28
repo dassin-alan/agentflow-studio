@@ -108,7 +108,7 @@ steps:
     depends_on: [review_correctness, review_security, review_performance]
 ```
 
-Steps with empty `depends_on: []` can run immediately. Steps that depend on others wait for those to complete. In v0.1 manual mode, the user decides the order. In v0.4+ automated mode, the engine respects the DAG.
+Steps with empty `depends_on: []` can run immediately. Steps that depend on others wait for every dependency to complete. The v0.2.1 local runtime enforces this DAG readiness while the user manually decides when to run a step, copy its prompt, and paste the agent output. Automated model execution remains a later milestone.
 
 ---
 
@@ -118,13 +118,18 @@ Every workflow execution produces a run record:
 
 ```json
 {
-  "version": "0.1.0",
-  "exported_at": "2026-06-22T12:00:00Z",
+  "schemaVersion": "agentflow.runrecord.v0.2",
+  "version": "0.2.1",
+  "runId": "run_20260622_example",
+  "createdAt": "2026-06-22T12:00:00Z",
+  "updatedAt": "2026-06-22T12:30:00Z",
   "goal": "Build a cyberpunk 3D earth website...",
   "agents": [...],
   "tasks": [...],
+  "workflow": [...],
   "logs": [...],
-  "final_markdown": "# AgentFlow Run Record\n..."
+  "outputs": [...],
+  "finalMarkdown": "# AgentFlow Run Record\n..."
 }
 ```
 
@@ -137,4 +142,4 @@ Run records are the unit of persistence, export, and import. They capture the fu
 - **Workflow** (`workflow.yaml`): A reusable step sequence. Like a function definition.
 - **Run Record**: One concrete execution of a workflow. Like a function call with real inputs and outputs.
 
-In v0.1, the user manually chooses a preset (frontend or generic) when decomposing. In future versions, workflows will be selectable from `workflow.yaml`.
+The local runtime picks a preset (frontend or generic) automatically by matching keywords in the goal text when decomposing. In future versions, workflows will be selectable from `workflow.yaml`.

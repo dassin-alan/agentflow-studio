@@ -303,6 +303,95 @@ function testDependencyRollbackInvalidatesDownstreamTasks() {
   assert.strictEqual(runtime.canRunStep("test"), false);
 }
 
+function testPresetSelectionByGoalKeywords() {
+  const { context } = loadRuntime();
+  const runtime = context.window.AgentFlowRuntime;
+
+  context.document.getElementById("goalInput").value = "Build a cyberpunk website with a 3d UI";
+  runtime.decompose();
+  assert.strictEqual(context.window.AgentFlowState.tasks.length, 8, "frontend-flavored goals should use the 8-step preset");
+  assert.ok(context.window.AgentFlowState.tasks.some(task => task.id === "polish"), "frontend preset includes the UI polish step");
+
+  context.document.getElementById("goalInput").value = "Write a market research report";
+  runtime.decompose();
+  assert.strictEqual(context.window.AgentFlowState.tasks.length, 6, "generic goals should use the 6-step preset");
+}
+
+function testLogHistoryIsCapped() {
+  const { context } = loadRuntime();
+  const runtime = context.window.AgentFlowRuntime;
+
+  context.document.getElementById("goalInput").value = "Cap the collaboration log history";
+  runtime.decompose();
+  const taskId = context.window.AgentFlowState.tasks[0].id;
+  for (let i = 0; i < 130; i++) {
+    runtime.changeTaskStatus(taskId, "review");
+    runtime.changeTaskStatus(taskId, "planned");
+  }
+  assert.strictEqual(context.window.AgentFlowState.logs.length, 200, "log history should be capped at 200 entries");
+
+  const record = runtime.createRunRecord();
+  assert.ok(record.logs.length <= 200, "exported run records should keep the capped log history");
+}
+
+function testRestoredOversizedLogHistoryIsTruncated() {
+  const { context } = loadRuntime();
+  const runtime = context.window.AgentFlowRuntime;
+
+  context.document.getElementById("goalInput").value = "Truncate oversized restored logs";
+  runtime.decompose();
+  const stored = JSON.parse(context.localStorage.getItem("agentflow:v0.2:state"));
+  stored.logs = Array.from({ length: 250 }, (_, i) => ({
+    time: stored.updatedAt,
+    actor: "System",
+    action: "bulk.entry",
+    message: "entry " + i,
+    data: {}
+  }));
+  context.localStorage.setItem("agentflow:v0.2:state", JSON.stringify(stored));
+
+  const restored = runtime.loadState();
+  assert.strictEqual(restored.logs.length, 200, "restored log histories must be truncated to the cap before any new log is written");
+}
+
+function testImportRejectsInvalidDependencyGraphs() {
+  const { context } = loadRuntime();
+  const runtime = context.window.AgentFlowRuntime;
+
+  const cyclic = {
+    tasks: [
+      { id: "a", title: "A", agent: "commander", status: "planned", dependsOn: ["b"] },
+      { id: "b", title: "B", agent: "coder", status: "planned", dependsOn: ["a"] }
+    ]
+  };
+  let result = runtime.validateRunRecord(cyclic);
+  assert.strictEqual(result.valid, false, "cyclic dependency graphs must fail validation");
+  assert.ok(result.errors.some(error => error.includes("cycle")), "cycle errors should name the cycle");
+
+  const duplicate = {
+    tasks: [
+      { id: "a", title: "A", agent: "commander", status: "planned" },
+      { id: "a", title: "A again", agent: "coder", status: "planned" }
+    ]
+  };
+  result = runtime.validateRunRecord(duplicate);
+  assert.strictEqual(result.valid, false, "duplicate task ids must fail validation");
+  assert.ok(result.errors.some(error => error.includes("duplicate")));
+
+  const unknownDependency = {
+    tasks: [{ id: "a", title: "A", agent: "commander", status: "planned", dependsOn: ["ghost"] }]
+  };
+  result = runtime.validateRunRecord(unknownDependency);
+  assert.strictEqual(result.valid, false, "unknown dependency references must fail validation");
+  assert.ok(result.errors.some(error => error.includes("unknown task")));
+
+  context.document.getElementById("goalInput").value = "Keep current state when an import is rejected";
+  runtime.decompose();
+  const taskCountBefore = context.window.AgentFlowState.tasks.length;
+  assert.strictEqual(runtime.importRunRecord(cyclic), false, "importRunRecord should reject invalid records");
+  assert.strictEqual(context.window.AgentFlowState.tasks.length, taskCountBefore, "rejected imports must preserve current state");
+}
+
 testRuntimeStateAndPersistence();
 testTaskStateMachinePromptAndRunner();
 testRunRecordImportExportReplay();
@@ -310,5 +399,9 @@ testRoadmapNamesLocalRuntime();
 testCurrentStepNullSurvivesCompletedRunImport();
 testDependencyRollbackRecomputesCurrentStep();
 testDependencyRollbackInvalidatesDownstreamTasks();
+testPresetSelectionByGoalKeywords();
+testLogHistoryIsCapped();
+testRestoredOversizedLogHistoryIsTruncated();
+testImportRejectsInvalidDependencyGraphs();
 
 console.log("LOCAL_RUNTIME_TESTS_OK");

@@ -12,25 +12,26 @@ We aim to respond as soon as possible with an acknowledgment and a timeline for 
 
 | Version  | Supported          |
 |----------|--------------------|
-| 1.0.x    | ✅ Full support     |
-| 0.5.x    | ⚠️ Critical only   |
-| < 0.5.0  | ❌ Not supported   |
+| 0.2.x    | ⚠️ Best effort      |
+| < 0.2.0  | ❌ Not supported    |
 
 Since AgentFlow is in early development (pre-1.0), security updates
 are provided on a best-effort basis for the latest release only.
 
 ## Security Best Practices for Users
 
-1. **API Keys:** Store API keys in `.env` files or environment variables,
-   never commit them to version control.
-2. **Custom Agents:** Only connect to agent backends you trust. AgentFlow
-   sends task data to configured endpoints.
-3. **Database:** For production use, configure a production database with
-   proper authentication, not SQLite.
-4. **Network:** Run AgentFlow behind a reverse proxy (Nginx, Caddy) if
-   exposing the API to the internet.
-5. **Dependencies:** Keep dependencies updated. We use Dependabot to
-   flag vulnerable packages.
+1. **Local data:** v0.2.x stores workflow state in browser `localStorage`,
+   which is not encrypted. Do not paste secrets into tasks, prompts, outputs,
+   logs, or run records.
+2. **Imported records:** Only import RunRecord JSON from sources you trust.
+   AgentFlow validates the record structure and dependency graph, but imported
+   text is still untrusted content.
+3. **External tools:** v0.2.x does not call models or agent backends. Review
+   copied prompts before sending them to external AI tools.
+4. **Static serving:** If you use a local HTTP server, bind it to a trusted
+   interface and avoid exposing the workspace on public networks.
+5. **CDN resources:** Tailwind and Mermaid are loaded from CDNs for the current
+   single-file release. Use a trusted network and keep your browser updated.
 
 ## Vulnerability Disclosure
 

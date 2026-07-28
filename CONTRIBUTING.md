@@ -10,17 +10,17 @@ This project follows our [Code of Conduct](./CODE_OF_CONDUCT.md). Be respectful,
 
 ---
 
-## v0.1 Contribution Scope
+## Current Contribution Scope
 
-AgentFlow is currently at v0.1.0 (static prototype). The best ways to contribute right now:
+AgentFlow is currently at v0.2.1 (Dependency-aware Local Runtime). The best ways to contribute right now:
 
-- 🎨 **Improve the static workspace** — the `index.html` demo is the main artifact. Better layout, clearer UI, more realistic mock data.
+- 🎨 **Improve the local workspace** — `index.html` is the main artifact. Keep it single-file, local-first, and human-in-the-loop.
 - 📋 **Add workflow examples** — new YAML workflows in `examples/` that demonstrate different use cases.
 - ⚙️ **Refine agent configs** — improve `agents.yaml` with better role descriptions, fallback chains, or new agent types.
 - 📖 **Write docs** — `docs/agent-protocol.md`, `docs/architecture.md`, `docs/workflow.md` are all open.
 - 🐛 **Report bugs** — if something's broken or confusing, open an issue.
 
-Full-stack contributions (Next.js, FastAPI, database) will be relevant from v0.2.0 onward.
+Agent Protocol work is planned for v0.3. Backend services, model API adapters, and database storage are deferred to v0.4 and are outside the current contribution scope.
 
 ---
 
@@ -51,24 +51,14 @@ Full-stack contributions (Next.js, FastAPI, database) will be relevant from v0.2
 
 ## Development Setup
 
-### v0.1.0 (current)
+### v0.2.1 (current)
 
-No setup needed. Open `index.html` in your browser.
+No dependency installation or build step is required. Open `index.html` directly, or serve the repository with a local static server for browser testing.
 
-### v0.2.0+ (planned)
+Run the dependency-aware local runtime tests with Node.js:
 
 ```bash
-# Frontend (Next.js)
-cd apps/web
-pnpm install
-pnpm dev          # http://localhost:3000
-
-# Backend (FastAPI)
-cd apps/api
-python -m venv .venv
-source .venv/bin/activate  # or .venv\Scripts\activate on Windows
-pip install -r requirements.txt
-uvicorn main:app --reload  # http://localhost:8000
+node tests/local-runtime.test.js
 ```
 
 ---
@@ -85,23 +75,21 @@ uvicorn main:app --reload  # http://localhost:8000
 
 ### Code Style
 
-- **HTML/CSS/JS:** Keep it vanilla for v0.1. No build step required.
+- **HTML/CSS/JS:** Keep the v0.2.x runtime vanilla and single-file. No build step is required.
 - **YAML:** 2-space indentation. Comments for non-obvious fields.
 - **JSON:** 2-space indentation. Validate against schema where applicable.
-- **Python (v0.2+):** Ruff for linting and formatting. Type hints required.
-- **TypeScript (v0.2+):** Strict mode. Prettier + ESLint.
 
 ### Documentation
 
 - Use Markdown for all docs.
 - Architecture decisions go in `docs/architecture.md`.
-- API changes must update the relevant doc files.
+- Runtime state, RunRecord, and configuration changes must update the relevant doc files.
 
 ---
 
 ## Agent Protocol Contributions
 
-When adding a new agent type or modifying the protocol:
+Agent Protocol is a planned v0.3 milestone. Open an RFC issue before changing the draft protocol. When an approved protocol change is implemented:
 
 1. Update `docs/agent-protocol.md`.
 2. Add an example in `examples/`.

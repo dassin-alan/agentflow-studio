@@ -37,7 +37,7 @@ Open `index.html` and you can:
 
 - 🎯 **View the Agent Team** — 7 agents with roles, icons, and capabilities
 - ✍️ **Enter a task goal** — type your request or load the 3D Earth example
-- 🔀 **Decompose tasks** — the Commander breaks your request into subtasks
+- 🔀 **Decompose tasks** — expand your goal into a built-in workflow template (a frontend or generic preset chosen by keyword; model-driven planning arrives with the v0.4 API milestone)
 - 📋 **Track the Task Board** — move subtasks through Planned, Active, Review, Done, Blocked, and Failed
 - 🧭 **Run dependency-aware workflow steps** — unlock steps only when their dependencies are complete
 - 📋 **Copy Agent Prompts** — generate structured prompts with dependency context for external tools
@@ -62,7 +62,7 @@ Unlike single-agent workflows, AgentFlow treats AI tools as a **team**:
 - **Tester Agent** — test cases, bug reproduction, UX feedback, quality reports
 - **Assistant Agent** — documentation, small fixes, routine tasks
 
-Each agent has a defined role, a task protocol, and a place in the workflow. You stay in control — AgentFlow can work fully automatically or with human-in-the-loop checkpoints.
+Each agent has a defined role and a place in the workflow. In v0.2.1, you stay in control: AgentFlow prepares handoff prompts and records pasted outputs, but it does not call agent tools automatically.
 
 ---
 
@@ -185,9 +185,9 @@ See [ROADMAP.md](./ROADMAP.md) for details.
 
 ---
 
-## Agent Protocol
+## Agent Protocol (Planned for v0.3)
 
-AgentFlow defines a standard JSON protocol so any agent — regardless of model or provider — can participate in a workflow:
+The examples below document the draft direction for v0.3. They are not a finalized protocol or an automated integration in v0.2.1:
 
 **Task Input:**
 ```json
@@ -217,7 +217,7 @@ AgentFlow defines a standard JSON protocol so any agent — regardless of model 
 }
 ```
 
-See [docs/agent-protocol.md](./docs/agent-protocol.md) for the full specification.
+See [docs/agent-protocol.md](./docs/agent-protocol.md) for the current draft.
 
 ---
 

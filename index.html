@@ -614,6 +614,7 @@
 const VERSION = "0.2.1";
 const STORAGE_KEY = "agentflow:v0.2:state";
 const RUN_RECORD_SCHEMA_VERSION = "agentflow.runrecord.v0.2";
+const MAX_LOGS = 200;
 
 const agents = [
   { id: "commander", name: "Commander", tool: "X", role: "Planner", color: "cyan", desc: "Clarifies goals, splits work, and owns final decisions." },
@@ -784,7 +785,7 @@ function normalizeState(input) {
         });
       })
     : normalized.tasks.map(taskToStep);
-  normalized.logs = Array.isArray(normalized.logs) ? normalized.logs : [];
+  normalized.logs = Array.isArray(normalized.logs) ? normalized.logs.slice(0, MAX_LOGS) : [];
   normalized.outputs = Array.isArray(normalized.outputs)
     ? normalized.outputs
     : normalized.tasks.filter(task => task.output).map(task => ({
@@ -842,6 +843,7 @@ function addLog(actor, action, data = {}, message = "") {
     data
   };
   state.logs.unshift(entry);
+  if (state.logs.length > MAX_LOGS) state.logs.length = MAX_LOGS;
   saveState();
   return entry;
 }
@@ -1169,6 +1171,29 @@ function describeDependencyBlock(taskId) {
   return "Waiting for: " + (titles.join(", ") || "required dependencies");
 }
 
+const statusToneClasses = {
+  done: "text-emerald-400/90 bg-emerald-950/20 border-emerald-900/30",
+  review: "text-purple-400/90 bg-purple-950/20 border-purple-900/30",
+  blocked: "text-orange-400/90 bg-orange-950/20 border-orange-900/30",
+  failed: "text-rose-400/90 bg-rose-950/20 border-rose-900/30",
+  active: "text-cyan-400/90 bg-cyan-950/20 border-cyan-900/30",
+  ready: "text-blue-400/90 bg-blue-950/20 border-blue-900/30",
+  waiting: "text-amber-400/90 bg-amber-950/20 border-amber-900/30"
+};
+
+function getTaskStatusPresentation(task) {
+  const fixedStates = {
+    done: { text: "Completed", tone: "done" },
+    review: { text: "Awaiting review", tone: "review" },
+    blocked: { text: "Blocked", tone: "blocked" },
+    failed: { text: "Failed", tone: "failed" },
+    active: { text: "Running", tone: "active" }
+  };
+  if (fixedStates[task.status]) return fixedStates[task.status];
+  if (canRunStep(task.id)) return { text: "Ready to run", tone: "ready" };
+  return { text: describeDependencyBlock(task.id) || "Waiting for dependencies", tone: "waiting" };
+}
+
 function runStep(taskId) {
   const task = findTask(taskId);
   if (!task) return;
@@ -1353,34 +1378,6 @@ function detectDependencyCycles(tasks) {
     if (color[t.id] === WHITE) dfs(t.id, [t.id]);
   });
   return errors;
-}
-
-function validateDependencyGraph(tasks) {
-  if (!Array.isArray(tasks)) return { valid: false, errors: ["tasks must be an array."] };
-  const errors = [];
-  const taskIds = new Set(tasks.map(t => t.id));
-  const seenIds = new Set();
-  tasks.forEach((task, index) => {
-    if (!task.id) {
-      errors.push("tasks[" + index + "] is missing an id.");
-    } else if (seenIds.has(task.id)) {
-      errors.push("Duplicate task id: " + task.id);
-    } else {
-      seenIds.add(task.id);
-    }
-    const deps = normalizeDependsOn(task.dependsOn);
-    if (deps.includes(task.id)) {
-      errors.push("Self-dependency on task " + (task.id || index));
-    }
-    deps.forEach(depId => {
-      if (!taskIds.has(depId)) {
-        errors.push("Task " + (task.id || index) + " depends on unknown task: " + depId);
-      }
-    });
-  });
-  const cycleErrors = detectDependencyCycles(tasks);
-  cycleErrors.forEach(err => errors.push(err));
-  return { valid: errors.length === 0, errors };
 }
 
 function importRunRecord(record) {
@@ -1651,15 +1648,10 @@ function renderFlow() {
       "fill:#18181b,stroke:#3f3f46,stroke-width:1px";
     lines.push('  ' + nodeId + '["' + label + '"]');
     lines.push("  style " + nodeId + " " + style + ",color:#f4f4f5");
-    const dependencies = normalizeDependsOn(task.dependsOn);
-    if (dependencies.length) {
-      dependencies.forEach(depId => {
-        const depIndex = state.tasks.findIndex(item => item.id === depId);
-        if (depIndex >= 0) lines.push("  T" + depIndex + " --> " + nodeId);
-      });
-    } else if (index > 0 && !state.tasks.some(item => normalizeDependsOn(item.dependsOn).includes(task.id))) {
-      /* Independent root node; dependency edges are rendered where declared. */
-    }
+    normalizeDependsOn(task.dependsOn).forEach(depId => {
+      const depIndex = state.tasks.findIndex(item => item.id === depId);
+      if (depIndex >= 0) lines.push("  T" + depIndex + " --> " + nodeId);
+    });
   });
 
   const current = findTask(state.currentStepId);
@@ -1679,17 +1671,9 @@ function renderFlow() {
     const isCurrent = state.currentStepId === task.id;
     const statusBadge = `<span class="status-badge ${statusColors[task.status]}">${statusLabels[task.status]}</span>`;
     const runnable = canRunStep(task.id);
-    let statusText = "";
-    let statusTextColor = "text-amber-400/90 bg-amber-950/20 border-amber-900/30";
-    if (task.status === "done") { statusText = "Completed"; statusTextColor = "text-emerald-400/90 bg-emerald-950/20 border-emerald-900/30"; }
-    else if (task.status === "review") { statusText = "Awaiting review"; statusTextColor = "text-purple-400/90 bg-purple-950/20 border-purple-900/30"; }
-    else if (task.status === "blocked") { statusText = "Blocked"; statusTextColor = "text-orange-400/90 bg-orange-950/20 border-orange-900/30"; }
-    else if (task.status === "failed") { statusText = "Failed"; statusTextColor = "text-rose-400/90 bg-rose-950/20 border-rose-900/30"; }
-    else if (task.status === "active") { statusText = "Running"; statusTextColor = "text-cyan-400/90 bg-cyan-950/20 border-cyan-900/30"; }
-    else if (runnable) { statusText = "Ready to run"; statusTextColor = "text-blue-400/90 bg-blue-950/20 border-blue-900/30"; }
-    else { statusText = describeDependencyBlock(task.id) || "Waiting for dependencies"; statusTextColor = "text-amber-400/90 bg-amber-950/20 border-amber-900/30"; }
-    
-    const disabledReason = runnable ? "" : statusText; // Keep this just in case it's used in tooltip
+    const statusPresentation = getTaskStatusPresentation(task);
+    const statusText = statusPresentation.text;
+    const statusTextColor = statusToneClasses[statusPresentation.tone];
     const agent = agentMap[task.agent];
     const toolName = agent ? agent.tool : "Unknown";
     const agentName = agent ? agent.name : task.agent;
@@ -1773,15 +1757,7 @@ function renderBoard() {
       const statusOptions = taskStatuses.map(item => `<option value="${item}" ${item === task.status ? "selected" : ""}>${statusLabels[item]}</option>`).join("");
       const isCurrent = state.currentStepId === task.id;
       const runnable = canRunStep(task.id);
-      let statusText = "";
-      if (task.status === "done") statusText = "Completed";
-      else if (task.status === "review") statusText = "Awaiting review";
-      else if (task.status === "blocked") statusText = "Blocked";
-      else if (task.status === "failed") statusText = "Failed";
-      else if (task.status === "active") statusText = "Running";
-      else if (runnable) statusText = "Ready to run";
-      else statusText = describeDependencyBlock(task.id) || "Waiting for dependencies";
-      
+      const statusText = getTaskStatusPresentation(task).text;
       const disabledReason = runnable ? "" : statusText;
       
       return `
